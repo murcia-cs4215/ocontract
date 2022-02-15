@@ -8,6 +8,7 @@
     "lint": "eslint . --fix --ext .ts,.js && prettier --write \"src/**/*.{ts,js}\" --tab-width 2",
     "start": "set debug=* && cross-env NODE_ENV=development ts-node-dev --exit-child --respawn --transpile-only -r tsconfig-paths/register ./src/index.ts",
     "pre-commit": "lint-staged",
+    "prepare": "node -e \"if(require('fs').existsSync('.git')){process.exit(1)}\" || husky install",
     "test": "dotenv -e .env.test cross-env NODE_ENV=test jest -- --runInBand --detectOpenHandles --forceExit --passWithNoTests --verbose"
   },
   "repository": {
