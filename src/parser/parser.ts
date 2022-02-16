@@ -31,7 +31,9 @@ import {
   NumberContext,
   OrContext,
   ParenthesesContext,
+  ParenthesesExpressionContext,
   PowerContext,
+  StartContext,
   StringContext,
   SubtractionContext,
   SubtractionFloatContext,
@@ -334,6 +336,17 @@ class StatementParser implements GrammarVisitor<Statement> {
       loc,
     });
   }
+  visitParenthesesExpression(
+    ctx: ParenthesesExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx._inner);
+  }
+
+  visitStart?: ((ctx: StartContext) => ExpressionStatement) | undefined;
+  visitExpression?:
+    | ((ctx: ExpressionContext) => ExpressionStatement)
+    | undefined;
+
   visit(tree: ParseTree): ExpressionStatement {
     return tree.accept(this);
   }
@@ -361,24 +374,113 @@ class StatementsParser implements GrammarVisitor<Statement[]> {
    * Entry point of the program
    */
   visitChildren(node: RuleNode): Statement[] {
-    const statements: Statement[] = [];
+    let statements: Statement[] = [];
     for (let i = 0; i < node.childCount; i++) {
-      statements.push(node.getChild(i).accept(this.statementParser));
+      statements = [...statements, ...node.getChild(i).accept(this)];
     }
     return statements;
   }
 
+  visitStart?: ((ctx: StartContext) => Statement[]) | undefined;
+  visitExpression?: ((ctx: ExpressionContext) => Statement[]) | undefined;
+
+  /**
+   * Delegate the following methods to the statement parser.
+   */
+
   visit(tree: ParseTree): Statement[] {
     return [tree.accept(this.statementParser)];
   }
-
   visitTerminal(node: TerminalNode): Statement[] {
     return [node.accept(this.statementParser)];
   }
-
   visitErrorNode(_node: ErrorNode): Statement[] {
     // TODO: throw proper syntax error
     throw new Error();
+  }
+  visitNumber(ctx: NumberContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFloat(ctx: FloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitBoolean(ctx: BooleanContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitChar(ctx: CharContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitString(ctx: StringContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitParentheses(ctx: ParenthesesContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitPower(ctx: PowerContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitMultiplication(ctx: MultiplicationContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitDivision(ctx: DivisionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitMultiplicationFloat(ctx: MultiplicationFloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitDivisionFloat(ctx: DivisionFloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitModulus(ctx: ModulusContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitAddition(ctx: AdditionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitSubtraction(ctx: SubtractionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitAdditionFloat(ctx: AdditionFloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitSubtractionFloat(ctx: SubtractionFloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLessThan(ctx: LessThanContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLessThanOrEqual(ctx: LessThanOrEqualContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitGreaterThan(ctx: GreaterThanContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitGreaterThanOrEqual(ctx: GreaterThanOrEqualContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitEqualStructural(ctx: EqualStructuralContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitNotEqualStructural(ctx: NotEqualStructuralContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitEqualPhysical(ctx: EqualPhysicalContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitNotEqualPhysical(ctx: NotEqualPhysicalContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitConcatenation(ctx: ConcatenationContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitNot(ctx: NotContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitAnd(ctx: AndContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitOr(ctx: OrContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
   }
 }
 
