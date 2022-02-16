@@ -27,7 +27,7 @@
     "moduleResolution": "node",
     "noFallthroughCasesInSwitch": true,
     "noErrorTruncation": true,
-    "noImplicitOverride": true,
+    "noImplicitOverride": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "pretty": true,
