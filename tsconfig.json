@@ -4,16 +4,11 @@
     "module": "commonjs",
     "outDir": "build",
     "paths": {
-      "controllers/*": ["./controllers/*"],
-      "lib/*": ["./lib/*"],
-      "middlewares/*": ["./middlewares/*"],
-      "policies/*": ["./policies/*"],
-      "routes/*": ["./routes/*"],
-      "services/*": ["./services/*"],
+      "lang/*": ["./lang/*"],
+      "parser/*": ["./parser/*"],
       "types/*": ["./types/*"],
       "utils/*": ["./utils/*"]
     },
-
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
