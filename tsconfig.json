@@ -4,6 +4,7 @@
     "module": "commonjs",
     "outDir": "build",
     "paths": {
+      "interpreter/*": ["./interpreter/*"],
       "lang/*": ["./lang/*"],
       "parser/*": ["./parser/*"],
       "types/*": ["./types/*"],

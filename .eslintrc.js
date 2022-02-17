@@ -90,7 +90,7 @@ module.exports = {
       'error',
       { allow: ['arrowFunctions'] },
     ],
-    '@typescript-eslint/no-explicit-any': 'error',
+    '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-misused-promises': [
       'error',
       {
@@ -199,7 +199,7 @@ module.exports = {
           // Packages packages come first.
           ['^@?\\w'],
           // Internal packages.
-          ['^(parser|interpreter|utils)(/.*|$)'],
+          ['^(parser|interpreter|lang|utils)(/.*|$)'],
           // Side effect imports.
           ['^\\u0000'],
           // Parent imports. Put `..` last.
