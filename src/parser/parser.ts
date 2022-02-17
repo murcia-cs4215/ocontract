@@ -1,8 +1,4 @@
-import {
-  ANTLRInputStream,
-  CommonTokenStream,
-  ConsoleErrorListener,
-} from 'antlr4ts';
+import { ANTLRInputStream, CommonTokenStream } from 'antlr4ts';
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
 import { ParseTree } from 'antlr4ts/tree/ParseTree';
 import { RuleNode } from 'antlr4ts/tree/RuleNode';
@@ -393,8 +389,8 @@ class StatementsParser implements GrammarVisitor<Statement[]> {
     console.log(tree.text);
     return [tree.accept(this.statementParser)];
   }
-  visitTerminal(node: TerminalNode): Statement[] {
-    return [node.accept(this.statementParser)];
+  visitTerminal(_: TerminalNode): Statement[] {
+    return [];
   }
   visitErrorNode(node: ErrorNode): Statement[] {
     throw new FatalSyntaxError(
@@ -491,13 +487,11 @@ class StatementsParser implements GrammarVisitor<Statement[]> {
 export function parse(source: string): Program {
   const inputStream = new ANTLRInputStream(source);
   const lexer = new GrammarLexer(inputStream);
-  lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
   const tokenStream = new CommonTokenStream(lexer);
   const parser = new GrammarParser(tokenStream);
-  parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
   parser.buildParseTree = true;
   const statementsParser = new StatementsParser();
-  const expression = parser.expression();
+  const expression = parser.start();
   return {
     type: 'Program',
     body: expression.accept(statementsParser),
