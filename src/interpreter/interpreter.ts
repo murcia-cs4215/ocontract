@@ -4,6 +4,7 @@ import { Value } from '../types';
 
 import {
   evaluateBinaryExpression,
+  evaluateConditionalExpression,
   evaluateLogicalExpression,
   evaluateUnaryExpression,
 } from './operators';
@@ -43,6 +44,15 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const right = evaluate(node.right);
     // TODO: Add typechecking of logical expression
     return evaluateLogicalExpression(node.operator, left, right);
+  },
+  ConditionalExpression: (node: Node): Value => {
+    if (node.type !== 'ConditionalExpression') {
+      return;
+    }
+    const test = evaluate(node.test);
+    const con = evaluate(node.consequent);
+    const alt = evaluate(node.alternate);
+    return evaluateConditionalExpression(test, con, alt);
   },
   ExpressionStatement: (node: Node): Value => {
     if (node.type !== 'ExpressionStatement') {

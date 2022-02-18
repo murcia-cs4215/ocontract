@@ -27,7 +27,9 @@ export type Expression =
   | UnaryExpression
   | BinaryExpression
   | LogicalExpression
-  | SequenceExpression;
+  | SequenceExpression
+  | ConditionalExpression
+  | EmptyExpression;
 
 export interface Program extends Omit<BaseNode, 'loc'> {
   type: 'Program';
@@ -135,6 +137,17 @@ export interface LogicalExpression extends BaseExpression {
   operator: LogicalOperator;
   left: Expression;
   right: Expression;
+}
+
+export interface ConditionalExpression extends BaseExpression {
+  type: 'ConditionalExpression';
+  test: Expression;
+  consequent: Expression;
+  alternate: Expression;
+}
+
+export interface EmptyExpression extends BaseExpression {
+  type: 'EmptyExpression';
 }
 
 /**

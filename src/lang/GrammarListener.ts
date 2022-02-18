@@ -33,7 +33,7 @@ import { AndContext } from "./GrammarParser";
 import { OrContext } from "./GrammarParser";
 import { ConditionalExpressionContext } from "./GrammarParser";
 import { StartContext } from "./GrammarParser";
-import { StatementsContext } from "./GrammarParser";
+import { StatementContext } from "./GrammarParser";
 import { ExpressionContext } from "./GrammarParser";
 import { ParenthesesExpressionContext } from "./GrammarParser";
 import { CondExpContext } from "./GrammarParser";
@@ -433,15 +433,15 @@ export interface GrammarListener extends ParseTreeListener {
 	exitStart?: (ctx: StartContext) => void;
 
 	/**
-	 * Enter a parse tree produced by `GrammarParser.statements`.
+	 * Enter a parse tree produced by `GrammarParser.statement`.
 	 * @param ctx the parse tree
 	 */
-	enterStatements?: (ctx: StatementsContext) => void;
+	enterStatement?: (ctx: StatementContext) => void;
 	/**
-	 * Exit a parse tree produced by `GrammarParser.statements`.
+	 * Exit a parse tree produced by `GrammarParser.statement`.
 	 * @param ctx the parse tree
 	 */
-	exitStatements?: (ctx: StatementsContext) => void;
+	exitStatement?: (ctx: StatementContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `GrammarParser.expression`.

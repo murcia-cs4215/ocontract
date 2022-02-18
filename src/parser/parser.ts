@@ -1,8 +1,7 @@
-import { ANTLRInputStream, CommonTokenStream } from 'antlr4ts';
+import { ANTLRInputStream, CommonTokenStream, ConsoleErrorListener } from 'antlr4ts';
+import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
-import { ParseTree } from 'antlr4ts/tree/ParseTree';
 import { RuleNode } from 'antlr4ts/tree/RuleNode';
-import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
 
 import { GrammarLexer } from 'lang/GrammarLexer';
 import {
@@ -12,6 +11,7 @@ import {
   BooleanContext,
   CharContext,
   ConcatenationContext,
+  CondExpContext,
   DivisionContext,
   DivisionFloatContext,
   EqualPhysicalContext,
@@ -34,7 +34,6 @@ import {
   ParenthesesContext,
   ParenthesesExpressionContext,
   PowerContext,
-  StartContext,
   StringContext,
   SubtractionContext,
   SubtractionFloatContext,
@@ -78,7 +77,15 @@ function nodeToErrorLocation(node: ErrorNode): SourceLocation {
   };
 }
 
-class StatementParser implements GrammarVisitor<Statement> {
+class StatementParser extends AbstractParseTreeVisitor<Statement> implements GrammarVisitor<Statement> {
+  protected defaultResult(): ExpressionStatement {
+    return {
+      type: 'ExpressionStatement', 
+      expression: {
+          type: 'EmptyExpression'
+      }
+    };
+  }
   private wrapAsStatement(expression: Expression): ExpressionStatement {
     return {
       type: 'ExpressionStatement',
@@ -336,27 +343,16 @@ class StatementParser implements GrammarVisitor<Statement> {
     return this.visit(ctx._inner);
   }
 
-  visitStart?: ((ctx: StartContext) => ExpressionStatement) | undefined;
-  visitExpression?:
-    | ((ctx: ExpressionContext) => ExpressionStatement)
-    | undefined;
-
-  visit(tree: ParseTree): ExpressionStatement {
-    return tree.accept(this);
-  }
-  visitChildren(node: RuleNode): ExpressionStatement {
-    const expressions: Expression[] = [];
-    for (let i = 0; i < node.childCount; i++) {
-      expressions.push(node.getChild(i).accept(this).expression);
-    }
+  visitCondExp(ctx: CondExpContext) : ExpressionStatement {
     return this.wrapAsStatement({
-      type: 'SequenceExpression',
-      expressions,
+      type: 'ConditionalExpression',
+      test: this.visit(ctx._test).expression,
+      consequent: this.visit(ctx._consequent).expression,
+      alternate: this.visit(ctx._alternate).expression,
+      loc: contextToLocation(ctx)
     });
   }
-  visitTerminal(node: TerminalNode): ExpressionStatement {
-    return node.accept(this);
-  }
+
   visitErrorNode(node: ErrorNode): ExpressionStatement {
     throw new FatalSyntaxError(
       nodeToErrorLocation(node),
@@ -365,8 +361,11 @@ class StatementParser implements GrammarVisitor<Statement> {
   }
 }
 
-class StatementsParser implements GrammarVisitor<Statement[]> {
+class StatementsParser extends AbstractParseTreeVisitor<Statement[]> implements GrammarVisitor<Statement[]> {
   private statementParser = new StatementParser();
+  protected defaultResult(): ExpressionStatement[] {
+      return [];
+  }
   /**
    * Entry point of the program
    */
@@ -378,20 +377,10 @@ class StatementsParser implements GrammarVisitor<Statement[]> {
     return statements;
   }
 
-  visitStart?: ((ctx: StartContext) => Statement[]) | undefined;
-  visitExpression?: ((ctx: ExpressionContext) => Statement[]) | undefined;
-
   /**
    * Delegate the following methods to the statement parser.
    */
 
-  visit(tree: ParseTree): Statement[] {
-    console.log(tree.text);
-    return [tree.accept(this.statementParser)];
-  }
-  visitTerminal(_: TerminalNode): Statement[] {
-    return [];
-  }
   visitErrorNode(node: ErrorNode): Statement[] {
     throw new FatalSyntaxError(
       nodeToErrorLocation(node),
@@ -482,6 +471,42 @@ class StatementsParser implements GrammarVisitor<Statement[]> {
   visitOr(ctx: OrContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitCondExp(ctx: CondExpContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+}
+
+function addCustomErrorListeners(lexer: GrammarLexer, parser: GrammarParser): void {
+  lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
+  lexer.addErrorListener({
+    syntaxError: (_recognizer, _offendingSymbol, line, charPositionInLine, msg, _e) => {
+      throw new FatalSyntaxError({
+        start: {
+          line: line,
+          column: charPositionInLine,
+        },
+        end: {
+          line: line,
+          column: charPositionInLine + 1,
+        },
+      }, `invalid syntax ${msg}`);
+    }
+  });
+  parser.addErrorListener({
+    syntaxError: (_recognizer, _offendingSymbol, line, charPositionInLine, msg, _e) => {
+      throw new FatalSyntaxError({
+        start: {
+          line: line,
+          column: charPositionInLine,
+        },
+        end: {
+          line: line,
+          column: charPositionInLine + 1,
+        },
+      }, `invalid syntax ${msg}`);
+    }
+  });
+  parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 }
 
 export function parse(source: string): Program {
@@ -490,6 +515,7 @@ export function parse(source: string): Program {
   const tokenStream = new CommonTokenStream(lexer);
   const parser = new GrammarParser(tokenStream);
   parser.buildParseTree = true;
+  addCustomErrorListeners(lexer, parser);
   const statementsParser = new StatementsParser();
   const expression = parser.start();
   return {

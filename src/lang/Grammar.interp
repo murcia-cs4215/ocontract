@@ -76,7 +76,7 @@ IDENTIFIER
 
 rule names:
 start
-statements
+statement
 expression
 parenthesesExpression
 condExp

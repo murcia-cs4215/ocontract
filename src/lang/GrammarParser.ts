@@ -64,13 +64,13 @@ export class GrammarParser extends Parser {
 	public static readonly DOUBLESEMICOLON = 34;
 	public static readonly IDENTIFIER = 35;
 	public static readonly RULE_start = 0;
-	public static readonly RULE_statements = 1;
+	public static readonly RULE_statement = 1;
 	public static readonly RULE_expression = 2;
 	public static readonly RULE_parenthesesExpression = 3;
 	public static readonly RULE_condExp = 4;
 	// tslint:disable:no-trailing-whitespace
 	public static readonly ruleNames: string[] = [
-		"start", "statements", "expression", "parenthesesExpression", "condExp",
+		"start", "statement", "expression", "parenthesesExpression", "condExp",
 	];
 
 	private static readonly _LITERAL_NAMES: Array<string | undefined> = [
@@ -129,7 +129,7 @@ export class GrammarParser extends Parser {
 				{
 				{
 				this.state = 10;
-				this.statements();
+				this.statement();
 				}
 				}
 				this.state = 15;
@@ -155,9 +155,9 @@ export class GrammarParser extends Parser {
 		return _localctx;
 	}
 	// @RuleVersion(0)
-	public statements(): StatementsContext {
-		let _localctx: StatementsContext = new StatementsContext(this._ctx, this.state);
-		this.enterRule(_localctx, 2, GrammarParser.RULE_statements);
+	public statement(): StatementContext {
+		let _localctx: StatementContext = new StatementContext(this._ctx, this.state);
+		this.enterRule(_localctx, 2, GrammarParser.RULE_statement);
 		try {
 			this.enterOuterAlt(_localctx, 1);
 			{
@@ -857,13 +857,13 @@ export class GrammarParser extends Parser {
 
 export class StartContext extends ParserRuleContext {
 	public EOF(): TerminalNode { return this.getToken(GrammarParser.EOF, 0); }
-	public statements(): StatementsContext[];
-	public statements(i: number): StatementsContext;
-	public statements(i?: number): StatementsContext | StatementsContext[] {
+	public statement(): StatementContext[];
+	public statement(i: number): StatementContext;
+	public statement(i?: number): StatementContext | StatementContext[] {
 		if (i === undefined) {
-			return this.getRuleContexts(StatementsContext);
+			return this.getRuleContexts(StatementContext);
 		} else {
-			return this.getRuleContext(i, StatementsContext);
+			return this.getRuleContext(i, StatementContext);
 		}
 	}
 	constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -894,7 +894,7 @@ export class StartContext extends ParserRuleContext {
 }
 
 
-export class StatementsContext extends ParserRuleContext {
+export class StatementContext extends ParserRuleContext {
 	public expression(): ExpressionContext {
 		return this.getRuleContext(0, ExpressionContext);
 	}
@@ -903,23 +903,23 @@ export class StatementsContext extends ParserRuleContext {
 		super(parent, invokingState);
 	}
 	// @Override
-	public get ruleIndex(): number { return GrammarParser.RULE_statements; }
+	public get ruleIndex(): number { return GrammarParser.RULE_statement; }
 	// @Override
 	public enterRule(listener: GrammarListener): void {
-		if (listener.enterStatements) {
-			listener.enterStatements(this);
+		if (listener.enterStatement) {
+			listener.enterStatement(this);
 		}
 	}
 	// @Override
 	public exitRule(listener: GrammarListener): void {
-		if (listener.exitStatements) {
-			listener.exitStatements(this);
+		if (listener.exitStatement) {
+			listener.exitStatement(this);
 		}
 	}
 	// @Override
 	public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-		if (visitor.visitStatements) {
-			return visitor.visitStatements(this);
+		if (visitor.visitStatement) {
+			return visitor.visitStatement(this);
 		} else {
 			return visitor.visitChildren(this);
 		}

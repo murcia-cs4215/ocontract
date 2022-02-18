@@ -56,9 +56,9 @@ IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
 /*
  * Productions
  */
-start : statements* EOF;
+start : statement* EOF;
 
-statements: expression DOUBLESEMICOLON;
+statement: expression DOUBLESEMICOLON;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
 
