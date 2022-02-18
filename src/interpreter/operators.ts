@@ -78,5 +78,5 @@ export function evaluateConditionalExpression(
   consequent: any,
   alternate: any,
 ): any {
-return test ? consequent : alternate;
+  return test ? consequent : alternate;
 }
