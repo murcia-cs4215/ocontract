@@ -4,7 +4,6 @@ import { Value } from '../types';
 
 import {
   evaluateBinaryExpression,
-  evaluateConditionalExpression,
   evaluateLogicalExpression,
   evaluateUnaryExpression,
 } from './operators';
@@ -50,9 +49,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return;
     }
     const test = evaluate(node.test);
-    const con = evaluate(node.consequent);
-    const alt = evaluate(node.alternate);
-    return evaluateConditionalExpression(test, con, alt);
+    return test ? evaluate(node.consequent) : evaluate(node.alternate);
   },
   ExpressionStatement: (node: Node): Value => {
     if (node.type !== 'ExpressionStatement') {

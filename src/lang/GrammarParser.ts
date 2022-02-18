@@ -2,25 +2,20 @@
 
 import { ATN } from 'antlr4ts/atn/ATN';
 import { ATNDeserializer } from 'antlr4ts/atn/ATNDeserializer';
+import { ParserATNSimulator } from 'antlr4ts/atn/ParserATNSimulator';
 import { FailedPredicateException } from 'antlr4ts/FailedPredicateException';
-import { NotNull } from 'antlr4ts/Decorators';
+import * as Utils from 'antlr4ts/misc/Utils';
 import { NoViableAltException } from 'antlr4ts/NoViableAltException';
-import { Override } from 'antlr4ts/Decorators';
 import { Parser } from 'antlr4ts/Parser';
 import { ParserRuleContext } from 'antlr4ts/ParserRuleContext';
-import { ParserATNSimulator } from 'antlr4ts/atn/ParserATNSimulator';
-import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener';
-import { ParseTreeVisitor } from 'antlr4ts/tree/ParseTreeVisitor';
 import { RecognitionException } from 'antlr4ts/RecognitionException';
 import { RuleContext } from 'antlr4ts/RuleContext';
-//import { RuleVersion } from "antlr4ts/RuleVersion";
-import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
 import { Token } from 'antlr4ts/Token';
 import { TokenStream } from 'antlr4ts/TokenStream';
+//import { RuleVersion } from "antlr4ts/RuleVersion";
+import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
 import { Vocabulary } from 'antlr4ts/Vocabulary';
 import { VocabularyImpl } from 'antlr4ts/VocabularyImpl';
-
-import * as Utils from 'antlr4ts/misc/Utils';
 
 import { GrammarListener } from './GrammarListener';
 import { GrammarVisitor } from './GrammarVisitor';
@@ -59,8 +54,9 @@ export class GrammarParser extends Parser {
   public static readonly IF = 31;
   public static readonly THEN = 32;
   public static readonly ELSE = 33;
-  public static readonly DOUBLESEMICOLON = 34;
-  public static readonly IDENTIFIER = 35;
+  public static readonly SEMICOLON = 34;
+  public static readonly DOUBLESEMICOLON = 35;
+  public static readonly IDENTIFIER = 36;
   public static readonly RULE_start = 0;
   public static readonly RULE_statement = 1;
   public static readonly RULE_expression = 2;
@@ -110,6 +106,7 @@ export class GrammarParser extends Parser {
     "'if'",
     "'then'",
     "'else'",
+    "';'",
     "';;'",
   ];
   private static readonly _SYMBOLIC_NAMES: Array<string | undefined> = [
@@ -147,6 +144,7 @@ export class GrammarParser extends Parser {
     'IF',
     'THEN',
     'ELSE',
+    'SEMICOLON',
     'DOUBLESEMICOLON',
     'IDENTIFIER',
   ];
@@ -191,7 +189,7 @@ export class GrammarParser extends Parser {
   }
   // @RuleVersion(0)
   public start(): StartContext {
-    let _localctx: StartContext = new StartContext(this._ctx, this.state);
+    const _localctx: StartContext = new StartContext(this._ctx, this.state);
     this.enterRule(_localctx, 0, GrammarParser.RULE_start);
     let _la: number;
     try {
@@ -241,7 +239,7 @@ export class GrammarParser extends Parser {
   }
   // @RuleVersion(0)
   public statement(): StatementContext {
-    let _localctx: StatementContext = new StatementContext(
+    const _localctx: StatementContext = new StatementContext(
       this._ctx,
       this.state,
     );
@@ -276,14 +274,14 @@ export class GrammarParser extends Parser {
       _p = 0;
     }
 
-    let _parentctx: ParserRuleContext = this._ctx;
-    let _parentState: number = this.state;
+    const _parentctx: ParserRuleContext = this._ctx;
+    const _parentState: number = this.state;
     let _localctx: ExpressionContext = new ExpressionContext(
       this._ctx,
       _parentState,
     );
     let _prevctx: ExpressionContext = _localctx;
-    let _startState: number = 4;
+    const _startState = 4;
     this.enterRecursionRule(_localctx, 4, GrammarParser.RULE_expression, _p);
     try {
       let _alt: number;
@@ -963,7 +961,7 @@ export class GrammarParser extends Parser {
   }
   // @RuleVersion(0)
   public parenthesesExpression(): ParenthesesExpressionContext {
-    let _localctx: ParenthesesExpressionContext =
+    const _localctx: ParenthesesExpressionContext =
       new ParenthesesExpressionContext(this._ctx, this.state);
     this.enterRule(_localctx, 6, GrammarParser.RULE_parenthesesExpression);
     try {
@@ -991,7 +989,7 @@ export class GrammarParser extends Parser {
   }
   // @RuleVersion(0)
   public condExp(): CondExpContext {
-    let _localctx: CondExpContext = new CondExpContext(this._ctx, this.state);
+    const _localctx: CondExpContext = new CondExpContext(this._ctx, this.state);
     this.enterRule(_localctx, 8, GrammarParser.RULE_condExp);
     try {
       this.enterOuterAlt(_localctx, 1);
@@ -1109,7 +1107,7 @@ export class GrammarParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03%s\x04\x02\t\x02' +
+    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03&s\x04\x02\t\x02' +
     '\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x03\x02\x07\x02' +
     '\x0E\n\x02\f\x02\x0E\x02\x11\v\x02\x03\x02\x03\x02\x03\x03\x03\x03\x03' +
     '\x03\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03\x04\x03' +
@@ -1128,7 +1126,7 @@ export class GrammarParser extends Parser {
     '\x02\r\f\x03\x02\x02\x02\x0E\x11\x03\x02\x02\x02\x0F\r\x03\x02\x02\x02' +
     '\x0F\x10\x03\x02\x02\x02\x10\x12\x03\x02\x02\x02\x11\x0F\x03\x02\x02\x02' +
     '\x12\x13\x07\x02\x02\x03\x13\x03\x03\x02\x02\x02\x14\x15\x05\x06\x04\x02' +
-    '\x15\x16\x07$\x02\x02\x16\x05\x03\x02\x02\x02\x17\x18\b\x04\x01\x02\x18' +
+    '\x15\x16\x07%\x02\x02\x16\x05\x03\x02\x02\x02\x17\x18\b\x04\x01\x02\x18' +
     '"\x07\x1B\x02\x02\x19"\x07\x1F\x02\x02\x1A"\x07 \x02\x02\x1B"\x07' +
     '\x1D\x02\x02\x1C"\x07\x1E\x02\x02\x1D"\x05\b\x05\x02\x1E\x1F\x07\x1A' +
     '\x02\x02\x1F"\x05\x06\x04\x06 "\x05\n\x06\x02!\x17\x03\x02\x02\x02!' +

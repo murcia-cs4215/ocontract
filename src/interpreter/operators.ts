@@ -72,11 +72,3 @@ export function evaluateLogicalExpression(
       return left || right;
   }
 }
-
-export function evaluateConditionalExpression(
-  test: boolean,
-  consequent: any,
-  alternate: any,
-): any {
-  return test ? consequent : alternate;
-}

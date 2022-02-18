@@ -45,6 +45,7 @@ ELSE: 'else';
 
 // LISTSTART: '[';
 // LISTEND: ']';
+SEMICOLON: ';';
 DOUBLESEMICOLON: ';;';
 
 // pattern matching related tokens
