@@ -16,6 +16,7 @@ import {
   CharContext,
   ConcatenationContext,
   CondExpContext,
+  ConditionalExpressionContext,
   DivisionContext,
   DivisionFloatContext,
   EqualPhysicalContext,
@@ -144,6 +145,11 @@ class StatementParser
   }
   visitParentheses(ctx: ParenthesesContext): ExpressionStatement {
     return this.visit(ctx.parenthesesExpression());
+  }
+  visitConditionalExpression(
+    ctx: ConditionalExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.condExp());
   }
   visitPower(ctx: PowerContext): ExpressionStatement {
     return this.wrapAsStatement({
@@ -349,7 +355,6 @@ class StatementParser
   ): ExpressionStatement {
     return this.visit(ctx._inner);
   }
-
   visitCondExp(ctx: CondExpContext): ExpressionStatement {
     return this.wrapAsStatement({
       type: 'ConditionalExpression',
@@ -359,7 +364,6 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
-
   visitErrorNode(node: ErrorNode): ExpressionStatement {
     throw new FatalSyntaxError(
       nodeToErrorLocation(node),
@@ -376,9 +380,6 @@ class StatementsParser
   protected defaultResult(): ExpressionStatement[] {
     return [];
   }
-  /**
-   * Entry point of the program
-   */
   visitChildren(node: RuleNode): Statement[] {
     let statements: Statement[] = [];
     for (let i = 0; i < node.childCount; i++) {
@@ -413,6 +414,9 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitParentheses(ctx: ParenthesesContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitPower(ctx: PowerContext): Statement[] {
@@ -481,6 +485,9 @@ class StatementsParser
   visitOr(ctx: OrContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitParenthesesExpression(ctx: ParenthesesExpressionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
   visitCondExp(ctx: CondExpContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
@@ -515,6 +522,7 @@ function addCustomErrorListeners(
       );
     },
   });
+  parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
   parser.addErrorListener({
     syntaxError: (
       _recognizer,
@@ -539,7 +547,6 @@ function addCustomErrorListeners(
       );
     },
   });
-  parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
 }
 
 export function parse(source: string): Program {
