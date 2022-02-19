@@ -44,6 +44,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     // TODO: Add typechecking of logical expression
     return evaluateLogicalExpression(node.operator, left, right);
   },
+  ConditionalExpression: (node: Node): Value => {
+    if (node.type !== 'ConditionalExpression') {
+      return;
+    }
+    const test = evaluate(node.test);
+    return test ? evaluate(node.consequent) : evaluate(node.alternate);
+  },
   ExpressionStatement: (node: Node): Value => {
     if (node.type !== 'ExpressionStatement') {
       return;

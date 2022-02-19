@@ -32,6 +32,7 @@ import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
+import { StatementContext } from './GrammarParser';
 import { ExpressionContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { CondExpContext } from './GrammarParser';
@@ -282,6 +283,13 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitStart?: (ctx: StartContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.statement`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitStatement?: (ctx: StatementContext) => Result;
 
   /**
    * Visit a parse tree produced by `GrammarParser.expression`.
