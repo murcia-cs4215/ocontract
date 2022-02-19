@@ -75,7 +75,7 @@ expression
    |  BOOLEAN                                                        # Boolean
    |  CHAR                                                           # Char
    |  STRING                                                         # String
-   | parenthesesExpression                                                 # Parentheses
+   | parenthesesExpression                                           # Parentheses
    | <assoc=right> left=expression  operator=POW  right=expression   # Power
    | left=expression  operator=MUL  right=expression                 # Multiplication
    | left=expression  operator=DIV  right=expression                 # Division
@@ -95,13 +95,13 @@ expression
    | left=expression  operator=EQUALPHYS  right=expression           # EqualPhysical
    | left=expression  operator=NOTEQUALPHYS  right=expression        # NotEqualPhysical
    | left=expression  operator=CONCAT  right=expression              # Concatenation
-   | operator=NOT  argument=expression                                  # Not
+   | operator=NOT  argument=expression                               # Not
    | left=expression  operator=AND  right=expression                 # And
    | left=expression  operator=OR  right=expression                  # Or
    // | <assoc=right> letLocalBinding                           # LetLocalBindingExpression
    // | letGlobalBinding                                 # LetGlobalBindingExpression
    // | functionDeclaration                              # FunctionDeclarationExpression
-   | condExp                                                               # ConditionalExpression
+   | condExp                                                         # ConditionalExpression
    // | identifier                                 # IdentifierExpression
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
