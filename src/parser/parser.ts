@@ -46,7 +46,8 @@ import {
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
 
-import { Context, ErrorSeverity } from '../types';
+import { ErrorSeverity } from '../errors/types';
+import { Context } from '../types';
 
 import { FatalSyntaxError } from './errors';
 import {
