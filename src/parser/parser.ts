@@ -2,6 +2,9 @@ import {
   ANTLRInputStream,
   CommonTokenStream,
   ConsoleErrorListener,
+  RecognitionException,
+  Recognizer,
+  Token,
 } from 'antlr4ts';
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
@@ -511,59 +514,40 @@ class StatementsParser
   }
 }
 
+const syntaxErrorListener = <T extends number | Token>(
+  _recognizer: Recognizer<T, any>,
+  _offendingSymbol: T | undefined,
+  line: number,
+  charPositionInLine: number,
+  msg: string,
+  _e: RecognitionException | undefined,
+): undefined => {
+  throw new FatalSyntaxError(
+    {
+      start: {
+        line: line,
+        column: charPositionInLine,
+      },
+      end: {
+        line: line,
+        column: charPositionInLine + 1,
+      },
+    },
+    `invalid syntax ${msg}`,
+  );
+};
+
 function addCustomErrorListeners(
   lexer: GrammarLexer,
   parser: GrammarParser,
 ): void {
   lexer.removeErrorListener(ConsoleErrorListener.INSTANCE);
   lexer.addErrorListener({
-    syntaxError: (
-      _recognizer,
-      _offendingSymbol,
-      line,
-      charPositionInLine,
-      msg,
-      _e,
-    ) => {
-      throw new FatalSyntaxError(
-        {
-          start: {
-            line: line,
-            column: charPositionInLine,
-          },
-          end: {
-            line: line,
-            column: charPositionInLine + 1,
-          },
-        },
-        `invalid syntax ${msg}`,
-      );
-    },
+    syntaxError: syntaxErrorListener,
   });
   parser.removeErrorListener(ConsoleErrorListener.INSTANCE);
   parser.addErrorListener({
-    syntaxError: (
-      _recognizer,
-      _offendingSymbol,
-      line,
-      charPositionInLine,
-      msg,
-      _e,
-    ) => {
-      throw new FatalSyntaxError(
-        {
-          start: {
-            line: line,
-            column: charPositionInLine,
-          },
-          end: {
-            line: line,
-            column: charPositionInLine + 1,
-          },
-        },
-        `invalid syntax ${msg}`,
-      );
-    },
+    syntaxError: syntaxErrorListener,
   });
 }
 
