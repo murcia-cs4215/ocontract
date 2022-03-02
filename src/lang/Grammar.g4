@@ -39,14 +39,22 @@ ELSE: 'else';
 // FUN: 'fun';
 // ARROW: '->';
 // PIPE: '|>';
-// LET: 'let';
-// IN: 'in';
-// REC: 'rec';
+LET: 'let';
+IN: 'in';
+REC: 'rec';
 
 // LISTSTART: '[';
 // LISTEND: ']';
-SEMICOLON: ';';
 DOUBLESEMICOLON: ';;';
+
+TYPE
+  : 'number'
+  | 'float'
+  | 'char'
+  | 'string'
+  | 'bool'
+  | 'unit'
+  ;
 
 // pattern matching related tokens
 // MATCH: 'match';
@@ -57,9 +65,9 @@ IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
 /*
  * Productions
  */
-start : statement* EOF;
+start : statements* EOF;
 
-statement: expression DOUBLESEMICOLON;
+statements: expression DOUBLESEMICOLON;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
 
@@ -67,14 +75,14 @@ statement: expression DOUBLESEMICOLON;
 expression
    // : patternMatching # PatternMatchingExpression
    // | arrowFunction   # ArrowFunctionExpression 
-   // | caller=expression  arg=expression          #CallExpression
+   : funcApplication                                                 # CallFunction
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
-   :  NUMBER                                                         # Number
-   |  FLOAT                                                          # Float
-   |  BOOLEAN                                                        # Boolean
-   |  CHAR                                                           # Char
-   |  STRING                                                         # String
+   | NUMBER                                                          # Number
+   | FLOAT                                                           # Float
+   | BOOLEAN                                                         # Boolean
+   | CHAR                                                            # Char
+   | STRING                                                          # String
    | parenthesesExpression                                           # Parentheses
    | <assoc=right> left=expression  operator=POW  right=expression   # Power
    | left=expression  operator=MUL  right=expression                 # Multiplication
@@ -95,21 +103,24 @@ expression
    | left=expression  operator=EQUALPHYS  right=expression           # EqualPhysical
    | left=expression  operator=NOTEQUALPHYS  right=expression        # NotEqualPhysical
    | left=expression  operator=CONCAT  right=expression              # Concatenation
-   | operator=SUB  argument=expression                               # Negative
    | operator=NOT  argument=expression                               # Not
    | left=expression  operator=AND  right=expression                 # And
    | left=expression  operator=OR  right=expression                  # Or
-   // | <assoc=right> letLocalBinding                           # LetLocalBindingExpression
-   // | letGlobalBinding                                 # LetGlobalBindingExpression
-   // | functionDeclaration                              # FunctionDeclarationExpression
+   | letGlobalBinding                                                # LetGlobalBindingExpression
+   | <assoc=right> letLocalBinding                                   # LetLocalBindingExpression
+   | functionDeclaration                                             # FunctionDeclarationExpression
    | condExp                                                         # ConditionalExpression
-   // | identifier                                 # IdentifierExpression
+   | identifier                                                      # IdentifierExpression
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
-// identifier // want identifier to be a node in the parser tree which can be visited
-//    :  IDENTIFIER 
-//    ;
+identifier // want identifier to be a node in the parser tree which can be visited
+   :  IDENTIFIER 
+   ;
+
+funcApplication
+   : func=identifier  args=expressionLists
+   ;
 
 // arrowFunctionBody // need arrowFunctionBody be a child node of ArrowFunctionExpression
 //    : expression
@@ -128,13 +139,13 @@ condExp
    :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
    ;
 
-// letGlobalBinding
-// 	: LET  REC  id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
-//    ;
+letGlobalBinding
+	: LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+   ;
 
-// letLocalBinding
-//    : (letGlobalBinding | functionDeclaration)  IN  exp2=expression
-//    ;
+letLocalBinding
+   : (letGlobalBinding | functionDeclaration)  IN  exp2=expression
+   ;
 
 // listElement
 //    :  value=expression  SEMICOLON
@@ -151,9 +162,15 @@ condExp
 // patternBranch
 //    :  '|'  pattern=expression  ARROW  result=expression 
 //    ;
-// identifierList
-// 	:  identifier ( identifier)*
-//    ;
-// functionDeclaration
-//    : LET  REC  ids=identifierList '=' body=expression
-//    ;
+
+identifierList
+ 	:  identifier ( identifier)*
+   ;
+
+expressionLists
+ 	:  expression ( expression)*
+   ;
+
+functionDeclaration
+   : LET  (REC?)  ids=identifierList '=' body=expression
+   ;
