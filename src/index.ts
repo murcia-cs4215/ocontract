@@ -1,3 +1,5 @@
+import { typeCheck } from 'checkers/types/staticChecker';
+import { validate } from 'checkers/types/validator';
 import { start } from 'repl';
 import { inspect } from 'util';
 
@@ -5,42 +7,54 @@ import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
+import { formatFinishedForRepl } from 'utils/formatters';
 
-import { Result } from './types';
+import { createContext } from './context';
+import { Context, Result } from './types';
 
 // TODO: Inject context into run
-export function run(code: string): Result {
+export function run(code: string, context: Context): Result {
   try {
-    const program = parse(code);
-    // TODO: Validate program
-    // TODO: Typecheck program
+    let program = parse(code, context);
+    program = validate(program);
     // TODO: Wrap computation in a scheduler / stepper
-    const result = evaluate(program);
+    typeCheck(program, context);
+    const result = evaluate(program, context);
     return {
       status: 'finished',
-      value: result instanceof StringWrapper ? result.unwrap() : result,
+      type: result.type,
+      value:
+        result.value instanceof StringWrapper
+          ? result.value.unwrap()
+          : result.value,
     };
-  } catch (e: any) {
-    return {
-      status: 'errored',
-      errors: [e],
-    };
+  } catch {
+    return { status: 'errored' };
   }
 }
 
-start({
-  eval: (code, _context, _filename, callback) => {
-    const result = run(code);
-    if (result.status === 'finished') {
-      callback(null, result.value);
-    } else {
-      callback(new Error(parseError(result.errors)), undefined);
-    }
-  },
-  writer: (output) => {
-    return inspect(output, {
-      depth: 1000,
-      colors: true,
-    });
-  },
-});
+function main(): void {
+  const context = createContext();
+  start({
+    eval: (code, _context, _filename, callback) => {
+      const result = run(code, context);
+      if (result.status === 'finished') {
+        callback(null, result);
+      } else {
+        callback(new Error(parseError(context.errors)), undefined);
+        context.errors = []; // TODO: Clear errors for now, look into a better rollback mechanism
+      }
+    },
+    writer: (output) => {
+      if (output instanceof Error) {
+        return inspect(output, {
+          depth: 1000,
+          colors: true,
+        });
+      }
+      return formatFinishedForRepl(output);
+    },
+  });
+}
+
+main();

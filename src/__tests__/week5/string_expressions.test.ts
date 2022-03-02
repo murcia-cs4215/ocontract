@@ -1,109 +1,124 @@
-import { run } from '../../index';
+import { runTest } from '../../utils/tests';
 
 test('string', () => {
-  const res = run('"bro";;');
+  const res = runTest('"bro";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'bro',
+    type: 'string',
   });
 });
 
 test('string concatenation', () => {
-  const res = run('"Hello " ^ "World";;');
+  const res = runTest('"Hello " ^ "World";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'Hello World',
+    type: 'string',
   });
 });
 
 test('string greaterthan', () => {
-  const res = run('"A" > "b";;');
+  const res = runTest('"A" > "b";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
 test('string smallerthan', () => {
-  const res = run('"a" < "b";;');
+  const res = runTest('"a" < "b";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('string greaterthanequals', () => {
-  const res = run('"ABC" >= "ABC";;');
+  const res = runTest('"ABC" >= "ABC";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('string smallerthanequals', () => {
-  const res = run('"XYZ" <= "XYZ";;');
+  const res = runTest('"XYZ" <= "XYZ";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('string structural equality', () => {
-  let res = run('"hello" = "hello";;');
+  let res = runTest('"hello" = "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
-  res = run('"hello" = "goodbye";;');
+  res = runTest('"hello" = "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
 test('string structural inequality', () => {
-  let res = run('"hello" <> "hello";;');
+  let res = runTest('"hello" <> "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
-  res = run('"hello" <> "goodbye";;');
+  res = runTest('"hello" <> "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('integer physical equality', () => {
-  let res = run('"hello" == "hello";;');
+  let res = runTest('"hello" == "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
-  res = run('"hello" == "goodbye";;');
+  res = runTest('"hello" == "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
 test('integer physical inequality', () => {
-  let res = run('"hello" != "hello";;');
+  let res = runTest('"hello" != "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
-  res = run('"hello" != "goodbye";;');
+  res = runTest('"hello" != "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('parenthesized expression', () => {
-  const res = run('("abc" ^ "xyz") ^ "hello";;');
+  const res = runTest('("abc" ^ "xyz") ^ "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'abcxyzhello',
+    type: 'string',
   });
 });

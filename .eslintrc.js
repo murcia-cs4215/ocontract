@@ -8,6 +8,7 @@ module.exports = {
     'simple-import-sort',
   ],
   env: {
+    browser: true,
     commonjs: true,
     es6: true,
     node: true,

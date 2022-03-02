@@ -1,4 +1,4 @@
-import { SourceError } from '../types';
+import { SourceError } from 'errors/types';
 
 const verboseErrors = false;
 
@@ -12,12 +12,12 @@ export function parseError(
     const explanation = error.explain();
 
     if (verbose) {
-      // TODO currently elaboration is just tagged on to a new line after the error message itself. find a better
+      // TODO: Currently elaboration is just tagged on to a new line after the error message itself. Find a better
       // way to display it.
       const elaboration = error.elaborate();
       return `Line ${line}, Column ${column}: ${explanation}\n${elaboration}\n`;
     } else {
-      return `Line ${line}: ${explanation}`;
+      return `Line ${line}, Column ${column}: ${explanation}`;
     }
   });
   return errorMessagesArr.join('\n');

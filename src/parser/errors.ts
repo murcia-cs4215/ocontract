@@ -1,4 +1,4 @@
-import { ErrorSeverity, ErrorType, SourceError } from '../types';
+import { ErrorSeverity, ErrorType, SourceError } from '../errors/types';
 
 import { SourceLocation } from './types';
 

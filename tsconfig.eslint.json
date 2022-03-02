@@ -28,7 +28,7 @@
     "sourceMap": true,
     "strict": true,
     "target": "es6",
-    "lib": ["es6"]
+    "lib": ["es6", "dom"]
   },
   "include": [".eslintrc.js", "**/*js"]
 }

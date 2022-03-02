@@ -46,6 +46,9 @@ import {
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
 
+import { ErrorSeverity } from '../errors/types';
+import { Context } from '../types';
+
 import { FatalSyntaxError } from './errors';
 import {
   Expression,
@@ -564,7 +567,7 @@ function addCustomErrorListeners(
   });
 }
 
-export function parse(source: string): Program {
+export function parse(source: string, context: Context): Program {
   const inputStream = new ANTLRInputStream(source);
   const lexer = new GrammarLexer(inputStream);
   const tokenStream = new CommonTokenStream(lexer);
@@ -572,9 +575,26 @@ export function parse(source: string): Program {
   parser.buildParseTree = true;
   addCustomErrorListeners(lexer, parser);
   const statementsParser = new StatementsParser();
-  const expression = parser.start();
-  return {
-    type: 'Program',
-    body: expression.accept(statementsParser),
-  };
+  let body;
+  try {
+    const expression = parser.start();
+    body = expression.accept(statementsParser);
+  } catch (error) {
+    if (error instanceof FatalSyntaxError) {
+      context.errors.push(error);
+    } else {
+      throw error;
+    }
+  }
+  const hasErrors = context.errors.find(
+    (m) => m.severity === ErrorSeverity.ERROR,
+  );
+  if (body && !hasErrors) {
+    return {
+      type: 'Program',
+      body,
+    };
+  } else {
+    throw new Error(); // Just to trigger exception
+  }
 }
