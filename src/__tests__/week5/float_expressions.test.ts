@@ -1,10 +1,11 @@
 import { runTest } from '../../utils/tests';
 
 test('float', () => {
-  const res = runTest('1.5;;');
+  const res = runTest('1.;;');
   expect(res).toEqual({
     status: 'finished',
-    value: 1.5,
+    value: 1,
+    type: 'float',
   });
 });
 
@@ -13,6 +14,7 @@ test('negative float', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
+    type: 'float',
   });
 });
 
@@ -21,11 +23,13 @@ test('float addition', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 3.5,
+    type: 'float',
   });
   res = runTest('1.1 +. -2.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
+    type: 'float',
   });
 });
 
@@ -34,11 +38,13 @@ test('float subtraction', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -2.25,
+    type: 'float',
   });
   res = runTest('10.5 -. -12.75;;');
   expect(res).toEqual({
     status: 'finished',
     value: 23.25,
+    type: 'float',
   });
 });
 
@@ -47,11 +53,13 @@ test('float multiplication', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 126.5,
+    type: 'float',
   });
   res = runTest('2.5 *. -50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -126.5,
+    type: 'float',
   });
 });
 
@@ -60,11 +68,13 @@ test('float division', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 15.6953125,
+    type: 'float',
   });
   res = runTest('100.45 /. -6.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: -15.6953125,
+    type: 'float',
   });
 });
 
@@ -73,6 +83,7 @@ test('float division by 0', () => {
   expect(res).toEqual({
     status: 'finished',
     value: Infinity,
+    type: 'float',
   });
 });
 
@@ -81,6 +92,7 @@ test('float greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -89,6 +101,7 @@ test('float smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -97,6 +110,7 @@ test('float greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -105,6 +119,7 @@ test('float smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -113,11 +128,13 @@ test('float structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest('49.5 = 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -126,11 +143,13 @@ test('float structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest('49.5 <> 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -139,11 +158,13 @@ test('float physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest('49.5 == 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -152,26 +173,30 @@ test('float physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest('49.5 != 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
 test('parenthesized expression', () => {
-  const res = runTest('(1.5 + 2.2);;');
+  const res = runTest('(1.5 +. 2.2);;');
   expect(res).toEqual({
     status: 'finished',
     value: 3.7,
+    type: 'float',
   });
 });
 
-// test('float order of precedence', () => {
-//   const res = runTest('1.5 +. 2.5 /. 2.0;;');
-//   expect(res).toEqual({
-//     status: 'finished',
-//     value: 2,
-//   });
-// });
+test('float order of precedence', () => {
+  const res = runTest('1.5 +. 2.5 /. 2.0;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: 2.75,
+    type: 'float',
+  });
+});

@@ -5,6 +5,7 @@ test('string', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 'bro',
+    type: 'string',
   });
 });
 
@@ -13,6 +14,7 @@ test('string concatenation', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 'Hello World',
+    type: 'string',
   });
 });
 
@@ -21,6 +23,7 @@ test('string greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -29,6 +32,7 @@ test('string smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -37,6 +41,7 @@ test('string greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -45,6 +50,7 @@ test('string smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -53,11 +59,13 @@ test('string structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest('"hello" = "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -66,11 +74,13 @@ test('string structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest('"hello" <> "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -79,11 +89,13 @@ test('integer physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest('"hello" == "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -92,11 +104,13 @@ test('integer physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest('"hello" != "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -105,5 +119,6 @@ test('parenthesized expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 'abcxyzhello',
+    type: 'string',
   });
 });

@@ -5,6 +5,7 @@ test('character', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 'a',
+    type: 'char',
   });
 });
 
@@ -13,6 +14,7 @@ test('character greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -21,6 +23,7 @@ test('character smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -29,6 +32,7 @@ test('character greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -37,6 +41,7 @@ test('character smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -45,11 +50,13 @@ test('character structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest("'a' = 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -58,11 +65,13 @@ test('integer structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest("'a' <> 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });
 
@@ -71,11 +80,13 @@ test('integer physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
   res = runTest("'a' == 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
 });
 
@@ -84,10 +95,12 @@ test('integer physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
+    type: 'bool',
   });
   res = runTest("'a' != 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
+    type: 'bool',
   });
 });

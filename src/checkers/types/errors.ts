@@ -1,10 +1,12 @@
+import { RuntimeSourceError } from 'errors/runtimeSourceError';
+
 import { Node, SourceLocation } from 'parser/types';
 
-import { ErrorSeverity, ErrorType, SourceError } from '../../types';
+import { ErrorSeverity, ErrorType, SourceError } from '../../errors/types';
 
 import { TypeAnnotatedNode } from './types';
 
-export class TypeError implements SourceError {
+export class StaticTypeError implements SourceError {
   public type = ErrorType.TYPE;
   public severity = ErrorSeverity.WARNING;
 
@@ -22,5 +24,27 @@ export class TypeError implements SourceError {
   }
   public elaborate(): string {
     return this.message;
+  }
+}
+
+export class RuntimeTypeError extends RuntimeSourceError {
+  public type = ErrorType.RUNTIME;
+  public severity = ErrorSeverity.ERROR;
+
+  constructor(
+    node: Node,
+    public side: string,
+    public expected: string,
+    public got: string,
+  ) {
+    super(node);
+  }
+
+  public explain(): string {
+    return `Expected ${this.expected}${this.side}, got ${this.got}.`;
+  }
+
+  public elaborate(): string {
+    return this.explain();
   }
 }

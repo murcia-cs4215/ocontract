@@ -574,9 +574,9 @@ export function parse(source: string, context: Context): Program | undefined {
   parser.buildParseTree = true;
   addCustomErrorListeners(lexer, parser);
   const statementsParser = new StatementsParser();
-  const expression = parser.start();
   let body;
   try {
+    const expression = parser.start();
     body = expression.accept(statementsParser);
   } catch (error) {
     if (error instanceof FatalSyntaxError) {

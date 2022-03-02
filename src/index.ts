@@ -1,10 +1,11 @@
 import { start } from 'repl';
 import { inspect } from 'util';
 
-import { evaluate } from 'interpreter/interpreter';
+import { evaluateAndCatch } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
+import { formatFinishedForRepl } from 'utils/formatters';
 
 import { createContext } from './context';
 import { Context, Result } from './types';
@@ -20,11 +21,19 @@ export function run(code: string, context: Context): Result {
   // TODO: Validate program
   // TODO: Typecheck program
   // TODO: Wrap computation in a scheduler / stepper
-  const result = evaluate(program, context);
-  return {
-    status: 'finished',
-    value: result instanceof StringWrapper ? result.unwrap() : result,
-  };
+  try {
+    const result = evaluateAndCatch(program, context);
+    return {
+      status: 'finished',
+      type: result.type,
+      value:
+        result.value instanceof StringWrapper
+          ? result.value.unwrap()
+          : result.value,
+    };
+  } catch {
+    return { status: 'errored' };
+  }
 }
 
 function main(): void {
@@ -33,16 +42,20 @@ function main(): void {
     eval: (code, _context, _filename, callback) => {
       const result = run(code, context);
       if (result.status === 'finished') {
-        callback(null, result.value);
+        callback(null, result);
       } else {
         callback(new Error(parseError(context.errors)), undefined);
+        context.errors = []; // TODO: Clear errors for now, look into a better rollback mechanism
       }
     },
     writer: (output) => {
-      return inspect(output, {
-        depth: 1000,
-        colors: true,
-      });
+      if (output instanceof Error) {
+        return inspect(output, {
+          depth: 1000,
+          colors: true,
+        });
+      }
+      return formatFinishedForRepl(output);
     },
   });
 }

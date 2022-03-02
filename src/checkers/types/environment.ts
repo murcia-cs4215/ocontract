@@ -60,12 +60,12 @@ export const tBool = tPrimitive('bool');
 export const tString = tPrimitive('string');
 export const tChar = tPrimitive('char');
 
-const predeclaredNames: [string, Type][] = [];
+const predeclaredNames: [string, Type | ForAll][] = [];
 
 // Name of Unary negative builtin operator
-const NEGATIVE_OP = '-_1';
+export const NEGATIVE_OP = '-_1';
 
-const primitiveFuncs: [string, Type][] = [
+const primitiveFuncs: [string, Type | ForAll][] = [
   [NEGATIVE_OP, tForAll(tFunc(tNegatable('A'), tNegatable('A')))],
   ['not', tFunc(tBool, tBool)],
   ['&&', tFunc(tBool, tBool, tBool)],

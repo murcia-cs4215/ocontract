@@ -1,4 +1,10 @@
-import { Node, SourceLocation } from 'parser/types';
+import { SourceError } from 'errors/types';
+
+import { Node } from 'parser/types';
+
+/**
+ * TYPES FOR OUTPUT
+ */
 
 export type Value = any;
 
@@ -9,28 +15,17 @@ export interface Errored {
 export interface Finished {
   status: 'finished';
   value: Value;
+  type: 'int' | 'float' | 'bool' | 'string' | 'char' | 'unit';
 }
 
 export type Result = Finished | Errored;
 
-export enum ErrorType {
-  SYNTAX = 'Syntax',
-  TYPE = 'Type',
-  RUNTIME = 'Runtime',
-}
+// Used for tracking non-finished results during runtime
+export type RuntimeResult = Omit<Finished, 'status'>;
 
-export enum ErrorSeverity {
-  WARNING = 'Warning',
-  ERROR = 'Error',
-}
-
-export interface SourceError {
-  type: ErrorType;
-  severity: ErrorSeverity;
-  location: SourceLocation;
-  explain(): string;
-  elaborate(): string;
-}
+/**
+ * TYPES FOR TYPE CHECKING
+ */
 
 export interface Primitive {
   kind: 'primitive';
@@ -50,8 +45,12 @@ export interface FunctionType {
   returnType: Type;
 }
 
-export type Type = Primitive | Variable | FunctionType | ForAll;
+export type Type = Primitive | Variable | FunctionType;
 export type Constraint = 'none' | 'comparable' | 'negatable'; // negatable implies comparable
+
+/**
+ * TYPES FOR ENVIRONMENT
+ */
 
 export interface Frame {
   [name: string]: any;

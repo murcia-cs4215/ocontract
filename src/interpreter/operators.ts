@@ -1,89 +1,99 @@
 import { BinaryOperator, LogicalOperator, UnaryOperator } from 'parser/types';
 import { StringWrapper } from 'parser/wrappers';
 
+import { RuntimeResult } from '../types';
+
+// Assumes that type checking has been done prior, i.e. all operations
+// should succeed
 export function evaluateUnaryExpression(
   operator: UnaryOperator,
-  value: boolean | number,
-): boolean | number {
+  argument: RuntimeResult,
+): RuntimeResult {
   if (operator === 'not') {
-    return !value;
+    return { value: !argument.value, type: argument.type };
   } else if (operator === '-') {
-    return -value;
+    return { value: -argument.value, type: argument.type };
   } else {
-    return +value;
+    return { value: +argument.value, type: argument.type };
   }
 }
 
 const physicalEqualityOperators = ['==', '!='];
 
 // TODO: Handle float binary operators + check comparisons
+// Assumes that type checking has been done prior, i.e. all operations
+// should succeed
 export function evaluateBinaryExpression(
   operator: BinaryOperator,
-  left: any,
-  right: any,
-): any {
+  left: RuntimeResult,
+  right: RuntimeResult,
+): RuntimeResult {
   if (
-    left instanceof StringWrapper &&
+    left.value instanceof StringWrapper &&
     !physicalEqualityOperators.includes(operator)
   ) {
-    left = left.unwrap();
+    left.value = left.value.unwrap();
   }
   if (
-    right instanceof StringWrapper &&
+    right.value instanceof StringWrapper &&
     !physicalEqualityOperators.includes(operator)
   ) {
-    right = right.unwrap();
+    right.value = right.value.unwrap();
   }
 
   switch (operator) {
-    case '**':
-      return left ** right;
+    case '**': // Must be float-float
+      return { value: left.value ** right.value, type: left.type };
     case '+':
     case '+.':
-      return left + right;
+      return { value: left.value + right.value, type: left.type };
     case '-':
     case '-.':
-      return left - right;
+      return { value: left.value - right.value, type: left.type };
     case '*':
     case '*.':
-      return left * right;
+      return { value: left.value * right.value, type: left.type };
     case '/':
+      return { value: Math.floor(left.value / right.value), type: left.type };
     case '/.':
-      return left / right;
+      return { value: left.value / right.value, type: left.type };
     case 'mod':
-      return left % right;
+      return { value: left.value % right.value, type: left.type };
     case '==':
-      return left === right;
+      return { value: left.value === right.value, type: 'bool' };
     case '!=':
-      return left !== right;
+      return { value: left.value !== right.value, type: 'bool' };
     case '<=':
-      return left <= right;
+      return { value: left.value <= right.value, type: 'bool' };
     case '<':
-      return left < right;
+      return { value: left.value < right.value, type: 'bool' };
     case '>':
-      return left > right;
+      return { value: left.value > right.value, type: 'bool' };
     case '>=':
-      return left >= right;
+      return { value: left.value >= right.value, type: 'bool' };
     case '=':
-      return left == right;
+      return { value: left.value == right.value, type: 'bool' };
     case '<>':
-      return left != right;
+      return { value: left.value != right.value, type: 'bool' };
     case '^':
-      return new StringWrapper(left + right);
-    default:
-      return undefined;
+      return {
+        value: new StringWrapper(left.value + right.value),
+        type: left.type,
+      };
   }
 }
 
+// Assumes that type checking has been done prior, i.e. all operations
+// should succeed
 export function evaluateLogicalExpression(
   operator: LogicalOperator,
-  left: any,
-  right: any,
-): any {
+  left: RuntimeResult,
+  right: RuntimeResult,
+): RuntimeResult {
   switch (operator) {
     case '&&':
-      return left && right;
+      return { value: left.value && right.value, type: left.type };
     case '||':
-      return left || right;
+      return { value: left.value || right.value, type: left.type };
   }
 }
