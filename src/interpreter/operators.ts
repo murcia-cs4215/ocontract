@@ -14,12 +14,27 @@ export function evaluateUnaryExpression(
   }
 }
 
+const physicalEqualityOperators = ['==', '!='];
+
 // TODO: Handle float binary operators + check comparisons
 export function evaluateBinaryExpression(
   operator: BinaryOperator,
   left: any,
   right: any,
 ): any {
+  if (
+    left instanceof StringWrapper &&
+    !physicalEqualityOperators.includes(operator)
+  ) {
+    left = left.unwrap();
+  }
+  if (
+    right instanceof StringWrapper &&
+    !physicalEqualityOperators.includes(operator)
+  ) {
+    right = right.unwrap();
+  }
+
   switch (operator) {
     case '**':
       return left ** right;
@@ -50,14 +65,11 @@ export function evaluateBinaryExpression(
     case '>=':
       return left >= right;
     case '=':
-      if (left instanceof StringWrapper) {
-        return left.value == right.value;
-      }
       return left == right;
     case '<>':
       return left != right;
     case '^':
-      return left + right;
+      return new StringWrapper(left + right);
     default:
       return undefined;
   }

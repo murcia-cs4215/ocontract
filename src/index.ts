@@ -15,9 +15,10 @@ export function run(code: string): Result {
     // TODO: Validate program
     // TODO: Typecheck program
     // TODO: Wrap computation in a scheduler / stepper
+    const result = evaluate(program);
     return {
       status: 'finished',
-      value: evaluate(program),
+      value: result instanceof StringWrapper ? result.unwrap() : result,
     };
   } catch (e: any) {
     return {
@@ -37,9 +38,6 @@ start({
     }
   },
   writer: (output) => {
-    if (output instanceof StringWrapper) {
-      return output.value;
-    }
     return inspect(output, {
       depth: 1000,
       colors: true,
