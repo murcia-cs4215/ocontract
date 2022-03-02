@@ -103,6 +103,7 @@ expression
    | left=expression  operator=EQUALPHYS  right=expression           # EqualPhysical
    | left=expression  operator=NOTEQUALPHYS  right=expression        # NotEqualPhysical
    | left=expression  operator=CONCAT  right=expression              # Concatenation
+   | operator=SUB  argument=expression                               # Negative
    | operator=NOT  argument=expression                               # Not
    | left=expression  operator=AND  right=expression                 # And
    | left=expression  operator=OR  right=expression                  # Or
