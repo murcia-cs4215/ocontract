@@ -1,7 +1,7 @@
-import { run } from '../../index';
+import { runTest } from '../../utils/tests';
 
 test('integer', () => {
-  const res = run('1;;');
+  const res = runTest('1;;');
   expect(res).toEqual({
     status: 'finished',
     value: 1,
@@ -9,7 +9,7 @@ test('integer', () => {
 });
 
 test('negative integer', () => {
-  const res = run('-5;;');
+  const res = runTest('-5;;');
   expect(res).toEqual({
     status: 'finished',
     value: -5,
@@ -17,12 +17,12 @@ test('negative integer', () => {
 });
 
 test('integer addition', () => {
-  let res = run('1 + 2;;');
+  let res = runTest('1 + 2;;');
   expect(res).toEqual({
     status: 'finished',
     value: 3,
   });
-  res = run('1 + -2;;');
+  res = runTest('1 + -2;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1,
@@ -30,12 +30,12 @@ test('integer addition', () => {
 });
 
 test('integer subtraction', () => {
-  let res = run('10 - 12;;');
+  let res = runTest('10 - 12;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2,
   });
-  res = run('10 - -12;;');
+  res = runTest('10 - -12;;');
   expect(res).toEqual({
     status: 'finished',
     value: 22,
@@ -43,12 +43,12 @@ test('integer subtraction', () => {
 });
 
 test('integer multiplication', () => {
-  let res = run('2 * 50;;');
+  let res = runTest('2 * 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: 100,
   });
-  res = run('2 * -50;;');
+  res = runTest('2 * -50;;');
   expect(res).toEqual({
     status: 'finished',
     value: -100,
@@ -56,12 +56,12 @@ test('integer multiplication', () => {
 });
 
 test('integer division', () => {
-  let res = run('100 / 50;;');
+  let res = runTest('100 / 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: 2,
   });
-  res = run('100 / -50;;');
+  res = runTest('100 / -50;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2,
@@ -69,7 +69,7 @@ test('integer division', () => {
 });
 
 test('integer division by 0', () => {
-  const res = run('100 / 0;;');
+  const res = runTest('100 / 0;;');
   expect(res).toEqual({
     status: 'finished',
     value: Infinity,
@@ -77,7 +77,7 @@ test('integer division by 0', () => {
 });
 
 test('integer modulo', () => {
-  const res = run('100 mod 30;;');
+  const res = runTest('100 mod 30;;');
   expect(res).toEqual({
     status: 'finished',
     value: 10,
@@ -85,7 +85,7 @@ test('integer modulo', () => {
 });
 
 test('integer greaterthan', () => {
-  const res = run('50 > 50;;');
+  const res = runTest('50 > 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -93,7 +93,7 @@ test('integer greaterthan', () => {
 });
 
 test('integer smallerthan', () => {
-  const res = run('49 < 50;;');
+  const res = runTest('49 < 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -101,7 +101,7 @@ test('integer smallerthan', () => {
 });
 
 test('integer greaterthanequals', () => {
-  const res = run('50 >= 50;;');
+  const res = runTest('50 >= 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -109,7 +109,7 @@ test('integer greaterthanequals', () => {
 });
 
 test('integer smallerthanequals', () => {
-  const res = run('50 <= 50;;');
+  const res = runTest('50 <= 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -117,12 +117,12 @@ test('integer smallerthanequals', () => {
 });
 
 test('integer structural equality', () => {
-  let res = run('50 = 50;;');
+  let res = runTest('50 = 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('49 = 50;;');
+  res = runTest('49 = 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -130,12 +130,12 @@ test('integer structural equality', () => {
 });
 
 test('integer structural inequality', () => {
-  let res = run('50 <> 50;;');
+  let res = runTest('50 <> 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('49 <> 50;;');
+  res = runTest('49 <> 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -143,12 +143,12 @@ test('integer structural inequality', () => {
 });
 
 test('integer physical equality', () => {
-  let res = run('50 == 50;;');
+  let res = runTest('50 == 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('49 == 50;;');
+  res = runTest('49 == 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -156,12 +156,12 @@ test('integer physical equality', () => {
 });
 
 test('integer physical inequality', () => {
-  let res = run('50 != 50;;');
+  let res = runTest('50 != 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('49 != 50;;');
+  res = runTest('49 != 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -169,7 +169,7 @@ test('integer physical inequality', () => {
 });
 
 test('parenthesized expression', () => {
-  const res = run('(1 + 2) / 3;;');
+  const res = runTest('(1 + 2) / 3;;');
   expect(res).toEqual({
     status: 'finished',
     value: 1,
@@ -177,7 +177,7 @@ test('parenthesized expression', () => {
 });
 
 test('integer order of precedence', () => {
-  const res = run('1 + 2 / 2;;');
+  const res = runTest('1 + 2 / 2;;');
   expect(res).toEqual({
     status: 'finished',
     value: 2,

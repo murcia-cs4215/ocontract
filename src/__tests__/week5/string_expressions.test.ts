@@ -1,7 +1,7 @@
-import { run } from '../../index';
+import { runTest } from '../../utils/tests';
 
 test('string', () => {
-  const res = run('"bro";;');
+  const res = runTest('"bro";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'bro',
@@ -9,7 +9,7 @@ test('string', () => {
 });
 
 test('string concatenation', () => {
-  const res = run('"Hello " ^ "World";;');
+  const res = runTest('"Hello " ^ "World";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'Hello World',
@@ -17,7 +17,7 @@ test('string concatenation', () => {
 });
 
 test('string greaterthan', () => {
-  const res = run('"A" > "b";;');
+  const res = runTest('"A" > "b";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -25,7 +25,7 @@ test('string greaterthan', () => {
 });
 
 test('string smallerthan', () => {
-  const res = run('"a" < "b";;');
+  const res = runTest('"a" < "b";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -33,7 +33,7 @@ test('string smallerthan', () => {
 });
 
 test('string greaterthanequals', () => {
-  const res = run('"ABC" >= "ABC";;');
+  const res = runTest('"ABC" >= "ABC";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -41,7 +41,7 @@ test('string greaterthanequals', () => {
 });
 
 test('string smallerthanequals', () => {
-  const res = run('"XYZ" <= "XYZ";;');
+  const res = runTest('"XYZ" <= "XYZ";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -49,12 +49,12 @@ test('string smallerthanequals', () => {
 });
 
 test('string structural equality', () => {
-  let res = run('"hello" = "hello";;');
+  let res = runTest('"hello" = "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('"hello" = "goodbye";;');
+  res = runTest('"hello" = "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -62,12 +62,12 @@ test('string structural equality', () => {
 });
 
 test('string structural inequality', () => {
-  let res = run('"hello" <> "hello";;');
+  let res = runTest('"hello" <> "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('"hello" <> "goodbye";;');
+  res = runTest('"hello" <> "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -75,12 +75,12 @@ test('string structural inequality', () => {
 });
 
 test('integer physical equality', () => {
-  let res = run('"hello" == "hello";;');
+  let res = runTest('"hello" == "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('"hello" == "goodbye";;');
+  res = runTest('"hello" == "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -88,12 +88,12 @@ test('integer physical equality', () => {
 });
 
 test('integer physical inequality', () => {
-  let res = run('"hello" != "hello";;');
+  let res = runTest('"hello" != "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('"hello" != "goodbye";;');
+  res = runTest('"hello" != "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -101,7 +101,7 @@ test('integer physical inequality', () => {
 });
 
 test('parenthesized expression', () => {
-  const res = run('("abc" ^ "xyz") ^ "hello";;');
+  const res = runTest('("abc" ^ "xyz") ^ "hello";;');
   expect(res).toEqual({
     status: 'finished',
     value: 'abcxyzhello',

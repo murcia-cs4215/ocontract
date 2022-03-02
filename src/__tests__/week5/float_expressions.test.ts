@@ -1,7 +1,7 @@
-import { run } from '../../index';
+import { runTest } from '../../utils/tests';
 
 test('float', () => {
-  const res = run('1.5;;');
+  const res = runTest('1.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: 1.5,
@@ -9,7 +9,7 @@ test('float', () => {
 });
 
 test('negative float', () => {
-  const res = run('-1.5;;');
+  const res = runTest('-1.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
@@ -17,12 +17,12 @@ test('negative float', () => {
 });
 
 test('float addition', () => {
-  let res = run('1.1 +. 2.4;;');
+  let res = runTest('1.1 +. 2.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: 3.5,
   });
-  res = run('1.1 +. -2.6;;');
+  res = runTest('1.1 +. -2.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
@@ -30,12 +30,12 @@ test('float addition', () => {
 });
 
 test('float subtraction', () => {
-  let res = run('10.5 -. 12.75;;');
+  let res = runTest('10.5 -. 12.75;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2.25,
   });
-  res = run('10.5 -. -12.75;;');
+  res = runTest('10.5 -. -12.75;;');
   expect(res).toEqual({
     status: 'finished',
     value: 23.25,
@@ -43,12 +43,12 @@ test('float subtraction', () => {
 });
 
 test('float multiplication', () => {
-  let res = run('2.5 *. 50.6;;');
+  let res = runTest('2.5 *. 50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: 126.5,
   });
-  res = run('2.5 *. -50.6;;');
+  res = runTest('2.5 *. -50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -126.5,
@@ -56,12 +56,12 @@ test('float multiplication', () => {
 });
 
 test('float division', () => {
-  let res = run('100.45 /. 6.4;;');
+  let res = runTest('100.45 /. 6.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: 15.6953125,
   });
-  res = run('100.45 /. -6.4;;');
+  res = runTest('100.45 /. -6.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: -15.6953125,
@@ -69,7 +69,7 @@ test('float division', () => {
 });
 
 test('float division by 0', () => {
-  const res = run('100.5 /. 0.0;;');
+  const res = runTest('100.5 /. 0.0;;');
   expect(res).toEqual({
     status: 'finished',
     value: Infinity,
@@ -77,7 +77,7 @@ test('float division by 0', () => {
 });
 
 test('float greaterthan', () => {
-  const res = run('50.5 > 50.5;;');
+  const res = runTest('50.5 > 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -85,7 +85,7 @@ test('float greaterthan', () => {
 });
 
 test('float smallerthan', () => {
-  const res = run('49.1 < 50.2;;');
+  const res = runTest('49.1 < 50.2;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -93,7 +93,7 @@ test('float smallerthan', () => {
 });
 
 test('float greaterthanequals', () => {
-  const res = run('50.6 >= 50.6;;');
+  const res = runTest('50.6 >= 50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -101,7 +101,7 @@ test('float greaterthanequals', () => {
 });
 
 test('float smallerthanequals', () => {
-  const res = run('50.5 <= 50.5;;');
+  const res = runTest('50.5 <= 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -109,12 +109,12 @@ test('float smallerthanequals', () => {
 });
 
 test('float structural equality', () => {
-  let res = run('50.5 = 50.5;;');
+  let res = runTest('50.5 = 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('49.5 = 50.5;;');
+  res = runTest('49.5 = 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -122,12 +122,12 @@ test('float structural equality', () => {
 });
 
 test('float structural inequality', () => {
-  let res = run('50.5 <> 50.5;;');
+  let res = runTest('50.5 <> 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('49.5 <> 50.5;;');
+  res = runTest('49.5 <> 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -135,12 +135,12 @@ test('float structural inequality', () => {
 });
 
 test('float physical equality', () => {
-  let res = run('50.5 == 50.5;;');
+  let res = runTest('50.5 == 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run('49.5 == 50.5;;');
+  res = runTest('49.5 == 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -148,12 +148,12 @@ test('float physical equality', () => {
 });
 
 test('float physical inequality', () => {
-  let res = run('50.5 != 50.5;;');
+  let res = runTest('50.5 != 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run('49.5 != 50.5;;');
+  res = runTest('49.5 != 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -161,7 +161,7 @@ test('float physical inequality', () => {
 });
 
 test('parenthesized expression', () => {
-  const res = run('(1.5 + 2.2);;');
+  const res = runTest('(1.5 + 2.2);;');
   expect(res).toEqual({
     status: 'finished',
     value: 3.7,
@@ -169,7 +169,7 @@ test('parenthesized expression', () => {
 });
 
 // test('float order of precedence', () => {
-//   const res = run('1.5 +. 2.5 /. 2.0;;');
+//   const res = runTest('1.5 +. 2.5 /. 2.0;;');
 //   expect(res).toEqual({
 //     status: 'finished',
 //     value: 2,

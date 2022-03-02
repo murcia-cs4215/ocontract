@@ -6,41 +6,45 @@ import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
 
-import { Result } from './types';
+import { createContext } from './context';
+import { Context, Result } from './types';
 
 // TODO: Inject context into run
-export function run(code: string): Result {
-  try {
-    const program = parse(code);
-    // TODO: Validate program
-    // TODO: Typecheck program
-    // TODO: Wrap computation in a scheduler / stepper
-    const result = evaluate(program);
-    return {
-      status: 'finished',
-      value: result instanceof StringWrapper ? result.unwrap() : result,
-    };
-  } catch (e: any) {
+export function run(code: string, context: Context): Result {
+  const program = parse(code, context);
+  if (!program) {
     return {
       status: 'errored',
-      errors: [e],
     };
   }
+  // TODO: Validate program
+  // TODO: Typecheck program
+  // TODO: Wrap computation in a scheduler / stepper
+  const result = evaluate(program, context);
+  return {
+    status: 'finished',
+    value: result instanceof StringWrapper ? result.unwrap() : result,
+  };
 }
 
-start({
-  eval: (code, _context, _filename, callback) => {
-    const result = run(code);
-    if (result.status === 'finished') {
-      callback(null, result.value);
-    } else {
-      callback(new Error(parseError(result.errors)), undefined);
-    }
-  },
-  writer: (output) => {
-    return inspect(output, {
-      depth: 1000,
-      colors: true,
-    });
-  },
-});
+function main(): void {
+  const context = createContext();
+  start({
+    eval: (code, _context, _filename, callback) => {
+      const result = run(code, context);
+      if (result.status === 'finished') {
+        callback(null, result.value);
+      } else {
+        callback(new Error(parseError(context.errors)), undefined);
+      }
+    },
+    writer: (output) => {
+      return inspect(output, {
+        depth: 1000,
+        colors: true,
+      });
+    },
+  });
+}
+
+main();

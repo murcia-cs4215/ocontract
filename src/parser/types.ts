@@ -33,7 +33,7 @@ export type Expression =
   | ConditionalExpression
   | EmptyExpression;
 
-export interface Program extends Omit<BaseNode, 'loc'> {
+export interface Program extends BaseNode {
   type: 'Program';
   body: Array<Statement>;
 }

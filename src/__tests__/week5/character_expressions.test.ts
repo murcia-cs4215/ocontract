@@ -1,7 +1,7 @@
-import { run } from '../../index';
+import { runTest } from '../../utils/tests';
 
 test('character', () => {
-  const res = run("'a';;");
+  const res = runTest("'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: 'a',
@@ -9,7 +9,7 @@ test('character', () => {
 });
 
 test('character greaterthan', () => {
-  const res = run("'a' > 'b';;");
+  const res = runTest("'a' > 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -17,7 +17,7 @@ test('character greaterthan', () => {
 });
 
 test('character smallerthan', () => {
-  const res = run("'a' < 'b';;");
+  const res = runTest("'a' < 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -25,7 +25,7 @@ test('character smallerthan', () => {
 });
 
 test('character greaterthanequals', () => {
-  const res = run("'a' >= 'a';;");
+  const res = runTest("'a' >= 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -33,7 +33,7 @@ test('character greaterthanequals', () => {
 });
 
 test('character smallerthanequals', () => {
-  const res = run("'a' <= 'a';;");
+  const res = runTest("'a' <= 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -41,12 +41,12 @@ test('character smallerthanequals', () => {
 });
 
 test('character structural equality', () => {
-  let res = run("'a' = 'a';;");
+  let res = runTest("'a' = 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run("'a' = 'b';;");
+  res = runTest("'a' = 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -54,12 +54,12 @@ test('character structural equality', () => {
 });
 
 test('integer structural inequality', () => {
-  let res = run("'a' <> 'a';;");
+  let res = runTest("'a' <> 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run("'a' <> 'b';;");
+  res = runTest("'a' <> 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
@@ -67,12 +67,12 @@ test('integer structural inequality', () => {
 });
 
 test('integer physical equality', () => {
-  let res = run("'a' == 'a';;");
+  let res = runTest("'a' == 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
   });
-  res = run("'a' == 'b';;");
+  res = runTest("'a' == 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -80,12 +80,12 @@ test('integer physical equality', () => {
 });
 
 test('integer physical inequality', () => {
-  let res = run("'a' != 'a';;");
+  let res = runTest("'a' != 'a';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
   });
-  res = run("'a' != 'b';;");
+  res = runTest("'a' != 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
