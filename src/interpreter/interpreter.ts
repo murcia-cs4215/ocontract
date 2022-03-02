@@ -31,7 +31,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const argument = evaluate(node.argument, context);
+    const argument = _evaluate(node.argument, context);
     checkUnaryExpression(node, node.operator, argument);
     return evaluateUnaryExpression(node.operator, argument);
   },
@@ -40,8 +40,8 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const left = evaluate(node.left, context);
-    const right = evaluate(node.right, context);
+    const left = _evaluate(node.left, context);
+    const right = _evaluate(node.right, context);
     checkBinaryExpression(node, node.operator, left, right);
     return evaluateBinaryExpression(node.operator, left, right);
   },
@@ -50,7 +50,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const left = evaluate(node.left, context);
+    const left = _evaluate(node.left, context);
     checkBoolean(node, left);
     if (
       (node.operator === '&&' && !left.value) ||
@@ -58,7 +58,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     ) {
       return left;
     }
-    const right = evaluate(node.right, context);
+    const right = _evaluate(node.right, context);
     checkBoolean(node, left);
     return evaluateLogicalExpression(node.operator, left, right);
   },
@@ -67,18 +67,18 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const test = evaluate(node.test, context);
+    const test = _evaluate(node.test, context);
     checkBoolean(node, test);
     return test.value
-      ? evaluate(node.consequent, context)
-      : evaluate(node.alternate, context);
+      ? _evaluate(node.consequent, context)
+      : _evaluate(node.alternate, context);
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    return evaluate(node.expression, context);
+    return _evaluate(node.expression, context);
   },
   SequenceStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'SequenceExpression') {
@@ -87,7 +87,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     let value = { value: undefined, type: 'unit' } as RuntimeResult;
     for (const expression of node.expressions) {
-      value = evaluate(expression, context);
+      value = _evaluate(expression, context);
     }
     return value;
   },
@@ -98,20 +98,20 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     let value = { value: undefined, type: 'unit' } as RuntimeResult;
     for (const statement of node.body) {
-      value = evaluate(statement, context);
+      value = _evaluate(statement, context);
     }
     return value;
   },
 };
 
-function evaluate(node: Node, context: Context): RuntimeResult {
+function _evaluate(node: Node, context: Context): RuntimeResult {
   const result = evaluators[node.type](node, context);
   return result;
 }
 
-export function evaluateAndCatch(node: Node, context: Context): RuntimeResult {
+export function evaluate(node: Node, context: Context): RuntimeResult {
   try {
-    const result = evaluate(node, context);
+    const result = _evaluate(node, context);
     return result;
   } catch (e: any) {
     if (e instanceof InterpreterError || e instanceof RuntimeSourceError) {

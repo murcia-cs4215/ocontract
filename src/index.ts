@@ -1,7 +1,9 @@
+import { typeCheck } from 'checkers/types/staticChecker';
+import { validate } from 'checkers/types/validator';
 import { start } from 'repl';
 import { inspect } from 'util';
 
-import { evaluateAndCatch } from 'interpreter/interpreter';
+import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
@@ -12,17 +14,12 @@ import { Context, Result } from './types';
 
 // TODO: Inject context into run
 export function run(code: string, context: Context): Result {
-  const program = parse(code, context);
-  if (!program) {
-    return {
-      status: 'errored',
-    };
-  }
-  // TODO: Validate program
-  // TODO: Typecheck program
-  // TODO: Wrap computation in a scheduler / stepper
   try {
-    const result = evaluateAndCatch(program, context);
+    let program = parse(code, context);
+    program = validate(program);
+    // TODO: Wrap computation in a scheduler / stepper
+    typeCheck(program, context);
+    const result = evaluate(program, context);
     return {
       status: 'finished',
       type: result.type,

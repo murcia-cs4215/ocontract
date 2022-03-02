@@ -4,15 +4,11 @@ import { Node, SourceLocation } from 'parser/types';
 
 import { ErrorSeverity, ErrorType, SourceError } from '../../errors/types';
 
-import { TypeAnnotatedNode } from './types';
-
 export class StaticTypeError implements SourceError {
   public type = ErrorType.TYPE;
   public severity = ErrorSeverity.WARNING;
 
-  constructor(public node: TypeAnnotatedNode<Node>, public message: string) {
-    node.typability = 'Untypable';
-  }
+  constructor(public node: Node, public expected: string, public got: string) {}
 
   get location(): SourceLocation {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -20,10 +16,10 @@ export class StaticTypeError implements SourceError {
   }
 
   public explain(): string {
-    return this.message;
+    return `This expression has type ${this.got} but an expression was expected of type ${this.expected}`;
   }
   public elaborate(): string {
-    return this.message;
+    return this.explain();
   }
 }
 

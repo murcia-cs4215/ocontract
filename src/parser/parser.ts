@@ -567,7 +567,7 @@ function addCustomErrorListeners(
   });
 }
 
-export function parse(source: string, context: Context): Program | undefined {
+export function parse(source: string, context: Context): Program {
   const inputStream = new ANTLRInputStream(source);
   const lexer = new GrammarLexer(inputStream);
   const tokenStream = new CommonTokenStream(lexer);
@@ -595,6 +595,6 @@ export function parse(source: string, context: Context): Program | undefined {
       body,
     };
   } else {
-    return undefined;
+    throw new Error(); // Just to trigger exception
   }
 }

@@ -22,6 +22,7 @@ export const floatType = makePrimitive('float');
 export const boolType = makePrimitive('bool');
 export const stringType = makePrimitive('string');
 export const charType = makePrimitive('char');
+export const unitType = makePrimitive('unit');
 
 const predeclaredNames: [string, Type | Type[]][] = [];
 
@@ -58,6 +59,7 @@ const primitiveFuncs: [string, Type | Type[]][] = [
   ['-', makeFunctionType(intType, intType, intType)],
   ['*', makeFunctionType(intType, intType, intType)],
   ['/', makeFunctionType(intType, intType, intType)],
+  ['mod', makeFunctionType(intType, intType, intType)],
   ['+.', makeFunctionType(floatType, floatType, floatType)],
   ['-.', makeFunctionType(floatType, floatType, floatType)],
   ['*.', makeFunctionType(floatType, floatType, floatType)],
