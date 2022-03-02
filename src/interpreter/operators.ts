@@ -1,4 +1,5 @@
 import { BinaryOperator, LogicalOperator, UnaryOperator } from 'parser/types';
+import { StringWrapper } from 'parser/wrappers';
 
 export function evaluateUnaryExpression(
   operator: UnaryOperator,
@@ -37,7 +38,6 @@ export function evaluateBinaryExpression(
     case 'mod':
       return left % right;
     case '==':
-      // TODO: Fix bug where string objects with same content should not be equal
       return left === right;
     case '!=':
       return left !== right;
@@ -50,6 +50,9 @@ export function evaluateBinaryExpression(
     case '>=':
       return left >= right;
     case '=':
+      if (left instanceof StringWrapper) {
+        return left.value == right.value;
+      }
       return left == right;
     case '<>':
       return left != right;

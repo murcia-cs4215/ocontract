@@ -75,12 +75,12 @@ test('string structural inequality', () => {
 });
 
 test('integer physical equality', () => {
-  // let res = run('"hello" == "hello";;');
-  // expect(res).toEqual({
-  //   status: 'finished',
-  //   value: false,
-  // });
-  const res = run('"hello" == "goodbye";;');
+  let res = run('"hello" == "hello";;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: false,
+  });
+  res = run('"hello" == "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -88,12 +88,12 @@ test('integer physical equality', () => {
 });
 
 test('integer physical inequality', () => {
-  // let res = run('"hello" != "hello";;');
-  // expect(res).toEqual({
-  //   status: 'finished',
-  //   value: true,
-  // });
-  const res = run('"hello" != "goodbye";;');
+  let res = run('"hello" != "hello";;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: true,
+  });
+  res = run('"hello" != "goodbye";;');
   expect(res).toEqual({
     status: 'finished',
     value: true,

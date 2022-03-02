@@ -2,6 +2,8 @@
  * GENERAL TYPES
  */
 
+import { StringWrapper } from './wrappers';
+
 export interface Position {
   /** >= 1 */
   line: number;
@@ -71,7 +73,7 @@ export interface Float extends BaseLiteral {
 // Cannot name this as String due to name conflict
 export interface Str extends BaseLiteral {
   valueType: 'string';
-  value: string;
+  value: StringWrapper;
 }
 
 export interface Character extends BaseLiteral {

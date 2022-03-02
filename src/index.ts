@@ -3,6 +3,7 @@ import { inspect } from 'util';
 
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
+import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
 
 import { Result } from './types';
@@ -36,6 +37,9 @@ start({
     }
   },
   writer: (output) => {
+    if (output instanceof StringWrapper) {
+      return output.value;
+    }
     return inspect(output, {
       depth: 1000,
       colors: true,

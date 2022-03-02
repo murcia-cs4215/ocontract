@@ -53,6 +53,7 @@ import {
   SourceLocation,
   Statement,
 } from './types';
+import { StringWrapper } from './wrappers';
 
 function contextToLocation(ctx: ExpressionContext): SourceLocation {
   return {
@@ -134,12 +135,14 @@ class StatementParser
     });
   }
   visitString(ctx: StringContext): ExpressionStatement {
-    let value = ctx.text.trim();
-    value = value.substring(1, value.length - 1);
+    const value = ctx.text.trim();
+    const wrappedValue = new StringWrapper(
+      value.substring(1, value.length - 1),
+    );
     return this.wrapAsStatement({
       type: 'Literal',
       valueType: 'string',
-      value,
+      value: wrappedValue,
       loc: contextToLocation(ctx),
     });
   }
