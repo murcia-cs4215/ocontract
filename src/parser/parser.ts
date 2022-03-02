@@ -31,6 +31,7 @@ import {
   ModulusContext,
   MultiplicationContext,
   MultiplicationFloatContext,
+  NegativeContext,
   NotContext,
   NotEqualPhysicalContext,
   NotEqualStructuralContext,
@@ -327,6 +328,14 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
+  visitNegative(ctx: NegativeContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'UnaryExpression',
+      operator: '-',
+      argument: this.visit(ctx._argument).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
   visitNot(ctx: NotContext): ExpressionStatement {
     return this.wrapAsStatement({
       type: 'UnaryExpression',
@@ -477,6 +486,9 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitConcatenation(ctx: ConcatenationContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitNegative(ctx: NegativeContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitNot(ctx: NotContext): Statement[] {

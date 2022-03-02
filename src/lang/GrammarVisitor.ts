@@ -27,6 +27,7 @@ import { NotEqualStructuralContext } from './GrammarParser';
 import { EqualPhysicalContext } from './GrammarParser';
 import { NotEqualPhysicalContext } from './GrammarParser';
 import { ConcatenationContext } from './GrammarParser';
+import { NegativeContext } from './GrammarParser';
 import { NotContext } from './GrammarParser';
 import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
@@ -244,6 +245,14 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitConcatenation?: (ctx: ConcatenationContext) => Result;
+
+  /**
+   * Visit a parse tree produced by the `Negative`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitNegative?: (ctx: NegativeContext) => Result;
 
   /**
    * Visit a parse tree produced by the `Not`

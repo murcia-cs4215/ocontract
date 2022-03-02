@@ -8,35 +8,63 @@ test('integer', () => {
   });
 });
 
+test('negative integer', () => {
+  const res = run('-5;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -5,
+  });
+});
+
 test('integer addition', () => {
-  const res = run('1 + 2;;');
+  let res = run('1 + 2;;');
   expect(res).toEqual({
     status: 'finished',
     value: 3,
   });
+  res = run('1 + -2;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -1,
+  });
 });
 
 test('integer subtraction', () => {
-  const res = run('10 - 12;;');
+  let res = run('10 - 12;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2,
   });
+  res = run('10 - -12;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: 22,
+  });
 });
 
 test('integer multiplication', () => {
-  const res = run('2 * 50;;');
+  let res = run('2 * 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: 100,
   });
+  res = run('2 * -50;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -100,
+  });
 });
 
 test('integer division', () => {
-  const res = run('100 / 50;;');
+  let res = run('100 / 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: 2,
+  });
+  res = run('100 / -50;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -2,
   });
 });
 

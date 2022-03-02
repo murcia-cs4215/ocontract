@@ -27,6 +27,7 @@ import { NotEqualStructuralContext } from './GrammarParser';
 import { EqualPhysicalContext } from './GrammarParser';
 import { NotEqualPhysicalContext } from './GrammarParser';
 import { ConcatenationContext } from './GrammarParser';
+import { NegativeContext } from './GrammarParser';
 import { NotContext } from './GrammarParser';
 import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
@@ -366,6 +367,19 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitConcatenation?: (ctx: ConcatenationContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `Negative`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterNegative?: (ctx: NegativeContext) => void;
+  /**
+   * Exit a parse tree produced by the `Negative`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitNegative?: (ctx: NegativeContext) => void;
 
   /**
    * Enter a parse tree produced by the `Not`

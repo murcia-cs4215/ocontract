@@ -8,35 +8,63 @@ test('float', () => {
   });
 });
 
+test('negative float', () => {
+  const res = run('-1.5;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -1.5,
+  });
+});
+
 test('float addition', () => {
-  const res = run('1.1 +. 2.4;;');
+  let res = run('1.1 +. 2.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: 3.5,
   });
+  res = run('1.1 +. -2.6;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -1.5,
+  });
 });
 
 test('float subtraction', () => {
-  const res = run('10.5 -. 12.75;;');
+  let res = run('10.5 -. 12.75;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2.25,
   });
+  res = run('10.5 -. -12.75;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: 23.25,
+  });
 });
 
 test('float multiplication', () => {
-  const res = run('2.5 *. 50.6;;');
+  let res = run('2.5 *. 50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: 126.5,
   });
+  res = run('2.5 *. -50.6;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -126.5,
+  });
 });
 
 test('float division', () => {
-  const res = run('100.45 /. 6.4;;');
+  let res = run('100.45 /. 6.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: 15.6953125,
+  });
+  res = run('100.45 /. -6.4;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: -15.6953125,
   });
 });
 
