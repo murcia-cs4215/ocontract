@@ -1,8 +1,4 @@
-import {
-  createTypeEnvironment,
-  tForAll,
-  tVar,
-} from 'checkers/types/environment';
+import { createTypeEnvironment } from 'checkers/types/environment';
 
 import { GLOBAL } from './constants';
 import { Context, Environment, Value } from './types';
@@ -55,13 +51,13 @@ const defineSymbol = (context: Context, name: string, value: Value): void => {
     writable: false,
     enumerable: true,
   });
-  const typeEnv = context.typeEnvironment[0];
+  // const typeEnv = context.typeEnvironment[0];
 
-  // if the global type env doesn't already have the imported symbol,
-  // we set it to a type var T that can type check with anything.
-  if (!typeEnv.typeMap.has(name)) {
-    typeEnv.typeMap.set(name, tForAll(tVar('T1')));
-  }
+  // // if the global type env doesn't already have the imported symbol,
+  // // we set it to a type var T that can type check with anything.
+  // if (!typeEnv.typeMap.has(name)) {
+  //   typeEnv.typeMap.set(name, []);
+  // }
 };
 
 const importExternalSymbols = (

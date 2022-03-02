@@ -6,6 +6,14 @@ import { Node } from 'parser/types';
  * TYPES FOR OUTPUT
  */
 
+export type PrimitiveType =
+  | 'int'
+  | 'float'
+  | 'bool'
+  | 'string'
+  | 'char'
+  | 'unit';
+
 export type Value = any;
 
 export interface Errored {
@@ -15,7 +23,7 @@ export interface Errored {
 export interface Finished {
   status: 'finished';
   value: Value;
-  type: 'int' | 'float' | 'bool' | 'string' | 'char' | 'unit';
+  type: PrimitiveType;
 }
 
 export type Result = Finished | Errored;
@@ -29,13 +37,7 @@ export type RuntimeResult = Omit<Finished, 'status'>;
 
 export interface Primitive {
   kind: 'primitive';
-  name: 'int' | 'float' | 'bool' | 'string' | 'char';
-}
-
-export interface Variable {
-  kind: 'variable';
-  name: string;
-  constraint: Constraint;
+  type: PrimitiveType;
 }
 
 // cannot name Function, conflicts with TS
@@ -45,8 +47,7 @@ export interface FunctionType {
   returnType: Type;
 }
 
-export type Type = Primitive | Variable | FunctionType;
-export type Constraint = 'none' | 'comparable' | 'negatable'; // negatable implies comparable
+export type Type = Primitive | FunctionType;
 
 /**
  * TYPES FOR ENVIRONMENT
@@ -65,13 +66,8 @@ export interface Environment {
   thisContext?: Value;
 }
 
-export interface ForAll {
-  kind: 'forall';
-  polyType: Type;
-}
-
 export type TypeEnvironment = {
-  typeMap: Map<string, Type | ForAll>;
+  typeMap: Map<string, Type | Type[]>;
 }[];
 
 export interface Context<T = any> {

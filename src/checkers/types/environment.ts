@@ -1,50 +1,13 @@
-import {
-  ForAll,
-  FunctionType,
-  Primitive,
-  Type,
-  TypeEnvironment,
-  Variable,
-} from '../../types';
+import { FunctionType, Primitive, Type, TypeEnvironment } from '../../types';
 
-export function tPrimitive(name: Primitive['name']): Primitive {
+export function makePrimitive(type: Primitive['type']): Primitive {
   return {
     kind: 'primitive',
-    name,
+    type,
   };
 }
 
-export function tVar(name: string | number): Variable {
-  return {
-    kind: 'variable',
-    name: `T${name}`,
-    constraint: 'none',
-  };
-}
-
-export function tComparable(name: string): Variable {
-  return {
-    kind: 'variable',
-    name: `${name}`,
-    constraint: 'comparable',
-  };
-}
-export function tNegatable(name: string): Variable {
-  return {
-    kind: 'variable',
-    name: `${name}`,
-    constraint: 'negatable',
-  };
-}
-
-export function tForAll(type: Type): ForAll {
-  return {
-    kind: 'forall',
-    polyType: type,
-  };
-}
-
-export function tFunc(...types: Type[]): FunctionType {
+export function makeFunctionType(...types: Type[]): FunctionType {
   const parameterTypes = types.slice(0, -1);
   const returnType = types.slice(-1)[0];
   return {
@@ -54,41 +17,53 @@ export function tFunc(...types: Type[]): FunctionType {
   };
 }
 
-export const tInt = tPrimitive('int');
-export const tFloat = tPrimitive('float');
-export const tBool = tPrimitive('bool');
-export const tString = tPrimitive('string');
-export const tChar = tPrimitive('char');
+export const intType = makePrimitive('int');
+export const floatType = makePrimitive('float');
+export const boolType = makePrimitive('bool');
+export const stringType = makePrimitive('string');
+export const charType = makePrimitive('char');
 
-const predeclaredNames: [string, Type | ForAll][] = [];
+const predeclaredNames: [string, Type | Type[]][] = [];
 
 // Name of Unary negative builtin operator
 export const NEGATIVE_OP = '-_1';
 
-const primitiveFuncs: [string, Type | ForAll][] = [
-  [NEGATIVE_OP, tForAll(tFunc(tNegatable('A'), tNegatable('A')))],
-  ['not', tFunc(tBool, tBool)],
-  ['&&', tFunc(tBool, tBool, tBool)],
-  ['||', tFunc(tBool, tBool, tBool)],
-  ['<', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['<=', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['>', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['>=', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['=', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['<>', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['==', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['!=', tForAll(tFunc(tComparable('A'), tComparable('A'), tBool))],
-  ['+', tFunc(tInt, tInt, tInt)],
-  ['%', tFunc(tInt, tInt, tInt)],
-  ['-', tFunc(tInt, tInt, tInt)],
-  ['*', tFunc(tInt, tInt, tInt)],
-  ['/', tFunc(tInt, tInt, tInt)],
-  ['+.', tFunc(tFloat, tFloat, tFloat)],
-  ['-.', tFunc(tFloat, tFloat, tFloat)],
-  ['*.', tFunc(tFloat, tFloat, tFloat)],
-  ['/.', tFunc(tFloat, tFloat, tFloat)],
-  ['**', tFunc(tFloat, tFloat, tFloat)],
-  ['^', tFunc(tString, tString, tString)],
+function makeComparableTypes(): Type[] {
+  return [intType, floatType, boolType, stringType, charType].map((type) =>
+    makeFunctionType(type, type, boolType),
+  );
+}
+
+const primitiveFuncs: [string, Type | Type[]][] = [
+  [
+    NEGATIVE_OP,
+    [
+      makeFunctionType(intType, intType),
+      makeFunctionType(floatType, floatType),
+    ],
+  ],
+  ['not', makeFunctionType(boolType, boolType)],
+  ['&&', makeFunctionType(boolType, boolType, boolType)],
+  ['||', makeFunctionType(boolType, boolType, boolType)],
+  ['<', makeComparableTypes()],
+  ['<=', makeComparableTypes()],
+  ['>', makeComparableTypes()],
+  ['>=', makeComparableTypes()],
+  ['=', makeComparableTypes()],
+  ['<>', makeComparableTypes()],
+  ['==', makeComparableTypes()],
+  ['!=', makeComparableTypes()],
+  ['+', makeFunctionType(intType, intType, intType)],
+  ['%', makeFunctionType(intType, intType, intType)],
+  ['-', makeFunctionType(intType, intType, intType)],
+  ['*', makeFunctionType(intType, intType, intType)],
+  ['/', makeFunctionType(intType, intType, intType)],
+  ['+.', makeFunctionType(floatType, floatType, floatType)],
+  ['-.', makeFunctionType(floatType, floatType, floatType)],
+  ['*.', makeFunctionType(floatType, floatType, floatType)],
+  ['/.', makeFunctionType(floatType, floatType, floatType)],
+  ['**', makeFunctionType(floatType, floatType, floatType)],
+  ['^', makeFunctionType(stringType, stringType, stringType)],
 ];
 
 export function createTypeEnvironment(): TypeEnvironment {
