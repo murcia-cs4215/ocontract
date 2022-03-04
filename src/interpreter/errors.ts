@@ -2,6 +2,7 @@ import { RuntimeSourceError } from 'errors/runtimeSourceError';
 
 import { Node, SourceLocation } from 'parser/types';
 
+import { UNKNOWN_LOCATION } from '../constants';
 import { ErrorSeverity, ErrorType, SourceError } from '../errors/types';
 import { Context } from '../types';
 
@@ -9,7 +10,7 @@ export class InterpreterError implements SourceError {
   public type = ErrorType.SYNTAX;
   public severity = ErrorSeverity.ERROR;
   public constructor(
-    public location: SourceLocation,
+    public location: SourceLocation = UNKNOWN_LOCATION,
     public message = 'Unexpected evaluation',
   ) {}
 

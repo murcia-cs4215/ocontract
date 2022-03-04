@@ -24,6 +24,7 @@ export interface Finished {
   status: 'finished';
   value: Value;
   type: PrimitiveType;
+  name?: string; // Only defined for result of global let bindings
 }
 
 export type Result = Finished | Errored;

@@ -410,6 +410,7 @@ class StatementParser
       operator: '=',
       left: this.visit(ctx._id).expression as Identifier,
       right: this.visit(ctx._init).expression,
+      loc: contextToLocation(ctx),
     });
   }
   visitErrorNode(node: ErrorNode): ExpressionStatement {

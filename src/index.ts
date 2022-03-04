@@ -6,8 +6,7 @@ import { inspect } from 'util';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
-import { parseError } from 'utils/errors';
-import { formatFinishedForRepl } from 'utils/formatters';
+import { formatErrorsForRepl, formatFinishedForRepl } from 'utils/formatters';
 
 import {
   cleanUpContextAfterRun,
@@ -28,8 +27,8 @@ export function run(code: string, context: Context): Result {
     cleanUpContextAfterRun(context);
 
     return {
+      ...result,
       status: 'finished',
-      type: result.type,
       value:
         result.value instanceof StringWrapper
           ? result.value.unwrap()
@@ -49,7 +48,7 @@ function main(): void {
       if (result.status === 'finished') {
         callback(null, result);
       } else {
-        callback(new Error(parseError(context.errors)), undefined);
+        callback(new Error(formatErrorsForRepl(context.errors)), undefined);
         context.errors = []; // TODO: Clear errors for now, look into a better rollback mechanism
       }
     },
