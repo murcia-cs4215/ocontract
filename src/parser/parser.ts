@@ -35,6 +35,8 @@ import {
   LessThanOrEqualContext,
   LetGlobalBindingContext,
   LetGlobalBindingExpressionContext,
+  LetLocalBindingContext,
+  LetLocalBindingExpressionContext,
   ModulusContext,
   MultiplicationContext,
   MultiplicationFloatContext,
@@ -60,6 +62,7 @@ import { FatalSyntaxError } from './errors';
 import {
   Expression,
   ExpressionStatement,
+  GlobalLetExpression,
   Identifier,
   Program,
   SourceLocation,
@@ -373,6 +376,11 @@ class StatementParser
   ): ExpressionStatement {
     return this.visit(ctx.letGlobalBinding());
   }
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.letLocalBinding());
+  }
   visitConditionalExpression(
     ctx: ConditionalExpressionContext,
   ): ExpressionStatement {
@@ -407,9 +415,18 @@ class StatementParser
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): ExpressionStatement {
     return this.wrapAsStatement({
       type: 'GlobalLetExpression',
-      operator: '=',
       left: this.visit(ctx._id).expression as Identifier,
       right: this.visit(ctx._init).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitLetLocalBinding(ctx: LetLocalBindingContext): ExpressionStatement {
+    const left = ctx.letGlobalBinding() ?? ctx.functionDeclaration();
+    return this.wrapAsStatement({
+      type: 'LocalLetExpression',
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      left: this.visit(left!).expression as GlobalLetExpression,
+      right: this.visit(ctx._exp2).expression,
       loc: contextToLocation(ctx),
     });
   }
@@ -539,6 +556,11 @@ class StatementsParser
   ): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
   visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
@@ -555,6 +577,9 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLetLocalBinding(ctx: LetLocalBindingContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }

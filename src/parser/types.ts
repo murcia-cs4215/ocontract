@@ -32,6 +32,7 @@ export type Expression =
   | SequenceExpression
   | ConditionalExpression
   | GlobalLetExpression
+  | LocalLetExpression
   | Identifier
   | EmptyExpression;
 
@@ -119,8 +120,6 @@ export type BinaryOperator =
 
 export type LogicalOperator = '||' | '&&';
 
-export type AssignmentOperator = '=';
-
 export type BaseExpression = BaseNode;
 
 export interface UnaryExpression extends BaseExpression {
@@ -145,8 +144,13 @@ export interface LogicalExpression extends BaseExpression {
 
 export interface GlobalLetExpression extends BaseExpression {
   type: 'GlobalLetExpression';
-  operator: AssignmentOperator;
   left: Identifier;
+  right: Expression;
+}
+
+export interface LocalLetExpression extends BaseExpression {
+  type: 'LocalLetExpression';
+  left: GlobalLetExpression;
   right: Expression;
 }
 
