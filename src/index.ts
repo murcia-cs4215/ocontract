@@ -9,17 +9,24 @@ import { StringWrapper } from 'parser/wrappers';
 import { parseError } from 'utils/errors';
 import { formatFinishedForRepl } from 'utils/formatters';
 
-import { createContext } from './context';
+import {
+  cleanUpContextAfterRun,
+  createContext,
+  prepareContextForRun,
+} from './context';
 import { Context, Result } from './types';
 
-// TODO: Inject context into run
 export function run(code: string, context: Context): Result {
   try {
     let program = parse(code, context);
     program = validate(program);
     // TODO: Wrap computation in a scheduler / stepper
     typeCheck(program, context);
+
+    prepareContextForRun(context);
     const result = evaluate(program, context);
+    cleanUpContextAfterRun(context);
+
     return {
       status: 'finished',
       type: result.type,
@@ -29,6 +36,7 @@ export function run(code: string, context: Context): Result {
           : result.value,
     };
   } catch {
+    cleanUpContextAfterRun(context);
     return { status: 'errored' };
   }
 }

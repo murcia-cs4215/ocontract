@@ -196,6 +196,7 @@ function _typeCheck(node: Node, context: Context): Type {
       return consequent;
 
     case 'EmptyExpression':
+    default:
       return unitType;
   }
 }

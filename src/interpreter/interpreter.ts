@@ -9,7 +9,8 @@ import { Node } from 'parser/types';
 
 import { Context, RuntimeResult } from '../types';
 
-import { InterpreterError } from './errors';
+import { getVariable } from './environment';
+import { handleRuntimeError, InterpreterError } from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -26,13 +27,23 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     return { value: node.value, type: node.valueType };
   },
+  Identifier: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'Identifier') {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      throw new InterpreterError(node.loc!);
+    }
+    return getVariable(context, node.name);
+  },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'UnaryExpression') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
     const argument = _evaluate(node.argument, context);
-    checkUnaryExpression(node, node.operator, argument);
+    const error = checkUnaryExpression(node, node.operator, argument);
+    if (error) {
+      return handleRuntimeError(context, error);
+    }
     return evaluateUnaryExpression(node.operator, argument);
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -42,7 +53,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const left = _evaluate(node.left, context);
     const right = _evaluate(node.right, context);
-    checkBinaryExpression(node, node.operator, left, right);
+    const error = checkBinaryExpression(node, node.operator, left, right);
+    if (error) {
+      return handleRuntimeError(context, error);
+    }
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -51,7 +65,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       throw new InterpreterError(node.loc!);
     }
     const left = _evaluate(node.left, context);
-    checkBoolean(node, left);
+    let error = checkBoolean(node, left);
+    if (error) {
+      return handleRuntimeError(context, error);
+    }
     if (
       (node.operator === '&&' && !left.value) ||
       (node.operator === '||' && left.value)
@@ -59,7 +76,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = _evaluate(node.right, context);
-    checkBoolean(node, left);
+    error = checkBoolean(node, left);
+    if (error) {
+      return handleRuntimeError(context, error);
+    }
     return evaluateLogicalExpression(node.operator, left, right);
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -68,7 +88,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       throw new InterpreterError(node.loc!);
     }
     const test = _evaluate(node.test, context);
-    checkBoolean(node, test);
+    const error = checkBoolean(node, test);
+    if (error) {
+      return handleRuntimeError(context, error);
+    }
     return test.value
       ? _evaluate(node.consequent, context)
       : _evaluate(node.alternate, context);
@@ -105,7 +128,9 @@ const evaluators: { [nodeType: string]: Evaluator } = {
 };
 
 function _evaluate(node: Node, context: Context): RuntimeResult {
+  visitNode(context, node);
   const result = evaluators[node.type](node, context);
+  leaveNode(context);
   return result;
 }
 
@@ -119,4 +144,14 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
     }
     throw e;
   }
+}
+
+// HELPER FUNCTIONS
+
+function visitNode(context: Context, node: Node): void {
+  context.runtime.nodes.unshift(node);
+}
+
+function leaveNode(context: Context): void {
+  context.runtime.nodes.shift();
 }

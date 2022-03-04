@@ -1,3 +1,5 @@
+import { RuntimeSourceError } from 'errors/runtimeSourceError';
+
 import { BinaryOperator, Node, UnaryOperator } from 'parser/types';
 
 import { RuntimeResult } from '../../types';
@@ -22,11 +24,11 @@ export const checkUnaryExpression = (
   node: Node,
   operator: UnaryOperator,
   value: RuntimeResult,
-): void => {
+): RuntimeSourceError | undefined => {
   if (operator === '-' && !isInt(value) && !isFloat(value)) {
-    throw new RuntimeTypeError(node, '', 'int or float', value.type);
+    return new RuntimeTypeError(node, '', 'int or float', value.type);
   } else if (operator === 'not' && !isBool(value)) {
-    throw new RuntimeTypeError(node, '', 'bool', value.type);
+    return new RuntimeTypeError(node, '', 'bool', value.type);
   }
 };
 
@@ -35,7 +37,7 @@ export const checkBinaryExpression = (
   operator: BinaryOperator,
   left: RuntimeResult,
   right: RuntimeResult,
-): void => {
+): RuntimeSourceError | undefined => {
   switch (operator) {
     case '+':
     case '-':
@@ -43,9 +45,9 @@ export const checkBinaryExpression = (
     case '/':
     case 'mod':
       if (!isInt(left)) {
-        throw new RuntimeTypeError(node, LHS, 'int', left.type);
+        return new RuntimeTypeError(node, LHS, 'int', left.type);
       } else if (!isInt(right)) {
-        throw new RuntimeTypeError(node, RHS, 'int', right.type);
+        return new RuntimeTypeError(node, RHS, 'int', right.type);
       }
       return;
     case '+.':
@@ -54,9 +56,9 @@ export const checkBinaryExpression = (
     case '/.':
     case '**':
       if (!isFloat(left)) {
-        throw new RuntimeTypeError(node, LHS, 'float', left.type);
+        return new RuntimeTypeError(node, LHS, 'float', left.type);
       } else if (!isFloat(right)) {
-        throw new RuntimeTypeError(node, RHS, 'float', right.type);
+        return new RuntimeTypeError(node, RHS, 'float', right.type);
       }
       return;
     case '<':
@@ -74,14 +76,14 @@ export const checkBinaryExpression = (
         (isChar(left) && !isChar(right)) ||
         (isBool(left) && !isBool(right))
       ) {
-        throw new RuntimeTypeError(node, RHS, left.type, right.type);
+        return new RuntimeTypeError(node, RHS, left.type, right.type);
       }
       return;
     case '^':
       if (!isString(left)) {
-        throw new RuntimeTypeError(node, LHS, 'string', left.type);
+        return new RuntimeTypeError(node, LHS, 'string', left.type);
       } else if (!isString(right)) {
-        throw new RuntimeTypeError(node, RHS, 'string', right.type);
+        return new RuntimeTypeError(node, RHS, 'string', right.type);
       }
       return;
     default:
@@ -89,8 +91,11 @@ export const checkBinaryExpression = (
   }
 };
 
-export const checkBoolean = (node: Node, value: RuntimeResult): void => {
+export const checkBoolean = (
+  node: Node,
+  value: RuntimeResult,
+): RuntimeSourceError | undefined => {
   if (!isBool(value)) {
-    throw new RuntimeTypeError(node, '', 'bool', value.type);
+    return new RuntimeTypeError(node, '', 'bool', value.type);
   }
 };
