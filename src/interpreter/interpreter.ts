@@ -3,7 +3,6 @@ import {
   checkBoolean,
   checkUnaryExpression,
 } from 'checkers/types/runtimeChecker';
-import { RuntimeSourceError } from 'errors/runtimeSourceError';
 
 import { Node } from 'parser/types';
 
@@ -39,7 +38,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const argument = _evaluate(node.argument, context);
+    const argument = evaluate(node.argument, context);
     const error = checkUnaryExpression(node, node.operator, argument);
     if (error) {
       return handleRuntimeError(context, error);
@@ -51,8 +50,8 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const left = _evaluate(node.left, context);
-    const right = _evaluate(node.right, context);
+    const left = evaluate(node.left, context);
+    const right = evaluate(node.right, context);
     const error = checkBinaryExpression(node, node.operator, left, right);
     if (error) {
       return handleRuntimeError(context, error);
@@ -64,7 +63,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const left = _evaluate(node.left, context);
+    const left = evaluate(node.left, context);
     let error = checkBoolean(node, left);
     if (error) {
       return handleRuntimeError(context, error);
@@ -75,7 +74,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     ) {
       return left;
     }
-    const right = _evaluate(node.right, context);
+    const right = evaluate(node.right, context);
     error = checkBoolean(node, left);
     if (error) {
       return handleRuntimeError(context, error);
@@ -87,21 +86,21 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    const test = _evaluate(node.test, context);
+    const test = evaluate(node.test, context);
     const error = checkBoolean(node, test);
     if (error) {
       return handleRuntimeError(context, error);
     }
     return test.value
-      ? _evaluate(node.consequent, context)
-      : _evaluate(node.alternate, context);
+      ? evaluate(node.consequent, context)
+      : evaluate(node.alternate, context);
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       throw new InterpreterError(node.loc!);
     }
-    return _evaluate(node.expression, context);
+    return evaluate(node.expression, context);
   },
   SequenceStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'SequenceExpression') {
@@ -110,7 +109,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     let value = { value: undefined, type: 'unit' } as RuntimeResult;
     for (const expression of node.expressions) {
-      value = _evaluate(expression, context);
+      value = evaluate(expression, context);
     }
     return value;
   },
@@ -121,29 +120,17 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     let value = { value: undefined, type: 'unit' } as RuntimeResult;
     for (const statement of node.body) {
-      value = _evaluate(statement, context);
+      value = evaluate(statement, context);
     }
     return value;
   },
 };
 
-function _evaluate(node: Node, context: Context): RuntimeResult {
+export function evaluate(node: Node, context: Context): RuntimeResult {
   visitNode(context, node);
   const result = evaluators[node.type](node, context);
   leaveNode(context);
   return result;
-}
-
-export function evaluate(node: Node, context: Context): RuntimeResult {
-  try {
-    const result = _evaluate(node, context);
-    return result;
-  } catch (e: any) {
-    if (e instanceof InterpreterError || e instanceof RuntimeSourceError) {
-      context.errors.push(e);
-    }
-    throw e;
-  }
 }
 
 // HELPER FUNCTIONS
