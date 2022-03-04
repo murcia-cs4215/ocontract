@@ -31,6 +31,8 @@ export type Expression =
   | LogicalExpression
   | SequenceExpression
   | ConditionalExpression
+  | AssignmentExpression
+  | Identifier
   | EmptyExpression;
 
 export interface Program extends BaseNode {
@@ -38,7 +40,7 @@ export interface Program extends BaseNode {
   body: Array<Statement>;
 }
 
-export type Node = Program | Statement | Expression | Literal;
+export type Node = Program | Statement | Expression | Literal | Identifier;
 
 /**
  * STATEMENT TYPES
@@ -141,6 +143,21 @@ export interface LogicalExpression extends BaseExpression {
   right: Expression;
 }
 
+export interface AssignmentExpression extends BaseExpression {
+  type: 'AssignmentExpression';
+  operator: AssignmentOperator;
+  left: Identifier;
+  right: Expression;
+}
+
+/**
+ * OTHER EXPRESSIONS
+ */
+
+export interface SequenceExpression extends BaseExpression {
+  type: 'SequenceExpression';
+  expressions: Array<Expression>;
+}
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression';
   test: Expression;
@@ -152,11 +169,8 @@ export interface EmptyExpression extends BaseExpression {
   type: 'EmptyExpression';
 }
 
-/**
- * OTHER EXPRESSIONS
- */
-
-export interface SequenceExpression extends BaseExpression {
-  type: 'SequenceExpression';
-  expressions: Array<Expression>;
+// Identifier is also a node in itself
+export interface Identifier extends BaseNode, BaseExpression {
+  type: 'Identifier';
+  name: string;
 }

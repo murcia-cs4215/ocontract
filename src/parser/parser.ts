@@ -29,8 +29,12 @@ import {
   GrammarParser,
   GreaterThanContext,
   GreaterThanOrEqualContext,
+  IdentifierContext,
+  IdentifierExpressionContext,
   LessThanContext,
   LessThanOrEqualContext,
+  LetGlobalBindingContext,
+  LetGlobalBindingExpressionContext,
   ModulusContext,
   MultiplicationContext,
   MultiplicationFloatContext,
@@ -56,6 +60,7 @@ import { FatalSyntaxError } from './errors';
 import {
   Expression,
   ExpressionStatement,
+  Identifier,
   Program,
   SourceLocation,
   Statement,
@@ -155,11 +160,6 @@ class StatementParser
   }
   visitParentheses(ctx: ParenthesesContext): ExpressionStatement {
     return this.visit(ctx.parenthesesExpression());
-  }
-  visitConditionalExpression(
-    ctx: ConditionalExpressionContext,
-  ): ExpressionStatement {
-    return this.visit(ctx.condExp());
   }
   visitPower(ctx: PowerContext): ExpressionStatement {
     return this.wrapAsStatement({
@@ -368,6 +368,28 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
+  visitLetGlobalBindingExpression(
+    ctx: LetGlobalBindingExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.letGlobalBinding());
+  }
+  visitConditionalExpression(
+    ctx: ConditionalExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.condExp());
+  }
+  visitIdentifierExpression(
+    ctx: IdentifierExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.identifier());
+  }
+  visitIdentifier(ctx: IdentifierContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'Identifier',
+      name: ctx.IDENTIFIER().text,
+      loc: contextToLocation(ctx),
+    });
+  }
   visitParenthesesExpression(
     ctx: ParenthesesExpressionContext,
   ): ExpressionStatement {
@@ -380,6 +402,14 @@ class StatementParser
       consequent: this.visit(ctx._consequent).expression,
       alternate: this.visit(ctx._alternate).expression,
       loc: contextToLocation(ctx),
+    });
+  }
+  visitLetGlobalBinding(ctx: LetGlobalBindingContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'AssignmentExpression',
+      operator: '=',
+      left: this.visit(ctx._id).expression as Identifier,
+      right: this.visit(ctx._init).expression,
     });
   }
   visitErrorNode(node: ErrorNode): ExpressionStatement {
@@ -432,9 +462,6 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitParentheses(ctx: ParenthesesContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitPower(ctx: PowerContext): Statement[] {
@@ -506,10 +533,27 @@ class StatementsParser
   visitOr(ctx: OrContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitLetGlobalBindingExpression(
+    ctx: LetGlobalBindingExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitIdentifierExpression(ctx: IdentifierExpressionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitIdentifier(ctx: IdentifierContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
   visitParenthesesExpression(ctx: ParenthesesExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitCondExp(ctx: CondExpContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLetGlobalBinding(ctx: LetGlobalBindingContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }
