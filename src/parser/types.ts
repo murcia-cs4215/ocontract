@@ -34,6 +34,7 @@ export type Expression =
   | GlobalLetExpression
   | LocalLetExpression
   | Identifier
+  | FunctionExpression
   | EmptyExpression;
 
 export interface Program extends BaseNode {
@@ -142,8 +143,13 @@ export interface LogicalExpression extends BaseExpression {
   right: Expression;
 }
 
+/**
+ * BINDINGS
+ */
+
 export interface GlobalLetExpression extends BaseExpression {
   type: 'GlobalLetExpression';
+  recursive: boolean;
   left: Identifier;
   right: Expression;
 }
@@ -177,4 +183,20 @@ export interface EmptyExpression extends BaseExpression {
 export interface Identifier extends BaseNode, BaseExpression {
   type: 'Identifier';
   name: string;
+}
+
+/**
+ * FUNCTIONS
+ */
+
+interface BaseFunction extends BaseNode {
+  params: Array<Identifier>;
+  body: Expression;
+}
+
+// AKA function declaration
+export interface FunctionExpression extends BaseFunction, BaseExpression {
+  id: Identifier;
+  recursive: boolean;
+  type: 'FunctionExpression';
 }

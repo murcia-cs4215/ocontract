@@ -415,6 +415,7 @@ class StatementParser
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): ExpressionStatement {
     return this.wrapAsStatement({
       type: 'GlobalLetExpression',
+      recursive: ctx.REC() != null,
       left: this.visit(ctx._id).expression as Identifier,
       right: this.visit(ctx._init).expression,
       loc: contextToLocation(ctx),

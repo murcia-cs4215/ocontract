@@ -99,6 +99,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'GlobalLetExpression') {
       return handleRuntimeError(context, new InterpreterError(node.loc));
     }
+    // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
     const value = evaluate(node.right, context);
     return setVariable(context, identifier.name, value);
