@@ -48,7 +48,7 @@ REC: 'rec';
 DOUBLESEMICOLON: ';;';
 
 TYPE
-  : 'number'
+  : 'int'
   | 'float'
   | 'char'
   | 'string'
