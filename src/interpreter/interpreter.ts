@@ -8,7 +8,13 @@ import { Node } from 'parser/types';
 
 import { Context, RuntimeResult } from '../types';
 
-import { getVariable, setVariable } from './environment';
+import {
+  createLocalEnvironment,
+  getVariable,
+  popEnvironment,
+  pushEnvironment,
+  setVariable,
+} from './environment';
 import { handleRuntimeError, InterpreterError } from './errors';
 import {
   evaluateBinaryExpression,
@@ -96,6 +102,17 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const identifier = node.left;
     const value = evaluate(node.right, context);
     return setVariable(context, identifier.name, value);
+  },
+  LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'LocalLetExpression') {
+      return handleRuntimeError(context, new InterpreterError(node.loc));
+    }
+    const localEnvironment = createLocalEnvironment(context);
+    pushEnvironment(context, localEnvironment);
+    evaluate(node.left, context); // To initialise any names etc.
+    const result = evaluate(node.right, context);
+    popEnvironment(context);
+    return result;
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
