@@ -31,7 +31,7 @@ export type Expression =
   | LogicalExpression
   | SequenceExpression
   | ConditionalExpression
-  | AssignmentExpression
+  | GlobalLetExpression
   | Identifier
   | EmptyExpression;
 
@@ -143,8 +143,8 @@ export interface LogicalExpression extends BaseExpression {
   right: Expression;
 }
 
-export interface AssignmentExpression extends BaseExpression {
-  type: 'AssignmentExpression';
+export interface GlobalLetExpression extends BaseExpression {
+  type: 'GlobalLetExpression';
   operator: AssignmentOperator;
   left: Identifier;
   right: Expression;

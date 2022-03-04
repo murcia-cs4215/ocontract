@@ -406,7 +406,7 @@ class StatementParser
   }
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): ExpressionStatement {
     return this.wrapAsStatement({
-      type: 'AssignmentExpression',
+      type: 'GlobalLetExpression',
       operator: '=',
       left: this.visit(ctx._id).expression as Identifier,
       right: this.visit(ctx._init).expression,
