@@ -26,6 +26,8 @@ import {
   EqualStructuralContext,
   ExpressionContext,
   FloatContext,
+  FunctionDeclarationContext,
+  FunctionDeclarationExpressionContext,
   GrammarParser,
   GreaterThanContext,
   GreaterThanOrEqualContext,
@@ -381,6 +383,11 @@ class StatementParser
   ): ExpressionStatement {
     return this.visit(ctx.letLocalBinding());
   }
+  visitFunctionDeclarationExpression(
+    ctx: FunctionDeclarationExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.functionDeclaration());
+  }
   visitConditionalExpression(
     ctx: ConditionalExpressionContext,
   ): ExpressionStatement {
@@ -428,6 +435,21 @@ class StatementParser
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       left: this.visit(left!).expression as GlobalLetExpression,
       right: this.visit(ctx._exp2).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitFunctionDeclaration(
+    ctx: FunctionDeclarationContext,
+  ): ExpressionStatement {
+    const identifiers = ctx._ids.identifier();
+    return this.wrapAsStatement({
+      type: 'FunctionExpression',
+      recursive: ctx.REC() !== undefined,
+      id: this.visit(identifiers[0]).expression as Identifier,
+      params: identifiers
+        .slice(1)
+        .map((id) => this.visit(id).expression) as Identifier[],
+      body: this.visit(ctx._body).expression,
       loc: contextToLocation(ctx),
     });
   }
@@ -562,6 +584,11 @@ class StatementsParser
   ): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitFunctionDeclarationExpression(
+    ctx: FunctionDeclarationExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
   visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
@@ -581,6 +608,9 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitLetLocalBinding(ctx: LetLocalBindingContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFunctionDeclaration(ctx: FunctionDeclarationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }

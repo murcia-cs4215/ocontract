@@ -196,7 +196,7 @@ interface BaseFunction extends BaseNode {
 
 // AKA function declaration
 export interface FunctionExpression extends BaseFunction, BaseExpression {
+  type: 'FunctionExpression';
   id: Identifier;
   recursive: boolean;
-  type: 'FunctionExpression';
 }
