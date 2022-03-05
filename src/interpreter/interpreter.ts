@@ -127,6 +127,12 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const identifier = node.id;
     const closure = new Closure(node, currentEnvironment(context), context);
+
+    // Define self in the closure's cloned environment only if recursive
+    if (node.recursive && closure.clonedEnvironment) {
+      closure.clonedEnvironment.head[identifier.name] = closure;
+    }
+
     return setVariable(context, identifier.name, closure);
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {

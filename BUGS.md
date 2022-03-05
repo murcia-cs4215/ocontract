@@ -1,7 +1,6 @@
 # Bugs to Fix
 
 - `let rec` global bindings don't really work because we don't really have any operations that are supported right now.
-- Need to handle non-recursive functions
 - Need to add the following flow once explicit typing is supported:
   - First, parse the program for type declarations and add them into the type environment
   - Then, parse the program for names / function declarations, and ensure that all of them were typed + there is no reference to names before they were bound (this applies to function bodies as well)

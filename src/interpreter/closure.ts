@@ -7,14 +7,14 @@ import { Context, Environment, FunctionType } from '../types';
 
 export class Closure {
   originalNode: FunctionExpression;
-  originalEnvironment: Environment | null;
+  clonedEnvironment: Environment | null;
   constructor(
     node: FunctionExpression,
     environment: Environment | null,
     public context: Context,
   ) {
     this.originalNode = node;
-    this.originalEnvironment = structuredClone(environment);
+    this.clonedEnvironment = structuredClone(environment);
   }
 
   getType(): FunctionType {
