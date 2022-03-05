@@ -22,6 +22,15 @@ export const stringType = makePrimitive('string');
 export const charType = makePrimitive('char');
 export const unitType = makePrimitive('unit');
 
+export const primitiveTypes = [
+  intType,
+  floatType,
+  boolType,
+  stringType,
+  charType,
+  unitType,
+];
+
 export const valueTypeToPrimitive: { [valueType: string]: Primitive } = {
   int: intType,
   float: floatType,

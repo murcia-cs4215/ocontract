@@ -55,7 +55,7 @@ export type RuntimeResult = Omit<Finished, 'status'>;
  */
 
 export interface Frame {
-  [name: string]: any;
+  [name: string]: RuntimeResult;
 }
 
 export interface Environment {

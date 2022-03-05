@@ -9,10 +9,10 @@ import { Node } from 'parser/types';
 import { unitType, valueTypeToPrimitive } from '../constants';
 import { Context, RuntimeResult } from '../types';
 
-import { Closure } from './closure';
+import { checkNumberOfArguments, Closure } from './closure';
 import {
+  createFunctionEnvironment,
   createLocalEnvironment,
-  currentEnvironment,
   getVariable,
   popEnvironment,
   pushEnvironment,
@@ -126,14 +126,25 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const identifier = node.id;
-    const closure = new Closure(node, currentEnvironment(context), context);
+    const closure = new Closure(node, context);
 
     // Define self in the closure's cloned environment only if recursive
-    if (node.recursive && closure.clonedEnvironment) {
-      closure.clonedEnvironment.head[identifier.name] = closure;
+    if (node.recursive) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      closure.clonedEnvironments[0]!.head[identifier.name] = {
+        value: closure,
+        type: closure.getType(),
+      };
     }
-
     return setVariable(context, identifier.name, closure);
+  },
+  CallExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'CallExpression') {
+      return handleRuntimeError(context, new InterpreterError(node));
+    }
+    const func = evaluate(node.callee, context);
+    const args = node.arguments.map((arg) => evaluate(arg, context));
+    return apply(func, args, context);
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
@@ -176,6 +187,55 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
   const result = evaluator(node, context);
   leaveNode(context);
   return result;
+}
+
+function apply(
+  func: RuntimeResult,
+  args: RuntimeResult[],
+  context: Context,
+): RuntimeResult {
+  if (!(func.value instanceof Closure)) {
+    return handleRuntimeError(
+      context,
+      new InterpreterError(context.runtime.nodes[0]),
+    );
+  }
+  const closure = func.value;
+  checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
+  // TODO: Do typechecking of function call
+
+  // Replace context environments with function environments
+  // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
+  // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
+  const originalEnvironments = context.runtime.environments;
+  const functionEnvironment = createFunctionEnvironment(closure, args);
+  context.runtime.environments = closure.clonedEnvironments;
+  pushEnvironment(context, functionEnvironment);
+
+  const originalNode = closure.originalNode;
+
+  // Means fully evaluated, no currying occurring here
+  if (originalNode.params.length === args.length) {
+    const result = evaluate(originalNode.body, context);
+    // Restore context environments
+    context.runtime.environments = originalEnvironments;
+    return result;
+  }
+
+  const curriedClosure = new Closure(
+    {
+      type: 'FunctionExpression',
+      id: { type: 'Identifier', name: 'curried' },
+      recursive: false,
+      params: originalNode.params.slice(args.length),
+      body: originalNode.body,
+    },
+    context,
+  );
+
+  // Restore context environments
+  context.runtime.environments = originalEnvironments;
+  return { value: curriedClosure, type: curriedClosure.getType() };
 }
 
 // HELPER FUNCTIONS

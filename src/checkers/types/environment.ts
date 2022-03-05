@@ -2,9 +2,9 @@ import { makeFunctionType } from 'utils/typing';
 
 import {
   boolType,
-  charType,
   floatType,
   intType,
+  primitiveTypes,
   stringType,
 } from '../../constants';
 import { Type, TypeEnvironment } from '../../types';
@@ -15,9 +15,7 @@ const predeclaredNames: [string, Type | Type[]][] = [];
 export const NEGATIVE_OP = '-_1';
 
 function makeComparableTypes(): Type[] {
-  return [intType, floatType, boolType, stringType, charType].map((type) =>
-    makeFunctionType(type, type, boolType),
-  );
+  return primitiveTypes.map((type) => makeFunctionType(type, type, boolType));
 }
 
 const primitiveFuncs: [string, Type | Type[]][] = [

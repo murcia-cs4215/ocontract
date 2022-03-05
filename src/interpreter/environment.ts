@@ -1,6 +1,6 @@
 import uniqueId from 'lodash.uniqueid';
 
-import { Context, Environment, RuntimeResult } from '../types';
+import { Context, Environment, Frame, RuntimeResult } from '../types';
 
 import { Closure } from './closure';
 import {
@@ -80,4 +80,28 @@ export function createLocalEnvironment(
     head: {},
     id: uniqueId(),
   };
+}
+
+// Assumption: number of arguments <= number of parameters
+export function createFunctionEnvironment(
+  closure: Closure,
+  args: RuntimeResult[],
+): Environment {
+  const environment = {
+    name: closure.name,
+    tail: closure.clonedEnvironments[0],
+    head: {} as Frame,
+    id: uniqueId(),
+  };
+
+  // We bound the number of iterations by the number of arguments
+  args.forEach((arg, index) => {
+    if (!environment.head) {
+      return;
+    }
+    const param = closure.originalNode.params[index];
+    environment.head[param.name] = arg;
+  });
+
+  return environment;
 }

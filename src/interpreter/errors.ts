@@ -38,6 +38,20 @@ export class UnboundValueError extends RuntimeSourceError {
   }
 }
 
+export class TooManyArgumentsError extends RuntimeSourceError {
+  constructor(public functionType: string, node: Node) {
+    super(node);
+  }
+
+  public explain(): string {
+    return `This function has type ${this.functionType}`;
+  }
+
+  public elaborate(): string {
+    return "It is applied to too many arguments; maybe you forgot a `;'.";
+  }
+}
+
 export function handleRuntimeError(
   context: Context,
   error: RuntimeSourceError,
