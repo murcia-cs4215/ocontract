@@ -1,3 +1,4 @@
+import { intType } from '../../constants';
 import { runTest } from '../../utils/tests';
 
 test('conditional expression', () => {
@@ -5,13 +6,13 @@ test('conditional expression', () => {
   expect(resT).toEqual({
     status: 'finished',
     value: 10,
-    type: 'int',
+    type: intType,
   });
   const resF = runTest('if false then 10 else 20;;');
   expect(resF).toEqual({
     status: 'finished',
     value: 20,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -20,6 +21,6 @@ test('parenthesized conditional expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 20,
-    type: 'int',
+    type: intType,
   });
 });

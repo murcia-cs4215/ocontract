@@ -1,6 +1,6 @@
 import { SourceError } from 'errors/types';
 
-import { Finished } from '../types';
+import { Finished, Type } from '../types';
 
 const verboseErrors = false;
 
@@ -26,14 +26,26 @@ export function formatErrorsForRepl(
 }
 
 export function formatFinishedForRepl(result: Finished): string {
-  if (result.type === 'unit') {
+  const type = formatType(result.type);
+  if (type === 'unit') {
     return '';
   }
-  if (result.type === 'float' && Math.floor(result.value) === result.value) {
+  if (type === 'float' && Math.floor(result.value) === result.value) {
     result.value = `${result.value}.`;
   }
   if (result.name) {
-    return `val ${result.name} : ${result.type} = ${result.value}`;
+    return `val ${result.name} : ${type} = ${result.value}${
+      result.type.kind === 'function' ? ' = <fun>' : ''
+    }`;
   }
-  return `- : ${result.type} = ${result.value}`;
+  return `- : ${type} = ${result.value}`;
+}
+
+export function formatType(type: Type): string {
+  if (type.kind === 'primitive') {
+    return type.type;
+  }
+  return [...type.parameterTypes, type.returnType]
+    .map((t) => (t.kind === 'function' ? `(${formatType(t)})` : formatType(t)))
+    .join(' -> ');
 }

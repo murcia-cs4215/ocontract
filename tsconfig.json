@@ -4,10 +4,11 @@
     "module": "commonjs",
     "outDir": "build",
     "paths": {
+      "checkers/*": ["./checkers/*"],
+      "errors/*": ["./errors/*"],
       "interpreter/*": ["./interpreter/*"],
       "lang/*": ["./lang/*"],
       "parser/*": ["./parser/*"],
-      "types/*": ["./types/*"],
       "utils/*": ["./utils/*"]
     },
     "allowSyntheticDefaultImports": true,

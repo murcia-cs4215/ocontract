@@ -1,3 +1,4 @@
+import { boolType, floatType } from '../../constants';
 import { runTest } from '../../utils/tests';
 
 test('float', () => {
@@ -5,7 +6,7 @@ test('float', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 1,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -14,7 +15,7 @@ test('negative float', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -23,13 +24,13 @@ test('float addition', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 3.5,
-    type: 'float',
+    type: floatType,
   });
   res = runTest('1.1 +. -2.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -38,13 +39,13 @@ test('float subtraction', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -2.25,
-    type: 'float',
+    type: floatType,
   });
   res = runTest('10.5 -. -12.75;;');
   expect(res).toEqual({
     status: 'finished',
     value: 23.25,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -53,13 +54,13 @@ test('float multiplication', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 126.5,
-    type: 'float',
+    type: floatType,
   });
   res = runTest('2.5 *. -50.6;;');
   expect(res).toEqual({
     status: 'finished',
     value: -126.5,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -68,13 +69,13 @@ test('float division', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 15.6953125,
-    type: 'float',
+    type: floatType,
   });
   res = runTest('100.45 /. -6.4;;');
   expect(res).toEqual({
     status: 'finished',
     value: -15.6953125,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -83,7 +84,7 @@ test('float division by 0', () => {
   expect(res).toEqual({
     status: 'finished',
     value: Infinity,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -92,7 +93,7 @@ test('float greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -101,7 +102,7 @@ test('float smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -110,7 +111,7 @@ test('float greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -119,7 +120,7 @@ test('float smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -128,13 +129,13 @@ test('float structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49.5 = 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -143,13 +144,13 @@ test('float structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49.5 <> 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -158,13 +159,13 @@ test('float physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49.5 == 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -173,13 +174,13 @@ test('float physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49.5 != 50.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -188,7 +189,7 @@ test('parenthesized expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 3.7,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -197,6 +198,6 @@ test('float order of precedence', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 2.75,
-    type: 'float',
+    type: floatType,
   });
 });

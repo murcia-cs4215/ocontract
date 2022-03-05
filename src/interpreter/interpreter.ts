@@ -6,6 +6,7 @@ import {
 
 import { Node } from 'parser/types';
 
+import { unitType, valueTypeToPrimitive } from '../constants';
 import { Context, RuntimeResult } from '../types';
 
 import {
@@ -29,7 +30,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Literal') {
       return handleRuntimeError(context, new InterpreterError(node.loc));
     }
-    return { value: node.value, type: node.valueType };
+    return {
+      value: node.value,
+      type: valueTypeToPrimitive[node.valueType],
+    };
   },
   Identifier: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Identifier') {
@@ -125,7 +129,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'SequenceExpression') {
       return handleRuntimeError(context, new InterpreterError(node.loc));
     }
-    let value = { value: undefined, type: 'unit' } as RuntimeResult;
+    let value = { value: undefined, type: unitType } as RuntimeResult;
     for (const expression of node.expressions) {
       value = evaluate(expression, context);
     }
@@ -135,7 +139,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Program') {
       return handleRuntimeError(context, new InterpreterError(node.loc));
     }
-    let value = { value: undefined, type: 'unit' } as RuntimeResult;
+    let value = { value: undefined, type: unitType } as RuntimeResult;
     for (const statement of node.body) {
       value = evaluate(statement, context);
     }

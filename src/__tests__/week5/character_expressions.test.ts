@@ -1,3 +1,4 @@
+import { boolType, charType } from '../../constants';
 import { runTest } from '../../utils/tests';
 
 test('character', () => {
@@ -5,7 +6,7 @@ test('character', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 'a',
-    type: 'char',
+    type: charType,
   });
 });
 
@@ -14,7 +15,7 @@ test('character greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -23,7 +24,7 @@ test('character smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -32,7 +33,7 @@ test('character greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -41,7 +42,7 @@ test('character smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -50,13 +51,13 @@ test('character structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest("'a' = 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -65,13 +66,13 @@ test('integer structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest("'a' <> 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -80,13 +81,13 @@ test('integer physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest("'a' == 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -95,12 +96,12 @@ test('integer physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest("'a' != 'b';;");
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });

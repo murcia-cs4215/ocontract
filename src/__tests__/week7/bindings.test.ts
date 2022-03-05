@@ -1,5 +1,6 @@
 import { runTest } from 'utils/tests';
 
+import { intType } from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 
@@ -18,7 +19,7 @@ test('global binding expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 10,
-    type: 'int',
+    type: intType,
     name: 'x',
   });
 });
@@ -31,7 +32,7 @@ test('bound identifier', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 10,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -43,7 +44,7 @@ test('rebinding identifier', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 20,
-    type: 'int',
+    type: intType,
     name: 'x',
   });
 
@@ -55,7 +56,7 @@ test('rebinding identifier', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 20,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -64,7 +65,7 @@ test('local binding expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 10,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -73,7 +74,7 @@ test('local binding with operations', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 20,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -87,7 +88,7 @@ test('local binding with nesting', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 6,
-    type: 'int',
+    type: intType,
   });
 });
 

@@ -3,7 +3,7 @@ import { SourceError } from 'errors/types';
 import { Node } from 'parser/types';
 
 /**
- * TYPES FOR OUTPUT
+ * TYPES FOR TYPE CHECKING
  */
 
 export type PrimitiveType =
@@ -13,28 +13,6 @@ export type PrimitiveType =
   | 'string'
   | 'char'
   | 'unit';
-
-export type Value = any;
-
-export interface Errored {
-  status: 'errored';
-}
-
-export interface Finished {
-  status: 'finished';
-  value: Value;
-  type: PrimitiveType;
-  name?: string; // Only defined for result of global let bindings
-}
-
-export type Result = Finished | Errored;
-
-// Used for tracking non-finished results during runtime
-export type RuntimeResult = Omit<Finished, 'status'>;
-
-/**
- * TYPES FOR TYPE CHECKING
- */
 
 export interface Primitive {
   kind: 'primitive';
@@ -49,6 +27,28 @@ export interface FunctionType {
 }
 
 export type Type = Primitive | FunctionType;
+
+/**
+ * TYPES FOR OUTPUT
+ */
+
+export type Value = any;
+
+export interface Errored {
+  status: 'errored';
+}
+
+export interface Finished {
+  status: 'finished';
+  value: Value;
+  type: Type;
+  name?: string; // Only defined for result of global let bindings
+}
+
+export type Result = Finished | Errored;
+
+// Used for tracking non-finished results during runtime
+export type RuntimeResult = Omit<Finished, 'status'>;
 
 /**
  * TYPES FOR ENVIRONMENT
