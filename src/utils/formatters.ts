@@ -28,17 +28,18 @@ export function formatErrorsForRepl(
 export function formatFinishedForRepl(result: Finished): string {
   const type = formatType(result.type);
   if (type === 'unit') {
-    return '';
+    result.value = '()';
   }
   if (type === 'float' && Math.floor(result.value) === result.value) {
     result.value = `${result.value}.`;
   }
+
+  const value = result.type.kind === 'function' ? '<fun>' : result.value;
+
   if (result.name) {
-    return `val ${result.name} : ${type} = ${result.value}${
-      result.type.kind === 'function' ? ' = <fun>' : ''
-    }`;
+    return `val ${result.name} : ${type} = ${value}`;
   }
-  return `- : ${type} = ${result.value}`;
+  return `- : ${type} = ${value}`;
 }
 
 export function formatType(type: Type): string {

@@ -9,8 +9,10 @@ import { Node } from 'parser/types';
 import { unitType, valueTypeToPrimitive } from '../constants';
 import { Context, RuntimeResult } from '../types';
 
+import { Closure } from './closure';
 import {
   createLocalEnvironment,
+  currentEnvironment,
   getVariable,
   popEnvironment,
   pushEnvironment,
@@ -119,6 +121,14 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     popEnvironment(context);
     return result;
   },
+  FunctionExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'FunctionExpression') {
+      return handleRuntimeError(context, new InterpreterError(node));
+    }
+    const identifier = node.id;
+    const closure = new Closure(node, currentEnvironment(context), context);
+    return setVariable(context, identifier.name, closure);
+  },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
@@ -139,6 +149,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Program') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
+    context.numberOfOuterEnvironments += 1;
+    const environment = createLocalEnvironment(context, 'programEnvironment');
+    pushEnvironment(context, environment);
+
     let value = { value: undefined, type: unitType } as RuntimeResult;
     for (const statement of node.body) {
       value = evaluate(statement, context);

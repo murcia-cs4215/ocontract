@@ -2,6 +2,7 @@ import uniqueId from 'lodash.uniqueid';
 
 import { Context, Environment, RuntimeResult } from '../types';
 
+import { Closure } from './closure';
 import {
   handleRuntimeError,
   InterpreterError,
@@ -47,7 +48,7 @@ export function getVariable(context: Context, name: string): RuntimeResult {
 export function setVariable(
   context: Context,
   name: string,
-  value: any,
+  value: RuntimeResult | Closure,
 ): RuntimeResult {
   const environment = currentEnvironment(context);
   if (!environment) {
@@ -56,15 +57,25 @@ export function setVariable(
       new InterpreterError(context.runtime.nodes[0]),
     );
   }
+  if (value instanceof Closure) {
+    value = {
+      value,
+      type: value.getType(),
+    };
+  }
+
   environment.head[name] = value;
   return { ...value, name };
 }
 
 // LOCAL ENVIRONMENT
 
-export function createLocalEnvironment(context: Context): Environment {
+export function createLocalEnvironment(
+  context: Context,
+  name = 'localEnvironment',
+): Environment {
   return {
-    name: 'localEnvironment',
+    name,
     tail: currentEnvironment(context),
     head: {},
     id: uniqueId(),
