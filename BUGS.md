@@ -11,4 +11,4 @@
     - Operations and function calls are all performed on the correct types
     - Note that this checking will require the pushing and popping of type environments, especially for function bodies and local let bindings.
   - Stretch goal: to add in contract checking at this point as well.
-- Once the above is done, we can potentially strip out dynamic type checking (but it's not a huge issue to keep it as well, just in case).
+- Once the above is done, we can potentially strip out dynamic type checking (but it's not a huge issue to keep it as well, just in case). If we want to keep the dynamic type checking, we'd want to check that the actual types = declared types + that all operations are legit.
