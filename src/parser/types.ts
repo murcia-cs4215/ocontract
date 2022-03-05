@@ -35,6 +35,7 @@ export type Expression =
   | LocalLetExpression
   | Identifier
   | FunctionExpression
+  | CallExpression
   | EmptyExpression;
 
 export interface Program extends BaseNode {
@@ -199,4 +200,13 @@ export interface FunctionExpression extends BaseFunction, BaseExpression {
   type: 'FunctionExpression';
   id: Identifier;
   recursive: boolean;
+}
+
+interface BaseCallExpression extends BaseExpression {
+  callee: Expression;
+  arguments: Array<Expression>;
+}
+
+export interface CallExpression extends BaseCallExpression {
+  type: 'CallExpression';
 }

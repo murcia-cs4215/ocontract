@@ -16,6 +16,7 @@ import {
   AdditionFloatContext,
   AndContext,
   BooleanContext,
+  CallFunctionContext,
   CharContext,
   ConcatenationContext,
   CondExpContext,
@@ -26,6 +27,7 @@ import {
   EqualStructuralContext,
   ExpressionContext,
   FloatContext,
+  FuncApplicationContext,
   FunctionDeclarationContext,
   FunctionDeclarationExpressionContext,
   GrammarParser,
@@ -118,6 +120,9 @@ class StatementParser
       expression,
       loc: expression.loc,
     };
+  }
+  visitCallFunction(ctx: CallFunctionContext): ExpressionStatement {
+    return this.visit(ctx.funcApplication());
   }
   visitNumber(ctx: NumberContext): ExpressionStatement {
     return this.wrapAsStatement({
@@ -405,6 +410,15 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
+  visitFuncApplication(ctx: FuncApplicationContext): ExpressionStatement {
+    const args = ctx._args.expression();
+    return this.wrapAsStatement({
+      type: 'CallExpression',
+      callee: this.visit(ctx._func).expression,
+      arguments: args.map((arg) => this.visit(arg).expression),
+      loc: contextToLocation(ctx),
+    });
+  }
   visitParenthesesExpression(
     ctx: ParenthesesExpressionContext,
   ): ExpressionStatement {
@@ -480,6 +494,9 @@ class StatementsParser
 
   visitErrorNode(node: ErrorNode): Statement[] {
     throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
+  }
+  visitCallFunction(ctx: CallFunctionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
   }
   visitNumber(ctx: NumberContext): Statement[] {
     return [ctx.accept(this.statementParser)];
@@ -590,6 +607,9 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitIdentifier(ctx: IdentifierContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFuncApplication(ctx: FuncApplicationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitParenthesesExpression(ctx: ParenthesesExpressionContext): Statement[] {
