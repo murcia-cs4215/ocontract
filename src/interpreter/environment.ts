@@ -53,7 +53,7 @@ export function setVariable(
   if (!environment) {
     return handleRuntimeError(
       context,
-      new InterpreterError(context.runtime.nodes[0].loc),
+      new InterpreterError(context.runtime.nodes[0]),
     );
   }
   environment.head[name] = value;

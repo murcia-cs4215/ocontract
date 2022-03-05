@@ -28,7 +28,7 @@ type Evaluator = (node: Node, context: Context) => RuntimeResult;
 const evaluators: { [nodeType: string]: Evaluator } = {
   Literal: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Literal') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     return {
       value: node.value,
@@ -37,13 +37,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   Identifier: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Identifier') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     return getVariable(context, node.name);
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'UnaryExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     const argument = evaluate(node.argument, context);
     const error = checkUnaryExpression(node, node.operator, argument);
@@ -54,7 +54,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'BinaryExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
@@ -66,7 +66,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LogicalExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
     let error = checkBoolean(node, left);
@@ -88,7 +88,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ConditionalExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     const test = evaluate(node.test, context);
     const error = checkBoolean(node, test);
@@ -101,7 +101,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   GlobalLetExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'GlobalLetExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
@@ -110,7 +110,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LocalLetExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     const localEnvironment = createLocalEnvironment(context);
     pushEnvironment(context, localEnvironment);
@@ -121,13 +121,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     return evaluate(node.expression, context);
   },
   SequenceStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'SequenceExpression') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     let value = { value: undefined, type: unitType } as RuntimeResult;
     for (const expression of node.expressions) {
@@ -137,7 +137,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
   },
   Program: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Program') {
-      return handleRuntimeError(context, new InterpreterError(node.loc));
+      return handleRuntimeError(context, new InterpreterError(node));
     }
     let value = { value: undefined, type: unitType } as RuntimeResult;
     for (const statement of node.body) {
@@ -149,7 +149,11 @@ const evaluators: { [nodeType: string]: Evaluator } = {
 
 export function evaluate(node: Node, context: Context): RuntimeResult {
   visitNode(context, node);
-  const result = evaluators[node.type](node, context);
+  const evaluator = evaluators[node.type];
+  if (!evaluator) {
+    return handleRuntimeError(context, new InterpreterError(node));
+  }
+  const result = evaluator(node, context);
   leaveNode(context);
   return result;
 }

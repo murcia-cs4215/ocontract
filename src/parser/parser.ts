@@ -454,10 +454,7 @@ class StatementParser
     });
   }
   visitErrorNode(node: ErrorNode): ExpressionStatement {
-    throw new FatalSyntaxError(
-      nodeToErrorLocation(node),
-      `invalid syntax ${node.text}`,
-    );
+    throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
   }
 }
 
@@ -482,10 +479,7 @@ class StatementsParser
    */
 
   visitErrorNode(node: ErrorNode): Statement[] {
-    throw new FatalSyntaxError(
-      nodeToErrorLocation(node),
-      `invalid syntax ${node.text}`,
-    );
+    throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
   }
   visitNumber(ctx: NumberContext): Statement[] {
     return [ctx.accept(this.statementParser)];
@@ -620,7 +614,7 @@ const syntaxErrorListener = <T extends number | Token>(
   _offendingSymbol: T | undefined,
   line: number,
   charPositionInLine: number,
-  msg: string,
+  _msg: string,
   _e: RecognitionException | undefined,
 ): undefined => {
   throw new FatalSyntaxError(
@@ -634,7 +628,7 @@ const syntaxErrorListener = <T extends number | Token>(
         column: charPositionInLine + 1,
       },
     },
-    `invalid syntax ${msg}`,
+    'Syntax error',
   );
 };
 

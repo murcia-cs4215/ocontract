@@ -1,25 +1,26 @@
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
 
-import { Node, SourceLocation } from 'parser/types';
+import { Node } from 'parser/types';
 
-import { UNKNOWN_LOCATION } from '../constants';
-import { ErrorSeverity, ErrorType, SourceError } from '../errors/types';
+import { ErrorSeverity, ErrorType } from '../errors/types';
 import { Context } from '../types';
 
-export class InterpreterError implements SourceError {
+export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
   public severity = ErrorSeverity.ERROR;
   public constructor(
-    public location: SourceLocation = UNKNOWN_LOCATION,
+    public node: Node,
     public message = 'Unexpected evaluation',
-  ) {}
+  ) {
+    super(node);
+  }
 
   public explain(): string {
     return this.message;
   }
 
   public elaborate(): string {
-    return 'There is an evaluation error. This is an internal error.';
+    return 'There is an evaluation error. This is an internal error - likely, the interpretation of this type of expression is not yet implemented.';
   }
 }
 
