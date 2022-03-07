@@ -1,12 +1,12 @@
-import { makeFunctionType } from 'utils/typing';
-
 import {
   boolType,
   floatType,
   intType,
+  makeFunctionType,
   primitiveTypes,
   stringType,
-} from '../../constants';
+} from 'utils/typing';
+
 import { Type, TypeEnvironment } from '../../types';
 
 const predeclaredNames: [string, Type | Type[]][] = [];

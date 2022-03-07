@@ -1,6 +1,5 @@
 import { runTest } from 'utils/tests';
-
-import { intType } from '../../constants';
+import { intType } from 'utils/typing';
 
 test('single parameter function', () => {
   const res = runTest('let x a = a + 10;;');

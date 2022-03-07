@@ -42,7 +42,10 @@ export function formatFinishedForRepl(result: Finished): string {
   return `- : ${type} = ${value}`;
 }
 
-export function formatType(type: Type): string {
+export function formatType(type: Type | Type[]): string {
+  if (Array.isArray(type)) {
+    return type.map(formatType).join(' or ');
+  }
   if (type.kind === 'primitive') {
     return type.type;
   }

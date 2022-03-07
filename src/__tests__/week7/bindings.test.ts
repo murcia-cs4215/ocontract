@@ -1,6 +1,6 @@
 import { runTest } from 'utils/tests';
+import { intType } from 'utils/typing';
 
-import { intType } from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 

@@ -2,11 +2,13 @@ import {
   checkBinaryExpression,
   checkBoolean,
   checkUnaryExpression,
+  LHS,
+  RHS,
 } from 'checkers/types/runtimeChecker';
 
 import { Node } from 'parser/types';
+import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
-import { unitType, valueTypeToPrimitive } from '../constants';
 import { Context, RuntimeResult } from '../types';
 
 import { checkNumberOfArguments, Closure } from './closure';
@@ -71,7 +73,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
-    let error = checkBoolean(node, left);
+    let error = checkBoolean(node, left, LHS);
     if (error) {
       return handleRuntimeError(context, error);
     }
@@ -82,7 +84,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = evaluate(node.right, context);
-    error = checkBoolean(node, left);
+    error = checkBoolean(node, right, RHS);
     if (error) {
       return handleRuntimeError(context, error);
     }

@@ -1,8 +1,8 @@
 import assert from 'assert';
 
 import { getStaticTypeErrorMessage } from 'utils/tests';
+import { intType, valueTypeToPrimitive } from 'utils/typing';
 
-import { intType, valueTypeToPrimitive } from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 

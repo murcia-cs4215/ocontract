@@ -1,8 +1,14 @@
 /* eslint-disable no-case-declarations */
 import { Node, Program } from 'parser/types';
 import { formatType } from 'utils/formatters';
+import {
+  boolType,
+  isBool,
+  isSameType,
+  unitType,
+  valueTypeToPrimitive,
+} from 'utils/typing';
 
-import { unitType, valueTypeToPrimitive } from '../../constants';
 import { Context, FunctionType, Type, TypeEnvironment } from '../../types';
 
 import { NEGATIVE_OP } from './environment';
@@ -18,22 +24,6 @@ function lookupType(
     }
   }
   return undefined;
-}
-
-function isSameType(type1: Type, type2: Type): boolean {
-  if (type1.kind !== type2.kind) {
-    return false;
-  }
-  if (type1.kind === 'function' && type2.kind === 'function') {
-    return (
-      type1.parameterTypes.length === type2.parameterTypes.length &&
-      type1.parameterTypes.every((param, index) =>
-        isSameType(param, type2.parameterTypes[index]),
-      ) &&
-      isSameType(type1.returnType, type2.returnType)
-    );
-  }
-  return type1 === type2;
 }
 
 export function typeCheck(program: Program, context: Context): void {
@@ -79,10 +69,7 @@ function _typeCheck(node: Node, context: Context): Type {
       }
       throw new StaticTypeError(
         node.argument,
-        unaryTypes
-          .map((u) => u.parameterTypes[0])
-          .map(formatType)
-          .join(' or '),
+        formatType(unaryTypes.map((u) => u.parameterTypes[0])),
         formatType(argument),
       );
 
@@ -102,7 +89,9 @@ function _typeCheck(node: Node, context: Context): Type {
           if (isSameType(pair.parameterTypes[1], binaryRight)) {
             return pair.returnType;
           }
-          expectedRight = pair.parameterTypes[1];
+          if (!expectedRight) {
+            expectedRight = pair.parameterTypes[1];
+          }
         }
       }
 
@@ -115,21 +104,26 @@ function _typeCheck(node: Node, context: Context): Type {
       }
       throw new StaticTypeError(
         node.left,
-        binaryTypes
-          .map((b) => b.parameterTypes[0])
-          .map(formatType)
-          .join(' or '),
+        formatType(binaryTypes.map((b) => b.parameterTypes[0])),
         formatType(binaryLeft),
       );
 
     case 'LogicalExpression':
       const logicalLeft = _typeCheck(node.left, context);
-      if (logicalLeft.kind !== 'primitive' || logicalLeft.type !== 'bool') {
-        throw new StaticTypeError(node.left, 'bool', formatType(logicalLeft));
+      if (!isBool(logicalLeft)) {
+        throw new StaticTypeError(
+          node.left,
+          formatType(boolType),
+          formatType(logicalLeft),
+        );
       }
       const logicalRight = _typeCheck(node.right, context);
-      if (logicalRight.kind !== 'primitive' || logicalRight.type !== 'bool') {
-        throw new StaticTypeError(node.right, 'bool', formatType(logicalRight));
+      if (!isBool(logicalRight)) {
+        throw new StaticTypeError(
+          node.right,
+          formatType(boolType),
+          formatType(logicalRight),
+        );
       }
       return logicalLeft;
 
@@ -142,17 +136,16 @@ function _typeCheck(node: Node, context: Context): Type {
 
     case 'ConditionalExpression':
       const test = _typeCheck(node.test, context);
-      if (test.kind !== 'primitive' || test.type !== 'bool') {
-        throw new StaticTypeError(node.test, 'bool', formatType(test));
+      if (!isBool(test)) {
+        throw new StaticTypeError(
+          node.test,
+          formatType(boolType),
+          formatType(test),
+        );
       }
       const consequent = _typeCheck(node.consequent, context);
       const alternate = _typeCheck(node.alternate, context);
-      if (
-        consequent.kind !== alternate.kind ||
-        (consequent.kind === 'primitive' &&
-          alternate.kind === 'primitive' &&
-          consequent.type !== alternate.type)
-      ) {
+      if (!isSameType(consequent, alternate)) {
         throw new StaticTypeError(
           node.alternate,
           formatType(consequent),

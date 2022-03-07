@@ -2,8 +2,8 @@ import structuredClone from '@ungap/structured-clone';
 
 import { FunctionExpression } from 'parser/types';
 import { formatType } from 'utils/formatters';
+import { primitiveTypes, unitType } from 'utils/typing';
 
-import { primitiveTypes, unitType } from '../constants';
 import {
   Context,
   Environment,

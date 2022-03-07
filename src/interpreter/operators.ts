@@ -1,7 +1,7 @@
 import { BinaryOperator, LogicalOperator, UnaryOperator } from 'parser/types';
 import { StringWrapper } from 'parser/wrappers';
+import { boolType } from 'utils/typing';
 
-import { boolType } from '../constants';
 import { RuntimeResult } from '../types';
 
 // Assumes that type checking has been done prior, i.e. all operations
