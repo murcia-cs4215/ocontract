@@ -1,0 +1,97 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amssymb}
+\usepackage{color,soul}
+\usepackage{tikz}
+\usepackage{listings, lstautogobble}
+\usepackage{xcolor}
+
+% For code listing %
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=false,
+    captionpos=b,
+    keepspaces=false,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    autogobble=true
+}
+
+\lstset{style=mystyle}
+
+\evensidemargin 35pt % Align even and odd numbered pages
+\setlength{\parindent}{0in} % Paragraph Indentation
+\setlength{\parskip}{\medskipamount} % Spaces between paragraphs
+
+% Horizontal Margins
+\setlength{\oddsidemargin}{-0.25in} % Left margin 1 inch (0 + 1)
+\setlength{\textwidth}{6.75in} % Text width 6.5 inch (so right margin 1 inch).
+
+% Vertical Margins
+\setlength{\topmargin}{-0.75in} % Top margin 0.5 inch (-0.5 + 1)
+\setlength{\headheight}{0.25in} % Head height 0.25 inch (where page headers go)
+\setlength{\headsep}{0.25in} % Head separation 0.25 inch (between header and top line of text)
+\setlength{\textheight}{10.25in} % Text height 8.5 inch (so bottom margin 1.5 in)
+
+\title{OContract}
+\author{Rayson Koh (A0149884J), Zhu Hanming (A0196737L)}
+\date{March 2022}
+
+% Generate diagram using https://www.mathcha.io/editor %
+
+\begin{document}
+\pagenumbering{gobble}% Remove page numbers (and reset to 1)
+
+% Cover Page %
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+            
+        \Huge
+        \textbf{OContract}
+            
+        \vspace{0.5cm}
+        \LARGE
+        Assertion-Based Contracts and Blame Passing for OCaml
+
+        \vspace{1.5cm}
+
+
+        \vfill
+            
+        A paper presented for \textbf{CS4215}
+            
+        \vspace{0.8cm}
+            
+        \includegraphics[width=0.4\textwidth]{nus-logo.jpg}
+            
+        \Large
+        \textbf{Rayson Koh (A0149884J),\\Zhu Hanming (A0196737L)}\\
+        School of Computing\\
+        National University of Singapore\\
+        March 2022
+            
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+    
+\pagenumbering{arabic}
+\section{Introduction}
+
+\end{document}
