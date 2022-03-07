@@ -24,6 +24,9 @@ function structuredCloneWithTypes<T>(item: T): T {
   if (item === null || item === undefined) {
     return item;
   }
+  if (item instanceof Closure) {
+    return Closure.createFromClosure(item) as unknown as T;
+  }
   if (typeof item === 'object') {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(item)) {
@@ -38,12 +41,25 @@ export class Closure {
   name: string;
   originalNode: FunctionExpression;
   clonedEnvironments: Environment[];
-  constructor(node: FunctionExpression, public context: Context) {
+
+  private constructor(node: FunctionExpression, environments: Environment[]) {
     this.name = node.id.name;
     this.originalNode = node;
-    this.clonedEnvironments = structuredCloneWithTypes(
-      context.runtime.environments,
+    this.clonedEnvironments = environments;
+  }
+
+  static createFromFunctionExpression(
+    node: FunctionExpression,
+    context: Context,
+  ): Closure {
+    return new Closure(
+      node,
+      structuredCloneWithTypes(context.runtime.environments),
     );
+  }
+
+  static createFromClosure(closure: Closure): Closure {
+    return new Closure(closure.originalNode, closure.clonedEnvironments);
   }
 
   getType(): FunctionType {

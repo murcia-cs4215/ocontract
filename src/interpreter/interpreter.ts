@@ -126,7 +126,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const identifier = node.id;
-    const closure = new Closure(node, context);
+    const closure = Closure.createFromFunctionExpression(node, context);
 
     // Define self in the closure's cloned environment only if recursive
     if (node.recursive) {
@@ -222,7 +222,7 @@ function apply(
     return result;
   }
 
-  const curriedClosure = new Closure(
+  const curriedClosure = Closure.createFromFunctionExpression(
     {
       type: 'FunctionExpression',
       id: { type: 'Identifier', name: 'curried' },
