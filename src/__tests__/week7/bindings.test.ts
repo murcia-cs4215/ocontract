@@ -107,3 +107,15 @@ test('local binding scopes the declaration', () => {
   expect(context.errors).toHaveLength(1);
   expect(context.errors[0].explain()).toBe('Unbound value a');
 });
+
+test('operation after binding', () => {
+  const res = runTest(`
+    let x = 10;;
+    x + 20;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 30,
+    type: intType,
+  });
+});

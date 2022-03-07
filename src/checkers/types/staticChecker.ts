@@ -53,6 +53,9 @@ function _typeCheck(node: Node, context: Context): Type {
     case 'Literal':
       return valueTypeToPrimitive[node.valueType];
 
+    case 'Identifier':
+      return lookupType(node.name, context.typeEnvironment) as Type;
+
     case 'UnaryExpression':
       const argument = _typeCheck(node.argument, context);
       const operator = node.operator === '-' ? NEGATIVE_OP : node.operator;
@@ -153,6 +156,12 @@ function _typeCheck(node: Node, context: Context): Type {
         );
       }
       return consequent;
+
+    case 'GlobalLetExpression':
+      const type = _typeCheck(node.right, context);
+      const name = node.left.name;
+      context.typeEnvironment[0].typeMap.set(name, type);
+      return type;
 
     case 'EmptyExpression':
     default:
