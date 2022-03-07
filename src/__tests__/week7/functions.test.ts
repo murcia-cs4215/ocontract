@@ -70,3 +70,17 @@ test('function currying with call', () => {
     type: intType,
   });
 });
+
+test('closure captures previous environment', () => {
+  const res = runTest(`
+    let m = 10;;
+    let x a = m + a;;
+    let m = 30;;
+    x 5;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 15,
+    type: intType,
+  });
+});
