@@ -1,6 +1,8 @@
 import { createContext } from '../context';
 import { run } from '../index';
-import { Result } from '../types';
+import { Result, Type } from '../types';
+
+import { formatType } from './formatters';
 
 export function runTest(code: string): Result {
   const context = createContext();
@@ -8,8 +10,12 @@ export function runTest(code: string): Result {
 }
 
 export function getStaticTypeErrorMessage(
-  expected: string,
-  got: string,
+  expected: Type | string,
+  got: Type,
 ): string {
-  return `This expression has type ${got} but an expression was expected of type ${expected}`;
+  return `This expression has type ${formatType(
+    got,
+  )} but an expression was expected of type ${
+    typeof expected === 'string' ? expected : formatType(expected)
+  }`;
 }

@@ -31,6 +31,11 @@ export type Expression =
   | LogicalExpression
   | SequenceExpression
   | ConditionalExpression
+  | GlobalLetExpression
+  | LocalLetExpression
+  | Identifier
+  | FunctionExpression
+  | CallExpression
   | EmptyExpression;
 
 export interface Program extends BaseNode {
@@ -38,7 +43,7 @@ export interface Program extends BaseNode {
   body: Array<Statement>;
 }
 
-export type Node = Program | Statement | Expression | Literal;
+export type Node = Program | Statement | Expression | Literal | Identifier;
 
 /**
  * STATEMENT TYPES
@@ -117,8 +122,6 @@ export type BinaryOperator =
 
 export type LogicalOperator = '||' | '&&';
 
-export type AssignmentOperator = '=';
-
 export type BaseExpression = BaseNode;
 
 export interface UnaryExpression extends BaseExpression {
@@ -141,6 +144,31 @@ export interface LogicalExpression extends BaseExpression {
   right: Expression;
 }
 
+/**
+ * BINDINGS
+ */
+
+export interface GlobalLetExpression extends BaseExpression {
+  type: 'GlobalLetExpression';
+  recursive: boolean;
+  left: Identifier;
+  right: Expression;
+}
+
+export interface LocalLetExpression extends BaseExpression {
+  type: 'LocalLetExpression';
+  left: GlobalLetExpression;
+  right: Expression;
+}
+
+/**
+ * OTHER EXPRESSIONS
+ */
+
+export interface SequenceExpression extends BaseExpression {
+  type: 'SequenceExpression';
+  expressions: Array<Expression>;
+}
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression';
   test: Expression;
@@ -152,11 +180,33 @@ export interface EmptyExpression extends BaseExpression {
   type: 'EmptyExpression';
 }
 
+// Identifier is also a node in itself
+export interface Identifier extends BaseNode, BaseExpression {
+  type: 'Identifier';
+  name: string;
+}
+
 /**
- * OTHER EXPRESSIONS
+ * FUNCTIONS
  */
 
-export interface SequenceExpression extends BaseExpression {
-  type: 'SequenceExpression';
-  expressions: Array<Expression>;
+interface BaseFunction extends BaseNode {
+  params: Array<Identifier>;
+  body: Expression;
+}
+
+// AKA function declaration
+export interface FunctionExpression extends BaseFunction, BaseExpression {
+  type: 'FunctionExpression';
+  id: Identifier;
+  recursive: boolean;
+}
+
+interface BaseCallExpression extends BaseExpression {
+  callee: Expression;
+  arguments: Array<Expression>;
+}
+
+export interface CallExpression extends BaseCallExpression {
+  type: 'CallExpression';
 }

@@ -1,5 +1,11 @@
 import { getStaticTypeErrorMessage } from 'utils/tests';
 
+import {
+  boolType,
+  floatType,
+  intType,
+  valueTypeToPrimitive,
+} from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 
@@ -17,7 +23,7 @@ test('not with bool', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -34,7 +40,7 @@ test('not with non-bools', () => {
     });
     expect(context.errors).toHaveLength(1);
     expect(context.errors[0].explain()).toBe(
-      getStaticTypeErrorMessage('bool', type),
+      getStaticTypeErrorMessage(boolType, valueTypeToPrimitive[type]),
     );
     context.errors = [];
   }
@@ -46,7 +52,7 @@ test('-unary with int', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -1,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -56,7 +62,7 @@ test('-unary with float', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
-    type: 'float',
+    type: floatType,
   });
 });
 
@@ -73,7 +79,7 @@ test('-unary with non-ints and non-floats', () => {
     });
     expect(context.errors).toHaveLength(1);
     expect(context.errors[0].explain()).toBe(
-      getStaticTypeErrorMessage('int or float', type),
+      getStaticTypeErrorMessage('int or float', valueTypeToPrimitive[type]),
     );
     context.errors = [];
   }

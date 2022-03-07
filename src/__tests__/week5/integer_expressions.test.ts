@@ -1,3 +1,4 @@
+import { boolType, intType } from '../../constants';
 import { runTest } from '../../utils/tests';
 
 test('integer', () => {
@@ -5,7 +6,7 @@ test('integer', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 1,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -14,7 +15,7 @@ test('negative integer', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -5,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -23,13 +24,13 @@ test('integer addition', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 3,
-    type: 'int',
+    type: intType,
   });
   res = runTest('1 + -2;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -38,13 +39,13 @@ test('integer subtraction', () => {
   expect(res).toEqual({
     status: 'finished',
     value: -2,
-    type: 'int',
+    type: intType,
   });
   res = runTest('10 - -12;;');
   expect(res).toEqual({
     status: 'finished',
     value: 22,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -53,13 +54,13 @@ test('integer multiplication', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 100,
-    type: 'int',
+    type: intType,
   });
   res = runTest('2 * -50;;');
   expect(res).toEqual({
     status: 'finished',
     value: -100,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -68,13 +69,13 @@ test('integer division', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 2,
-    type: 'int',
+    type: intType,
   });
   res = runTest('100 / -50;;');
   expect(res).toEqual({
     status: 'finished',
     value: -2,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -83,7 +84,7 @@ test('integer division by 0', () => {
   expect(res).toEqual({
     status: 'finished',
     value: Infinity,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -92,7 +93,7 @@ test('integer modulo', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 10,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -101,7 +102,7 @@ test('integer greaterthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -110,7 +111,7 @@ test('integer smallerthan', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -119,7 +120,7 @@ test('integer greaterthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -128,7 +129,7 @@ test('integer smallerthanequals', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -137,13 +138,13 @@ test('integer structural equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49 = 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -152,13 +153,13 @@ test('integer structural inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49 <> 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -167,13 +168,13 @@ test('integer physical equality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49 == 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -182,13 +183,13 @@ test('integer physical inequality', () => {
   expect(res).toEqual({
     status: 'finished',
     value: false,
-    type: 'bool',
+    type: boolType,
   });
   res = runTest('49 != 50;;');
   expect(res).toEqual({
     status: 'finished',
     value: true,
-    type: 'bool',
+    type: boolType,
   });
 });
 
@@ -197,7 +198,7 @@ test('parenthesized expression', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 1,
-    type: 'int',
+    type: intType,
   });
 });
 
@@ -206,6 +207,6 @@ test('integer order of precedence', () => {
   expect(res).toEqual({
     status: 'finished',
     value: 2,
-    type: 'int',
+    type: intType,
   });
 });

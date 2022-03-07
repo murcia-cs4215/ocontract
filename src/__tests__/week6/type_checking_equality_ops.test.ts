@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import { getStaticTypeErrorMessage } from 'utils/tests';
 
+import { boolType, valueTypeToPrimitive } from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 
@@ -25,7 +26,7 @@ for (const operator of operators) {
       res = run(`${values[0]} ${operator} ${values[1]};;`, context);
       expect(res.status).toBe('finished');
       assert('type' in res);
-      expect(res.type).toBe('bool');
+      expect(res.type).toBe(boolType);
     }
   });
 
@@ -43,7 +44,10 @@ for (const operator of operators) {
         });
         expect(context.errors).toHaveLength(1);
         expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage(type1, type2),
+          getStaticTypeErrorMessage(
+            valueTypeToPrimitive[type1],
+            valueTypeToPrimitive[type2],
+          ),
         );
         context.errors = [];
       }

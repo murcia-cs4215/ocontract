@@ -10,8 +10,7 @@ export class RuntimeSourceError implements SourceError {
   public location: SourceLocation;
 
   constructor(node?: Node) {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    this.location = node ? node.loc! : UNKNOWN_LOCATION;
+    this.location = node?.loc ?? UNKNOWN_LOCATION;
   }
 
   public explain(): string {

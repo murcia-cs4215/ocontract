@@ -81,3 +81,11 @@ export function createContext<T>(
 
   return context;
 }
+
+export function prepareContextForRun(context: Context): void {
+  context.runtime.isRunning = true;
+}
+
+export function cleanUpContextAfterRun(context: Context): void {
+  context.runtime.isRunning = false;
+}

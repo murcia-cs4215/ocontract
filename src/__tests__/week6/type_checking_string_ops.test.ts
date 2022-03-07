@@ -2,6 +2,7 @@ import assert from 'assert';
 
 import { getStaticTypeErrorMessage } from 'utils/tests';
 
+import { stringType, valueTypeToPrimitive } from '../../constants';
 import { createContext } from '../../context';
 import { run } from '../../index';
 
@@ -24,7 +25,7 @@ for (const operator of operators) {
     const res = run(`${values[0]} ${operator} ${values[1]};;`, context);
     expect(res.status).toBe('finished');
     assert('type' in res);
-    expect(res.type).toBe('string');
+    expect(res.type).toBe(stringType);
   });
 
   test(`${operator} with non-strings`, () => {
@@ -41,7 +42,7 @@ for (const operator of operators) {
         });
         expect(context.errors).toHaveLength(1);
         expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage('string', type),
+          getStaticTypeErrorMessage(stringType, valueTypeToPrimitive[type]),
         );
         context.errors = [];
 
@@ -51,7 +52,7 @@ for (const operator of operators) {
         });
         expect(context.errors).toHaveLength(1);
         expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage('string', type),
+          getStaticTypeErrorMessage(stringType, valueTypeToPrimitive[type]),
         );
         context.errors = [];
 
@@ -61,7 +62,7 @@ for (const operator of operators) {
         });
         expect(context.errors).toHaveLength(1);
         expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage('string', type),
+          getStaticTypeErrorMessage(stringType, valueTypeToPrimitive[type]),
         );
         context.errors = [];
       }

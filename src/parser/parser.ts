@@ -16,6 +16,7 @@ import {
   AdditionFloatContext,
   AndContext,
   BooleanContext,
+  CallFunctionContext,
   CharContext,
   ConcatenationContext,
   CondExpContext,
@@ -26,11 +27,20 @@ import {
   EqualStructuralContext,
   ExpressionContext,
   FloatContext,
+  FuncApplicationContext,
+  FunctionDeclarationContext,
+  FunctionDeclarationExpressionContext,
   GrammarParser,
   GreaterThanContext,
   GreaterThanOrEqualContext,
+  IdentifierContext,
+  IdentifierExpressionContext,
   LessThanContext,
   LessThanOrEqualContext,
+  LetGlobalBindingContext,
+  LetGlobalBindingExpressionContext,
+  LetLocalBindingContext,
+  LetLocalBindingExpressionContext,
   ModulusContext,
   MultiplicationContext,
   MultiplicationFloatContext,
@@ -56,6 +66,8 @@ import { FatalSyntaxError } from './errors';
 import {
   Expression,
   ExpressionStatement,
+  GlobalLetExpression,
+  Identifier,
   Program,
   SourceLocation,
   Statement,
@@ -109,6 +121,9 @@ class StatementParser
       loc: expression.loc,
     };
   }
+  visitCallFunction(ctx: CallFunctionContext): ExpressionStatement {
+    return this.visit(ctx.funcApplication());
+  }
   visitNumber(ctx: NumberContext): ExpressionStatement {
     return this.wrapAsStatement({
       type: 'Literal',
@@ -155,11 +170,6 @@ class StatementParser
   }
   visitParentheses(ctx: ParenthesesContext): ExpressionStatement {
     return this.visit(ctx.parenthesesExpression());
-  }
-  visitConditionalExpression(
-    ctx: ConditionalExpressionContext,
-  ): ExpressionStatement {
-    return this.visit(ctx.condExp());
   }
   visitPower(ctx: PowerContext): ExpressionStatement {
     return this.wrapAsStatement({
@@ -368,6 +378,47 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
+  visitLetGlobalBindingExpression(
+    ctx: LetGlobalBindingExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.letGlobalBinding());
+  }
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.letLocalBinding());
+  }
+  visitFunctionDeclarationExpression(
+    ctx: FunctionDeclarationExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.functionDeclaration());
+  }
+  visitConditionalExpression(
+    ctx: ConditionalExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.condExp());
+  }
+  visitIdentifierExpression(
+    ctx: IdentifierExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.identifier());
+  }
+  visitIdentifier(ctx: IdentifierContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'Identifier',
+      name: ctx.IDENTIFIER().text,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitFuncApplication(ctx: FuncApplicationContext): ExpressionStatement {
+    const args = ctx._args.expression();
+    return this.wrapAsStatement({
+      type: 'CallExpression',
+      callee: this.visit(ctx._func).expression,
+      arguments: args.map((arg) => this.visit(arg).expression),
+      loc: contextToLocation(ctx),
+    });
+  }
   visitParenthesesExpression(
     ctx: ParenthesesExpressionContext,
   ): ExpressionStatement {
@@ -382,11 +433,42 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
+  visitLetGlobalBinding(ctx: LetGlobalBindingContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'GlobalLetExpression',
+      recursive: ctx.REC() != null,
+      left: this.visit(ctx._id).expression as Identifier,
+      right: this.visit(ctx._init).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitLetLocalBinding(ctx: LetLocalBindingContext): ExpressionStatement {
+    const left = ctx.letGlobalBinding() ?? ctx.functionDeclaration();
+    return this.wrapAsStatement({
+      type: 'LocalLetExpression',
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      left: this.visit(left!).expression as GlobalLetExpression,
+      right: this.visit(ctx._exp2).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitFunctionDeclaration(
+    ctx: FunctionDeclarationContext,
+  ): ExpressionStatement {
+    const identifiers = ctx._ids.identifier();
+    return this.wrapAsStatement({
+      type: 'FunctionExpression',
+      recursive: ctx.REC() !== undefined,
+      id: this.visit(identifiers[0]).expression as Identifier,
+      params: identifiers
+        .slice(1)
+        .map((id) => this.visit(id).expression) as Identifier[],
+      body: this.visit(ctx._body).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
   visitErrorNode(node: ErrorNode): ExpressionStatement {
-    throw new FatalSyntaxError(
-      nodeToErrorLocation(node),
-      `invalid syntax ${node.text}`,
-    );
+    throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
   }
 }
 
@@ -411,10 +493,10 @@ class StatementsParser
    */
 
   visitErrorNode(node: ErrorNode): Statement[] {
-    throw new FatalSyntaxError(
-      nodeToErrorLocation(node),
-      `invalid syntax ${node.text}`,
-    );
+    throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
+  }
+  visitCallFunction(ctx: CallFunctionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
   }
   visitNumber(ctx: NumberContext): Statement[] {
     return [ctx.accept(this.statementParser)];
@@ -432,9 +514,6 @@ class StatementsParser
     return [ctx.accept(this.statementParser)];
   }
   visitParentheses(ctx: ParenthesesContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitPower(ctx: PowerContext): Statement[] {
@@ -506,10 +585,46 @@ class StatementsParser
   visitOr(ctx: OrContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
+  visitLetGlobalBindingExpression(
+    ctx: LetGlobalBindingExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFunctionDeclarationExpression(
+    ctx: FunctionDeclarationExpressionContext,
+  ): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitIdentifierExpression(ctx: IdentifierExpressionContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitIdentifier(ctx: IdentifierContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFuncApplication(ctx: FuncApplicationContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
   visitParenthesesExpression(ctx: ParenthesesExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitCondExp(ctx: CondExpContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLetGlobalBinding(ctx: LetGlobalBindingContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitLetLocalBinding(ctx: LetLocalBindingContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFunctionDeclaration(ctx: FunctionDeclarationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }
@@ -519,7 +634,7 @@ const syntaxErrorListener = <T extends number | Token>(
   _offendingSymbol: T | undefined,
   line: number,
   charPositionInLine: number,
-  msg: string,
+  _msg: string,
   _e: RecognitionException | undefined,
 ): undefined => {
   throw new FatalSyntaxError(
@@ -533,7 +648,7 @@ const syntaxErrorListener = <T extends number | Token>(
         column: charPositionInLine + 1,
       },
     },
-    `invalid syntax ${msg}`,
+    'Syntax error',
   );
 };
 

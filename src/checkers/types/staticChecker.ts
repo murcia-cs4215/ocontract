@@ -1,24 +1,11 @@
 /* eslint-disable no-case-declarations */
-/* eslint-disable no-fallthrough */
 import { Node, Program } from 'parser/types';
+import { formatType } from 'utils/formatters';
 
-import {
-  Context,
-  FunctionType,
-  Primitive,
-  Type,
-  TypeEnvironment,
-} from '../../types';
+import { unitType, valueTypeToPrimitive } from '../../constants';
+import { Context, FunctionType, Type, TypeEnvironment } from '../../types';
 
-import {
-  boolType,
-  charType,
-  floatType,
-  intType,
-  NEGATIVE_OP,
-  stringType,
-  unitType,
-} from './environment';
+import { NEGATIVE_OP } from './environment';
 import { StaticTypeError } from './errors';
 
 function lookupType(
@@ -74,18 +61,7 @@ function _typeCheck(node: Node, context: Context): Type {
       return _typeCheck(node.expression, context);
 
     case 'Literal':
-      switch (node.valueType) {
-        case 'string':
-          return stringType;
-        case 'int':
-          return intType;
-        case 'float':
-          return floatType;
-        case 'char':
-          return charType;
-        case 'bool':
-          return boolType;
-      }
+      return valueTypeToPrimitive[node.valueType];
 
     case 'UnaryExpression':
       const argument = _typeCheck(node.argument, context);
@@ -104,9 +80,10 @@ function _typeCheck(node: Node, context: Context): Type {
       throw new StaticTypeError(
         node.argument,
         unaryTypes
-          .map((f) => (f.parameterTypes[0] as Primitive).type)
+          .map((u) => u.parameterTypes[0])
+          .map(formatType)
           .join(' or '),
-        'type' in argument ? argument.type : 'function',
+        formatType(argument),
       );
 
     case 'BinaryExpression':
@@ -132,34 +109,27 @@ function _typeCheck(node: Node, context: Context): Type {
       if (expectedRight) {
         throw new StaticTypeError(
           node.right,
-          'type' in expectedRight ? expectedRight.type : 'function',
-          'type' in binaryRight ? binaryRight.type : 'function',
+          formatType(expectedRight),
+          formatType(binaryRight),
         );
       }
       throw new StaticTypeError(
         node.left,
         binaryTypes
-          .map((f) => (f.parameterTypes[0] as Primitive).type)
+          .map((b) => b.parameterTypes[0])
+          .map(formatType)
           .join(' or '),
-        'type' in binaryLeft ? binaryLeft.type : 'function',
+        formatType(binaryLeft),
       );
 
     case 'LogicalExpression':
       const logicalLeft = _typeCheck(node.left, context);
       if (logicalLeft.kind !== 'primitive' || logicalLeft.type !== 'bool') {
-        throw new StaticTypeError(
-          node.left,
-          'bool',
-          'type' in logicalLeft ? logicalLeft.type : 'function',
-        );
+        throw new StaticTypeError(node.left, 'bool', formatType(logicalLeft));
       }
       const logicalRight = _typeCheck(node.right, context);
       if (logicalRight.kind !== 'primitive' || logicalRight.type !== 'bool') {
-        throw new StaticTypeError(
-          node.right,
-          'bool',
-          'type' in logicalRight ? logicalRight.type : 'function',
-        );
+        throw new StaticTypeError(node.right, 'bool', formatType(logicalRight));
       }
       return logicalLeft;
 
@@ -173,11 +143,7 @@ function _typeCheck(node: Node, context: Context): Type {
     case 'ConditionalExpression':
       const test = _typeCheck(node.test, context);
       if (test.kind !== 'primitive' || test.type !== 'bool') {
-        throw new StaticTypeError(
-          node.test,
-          'bool',
-          'type' in test ? test.type : 'function',
-        );
+        throw new StaticTypeError(node.test, 'bool', formatType(test));
       }
       const consequent = _typeCheck(node.consequent, context);
       const alternate = _typeCheck(node.alternate, context);
@@ -189,13 +155,14 @@ function _typeCheck(node: Node, context: Context): Type {
       ) {
         throw new StaticTypeError(
           node.alternate,
-          consequent.kind === 'function' ? consequent.kind : consequent.type,
-          'type' in alternate ? alternate.type : 'function',
+          formatType(consequent),
+          formatType(alternate),
         );
       }
       return consequent;
 
     case 'EmptyExpression':
+    default:
       return unitType;
   }
 }

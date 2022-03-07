@@ -1,28 +1,13 @@
-import { FunctionType, Primitive, Type, TypeEnvironment } from '../../types';
+import { makeFunctionType } from 'utils/typing';
 
-export function makePrimitive(type: Primitive['type']): Primitive {
-  return {
-    kind: 'primitive',
-    type,
-  };
-}
-
-export function makeFunctionType(...types: Type[]): FunctionType {
-  const parameterTypes = types.slice(0, -1);
-  const returnType = types.slice(-1)[0];
-  return {
-    kind: 'function',
-    parameterTypes,
-    returnType,
-  };
-}
-
-export const intType = makePrimitive('int');
-export const floatType = makePrimitive('float');
-export const boolType = makePrimitive('bool');
-export const stringType = makePrimitive('string');
-export const charType = makePrimitive('char');
-export const unitType = makePrimitive('unit');
+import {
+  boolType,
+  floatType,
+  intType,
+  primitiveTypes,
+  stringType,
+} from '../../constants';
+import { Type, TypeEnvironment } from '../../types';
 
 const predeclaredNames: [string, Type | Type[]][] = [];
 
@@ -30,9 +15,7 @@ const predeclaredNames: [string, Type | Type[]][] = [];
 export const NEGATIVE_OP = '-_1';
 
 function makeComparableTypes(): Type[] {
-  return [intType, floatType, boolType, stringType, charType].map((type) =>
-    makeFunctionType(type, type, boolType),
-  );
+  return primitiveTypes.map((type) => makeFunctionType(type, type, boolType));
 }
 
 const primitiveFuncs: [string, Type | Type[]][] = [

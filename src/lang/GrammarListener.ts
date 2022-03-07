@@ -2,6 +2,7 @@
 
 import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener';
 
+import { CallFunctionContext } from './GrammarParser';
 import { NumberContext } from './GrammarParser';
 import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
@@ -31,18 +32,42 @@ import { NegativeContext } from './GrammarParser';
 import { NotContext } from './GrammarParser';
 import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
+import { LetGlobalBindingExpressionContext } from './GrammarParser';
+import { LetLocalBindingExpressionContext } from './GrammarParser';
+import { FunctionDeclarationExpressionContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
+import { IdentifierExpressionContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
-import { StatementContext } from './GrammarParser';
+import { StatementsContext } from './GrammarParser';
 import { ExpressionContext } from './GrammarParser';
+import { IdentifierContext } from './GrammarParser';
+import { FuncApplicationContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { CondExpContext } from './GrammarParser';
+import { LetGlobalBindingContext } from './GrammarParser';
+import { LetLocalBindingContext } from './GrammarParser';
+import { IdentifierListContext } from './GrammarParser';
+import { ExpressionListsContext } from './GrammarParser';
+import { FunctionDeclarationContext } from './GrammarParser';
 
 /**
  * This interface defines a complete listener for a parse tree produced by
  * `GrammarParser`.
  */
 export interface GrammarListener extends ParseTreeListener {
+  /**
+   * Enter a parse tree produced by the `CallFunction`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterCallFunction?: (ctx: CallFunctionContext) => void;
+  /**
+   * Exit a parse tree produced by the `CallFunction`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitCallFunction?: (ctx: CallFunctionContext) => void;
+
   /**
    * Enter a parse tree produced by the `Number`
    * labeled alternative in `GrammarParser.expression`.
@@ -421,6 +446,57 @@ export interface GrammarListener extends ParseTreeListener {
   exitOr?: (ctx: OrContext) => void;
 
   /**
+   * Enter a parse tree produced by the `LetGlobalBindingExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterLetGlobalBindingExpression?: (
+    ctx: LetGlobalBindingExpressionContext,
+  ) => void;
+  /**
+   * Exit a parse tree produced by the `LetGlobalBindingExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitLetGlobalBindingExpression?: (
+    ctx: LetGlobalBindingExpressionContext,
+  ) => void;
+
+  /**
+   * Enter a parse tree produced by the `LetLocalBindingExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterLetLocalBindingExpression?: (
+    ctx: LetLocalBindingExpressionContext,
+  ) => void;
+  /**
+   * Exit a parse tree produced by the `LetLocalBindingExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitLetLocalBindingExpression?: (
+    ctx: LetLocalBindingExpressionContext,
+  ) => void;
+
+  /**
+   * Enter a parse tree produced by the `FunctionDeclarationExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterFunctionDeclarationExpression?: (
+    ctx: FunctionDeclarationExpressionContext,
+  ) => void;
+  /**
+   * Exit a parse tree produced by the `FunctionDeclarationExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitFunctionDeclarationExpression?: (
+    ctx: FunctionDeclarationExpressionContext,
+  ) => void;
+
+  /**
    * Enter a parse tree produced by the `ConditionalExpression`
    * labeled alternative in `GrammarParser.expression`.
    * @param ctx the parse tree
@@ -434,6 +510,19 @@ export interface GrammarListener extends ParseTreeListener {
   exitConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
 
   /**
+   * Enter a parse tree produced by the `IdentifierExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+  /**
+   * Exit a parse tree produced by the `IdentifierExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+
+  /**
    * Enter a parse tree produced by `GrammarParser.start`.
    * @param ctx the parse tree
    */
@@ -445,15 +534,15 @@ export interface GrammarListener extends ParseTreeListener {
   exitStart?: (ctx: StartContext) => void;
 
   /**
-   * Enter a parse tree produced by `GrammarParser.statement`.
+   * Enter a parse tree produced by `GrammarParser.statements`.
    * @param ctx the parse tree
    */
-  enterStatement?: (ctx: StatementContext) => void;
+  enterStatements?: (ctx: StatementsContext) => void;
   /**
-   * Exit a parse tree produced by `GrammarParser.statement`.
+   * Exit a parse tree produced by `GrammarParser.statements`.
    * @param ctx the parse tree
    */
-  exitStatement?: (ctx: StatementContext) => void;
+  exitStatements?: (ctx: StatementsContext) => void;
 
   /**
    * Enter a parse tree produced by `GrammarParser.expression`.
@@ -465,6 +554,28 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitExpression?: (ctx: ExpressionContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.identifier`.
+   * @param ctx the parse tree
+   */
+  enterIdentifier?: (ctx: IdentifierContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.identifier`.
+   * @param ctx the parse tree
+   */
+  exitIdentifier?: (ctx: IdentifierContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.funcApplication`.
+   * @param ctx the parse tree
+   */
+  enterFuncApplication?: (ctx: FuncApplicationContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.funcApplication`.
+   * @param ctx the parse tree
+   */
+  exitFuncApplication?: (ctx: FuncApplicationContext) => void;
 
   /**
    * Enter a parse tree produced by `GrammarParser.parenthesesExpression`.
@@ -487,4 +598,59 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitCondExp?: (ctx: CondExpContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.letGlobalBinding`.
+   * @param ctx the parse tree
+   */
+  enterLetGlobalBinding?: (ctx: LetGlobalBindingContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.letGlobalBinding`.
+   * @param ctx the parse tree
+   */
+  exitLetGlobalBinding?: (ctx: LetGlobalBindingContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.letLocalBinding`.
+   * @param ctx the parse tree
+   */
+  enterLetLocalBinding?: (ctx: LetLocalBindingContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.letLocalBinding`.
+   * @param ctx the parse tree
+   */
+  exitLetLocalBinding?: (ctx: LetLocalBindingContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.identifierList`.
+   * @param ctx the parse tree
+   */
+  enterIdentifierList?: (ctx: IdentifierListContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.identifierList`.
+   * @param ctx the parse tree
+   */
+  exitIdentifierList?: (ctx: IdentifierListContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.expressionLists`.
+   * @param ctx the parse tree
+   */
+  enterExpressionLists?: (ctx: ExpressionListsContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.expressionLists`.
+   * @param ctx the parse tree
+   */
+  exitExpressionLists?: (ctx: ExpressionListsContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.functionDeclaration`.
+   * @param ctx the parse tree
+   */
+  enterFunctionDeclaration?: (ctx: FunctionDeclarationContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.functionDeclaration`.
+   * @param ctx the parse tree
+   */
+  exitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => void;
 }

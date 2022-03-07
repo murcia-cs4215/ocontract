@@ -1,6 +1,7 @@
 import { BinaryOperator, LogicalOperator, UnaryOperator } from 'parser/types';
 import { StringWrapper } from 'parser/wrappers';
 
+import { boolType } from '../constants';
 import { RuntimeResult } from '../types';
 
 // Assumes that type checking has been done prior, i.e. all operations
@@ -60,21 +61,21 @@ export function evaluateBinaryExpression(
     case 'mod':
       return { value: left.value % right.value, type: left.type };
     case '==':
-      return { value: left.value === right.value, type: 'bool' };
+      return { value: left.value === right.value, type: boolType };
     case '!=':
-      return { value: left.value !== right.value, type: 'bool' };
+      return { value: left.value !== right.value, type: boolType };
     case '<=':
-      return { value: left.value <= right.value, type: 'bool' };
+      return { value: left.value <= right.value, type: boolType };
     case '<':
-      return { value: left.value < right.value, type: 'bool' };
+      return { value: left.value < right.value, type: boolType };
     case '>':
-      return { value: left.value > right.value, type: 'bool' };
+      return { value: left.value > right.value, type: boolType };
     case '>=':
-      return { value: left.value >= right.value, type: 'bool' };
+      return { value: left.value >= right.value, type: boolType };
     case '=':
-      return { value: left.value == right.value, type: 'bool' };
+      return { value: left.value == right.value, type: boolType };
     case '<>':
-      return { value: left.value != right.value, type: 'bool' };
+      return { value: left.value != right.value, type: boolType };
     case '^':
       return {
         value: new StringWrapper(left.value + right.value),

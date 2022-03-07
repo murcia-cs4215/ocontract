@@ -6,29 +6,36 @@ import { inspect } from 'util';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
-import { parseError } from 'utils/errors';
-import { formatFinishedForRepl } from 'utils/formatters';
+import { formatErrorsForRepl, formatFinishedForRepl } from 'utils/formatters';
 
-import { createContext } from './context';
+import {
+  cleanUpContextAfterRun,
+  createContext,
+  prepareContextForRun,
+} from './context';
 import { Context, Result } from './types';
 
-// TODO: Inject context into run
 export function run(code: string, context: Context): Result {
   try {
     let program = parse(code, context);
     program = validate(program);
     // TODO: Wrap computation in a scheduler / stepper
     typeCheck(program, context);
+
+    prepareContextForRun(context);
     const result = evaluate(program, context);
+    cleanUpContextAfterRun(context);
+
     return {
+      ...result,
       status: 'finished',
-      type: result.type,
       value:
         result.value instanceof StringWrapper
           ? result.value.unwrap()
           : result.value,
     };
   } catch {
+    cleanUpContextAfterRun(context);
     return { status: 'errored' };
   }
 }
@@ -41,7 +48,7 @@ function main(): void {
       if (result.status === 'finished') {
         callback(null, result);
       } else {
-        callback(new Error(parseError(context.errors)), undefined);
+        callback(new Error(formatErrorsForRepl(context.errors)), undefined);
         context.errors = []; // TODO: Clear errors for now, look into a better rollback mechanism
       }
     },

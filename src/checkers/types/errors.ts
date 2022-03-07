@@ -2,6 +2,7 @@ import { RuntimeSourceError } from 'errors/runtimeSourceError';
 
 import { Node, SourceLocation } from 'parser/types';
 
+import { UNKNOWN_LOCATION } from '../../constants';
 import { ErrorSeverity, ErrorType, SourceError } from '../../errors/types';
 
 export class StaticTypeError implements SourceError {
@@ -11,8 +12,7 @@ export class StaticTypeError implements SourceError {
   constructor(public node: Node, public expected: string, public got: string) {}
 
   get location(): SourceLocation {
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-    return this.node.loc!;
+    return this.node.loc ?? UNKNOWN_LOCATION;
   }
 
   public explain(): string {
