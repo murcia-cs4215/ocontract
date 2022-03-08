@@ -1,0 +1,55 @@
+(** helper functions *)
+let gt x v = v > x;;
+let bet a b v = a <= v && v <= b;;
+
+(** Program 1 (basic) *)
+let fCon = contract(gt 0) => contract(gt 0);;
+
+let f#fCon (x: int) : int = x - 1;; 
+
+let a = f 1;;
+
+EXPECTED RESULT:
+error: contract violation at line 6, col 30-43
+blame: f
+bad value: -1
+
+(** Program 2 (Problematic case because composing 2 functions that have defined contracts -- who to blame??) *)
+let gCon = contract(gt 100) => contract(gt 100);;
+let g#gCon (x: int) : int = x;;
+
+let fCon = (contract(gt 0) => contract(gt 0)) => contract(gt 0);;
+let f#fCon h = h 10;;
+
+f g;;
+
+EXPECTED RESULT:
+error: contract violation at line 18, col 12-27
+blame: ??? (** my guess is this should be main *)
+bad value: 10
+
+(** Program 3 (converse of program 2, good case) *)
+let gCon = contract(gt 0) => contract(gt 0);;
+let g#gCon (x: int) : int = x;;
+
+let fCon = (contract(gt 100) => contract(gt 100)) => contract(gt 0);;
+let f#fCon h = h 101;;
+
+f g;;
+
+EXPECTED RESULT: 101
+
+(**  Program 4 (failing precondition) *) 
+let gCon = (contract(gt 9) => contract(bet 0 99)) 
+            => contract(bet 0 99);;
+
+let g#gCon f = f 0;;
+
+let f x = 25;;
+
+g f;;
+
+EXPECTED RESULT:
+error: contract violation at line 43, col 13-27
+blame: g
+bad value: 0
