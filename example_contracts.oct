@@ -53,3 +53,15 @@ EXPECTED RESULT:
 error: contract violation at line 43, col 13-27
 blame: g
 bad value: 0
+
+(** Program 5 (recursive) *)
+
+let factCon = contract(gt 1) => contract(gt 1);;
+let fact#factCon x = if x == 1 then 1 else x * fact (x - 1);;
+
+fact 2;;
+
+EXPECTED RESULT:
+error: contract violation at line 59, col 15-28
+blame: fact
+bad value: 1
