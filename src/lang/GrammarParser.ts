@@ -335,6 +335,7 @@ export class GrammarParser extends Parser {
       this._ctx,
       _parentState,
     );
+    // @ts-expect-error _prevctx is incorrectly recognised as unused in tests despite its _ prefix
     let _prevctx: ContractContext = _localctx;
     const _startState = 4;
     this.enterRecursionRule(_localctx, 4, GrammarParser.RULE_contract, _p);
