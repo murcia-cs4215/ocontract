@@ -44,6 +44,7 @@ REC: 'rec';
 CON: 'contract';
 FATARROW: '=>';
 PIPE: '|';
+HASH: '#';
 
 // LISTSTART: '[';
 // LISTEND: ']';
@@ -70,14 +71,12 @@ IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
  */
 start : statements* EOF;
 
-statements
-   : contract DOUBLESEMICOLON
-   | expression DOUBLESEMICOLON
-   ;
+statements: expression DOUBLESEMICOLON;
 
 contract
-   : CON id=identifier EQUALSTRUC functionContract
-   | CON id=identifier EQUALSTRUC predContract
+   : CON '(' expression ')' 
+   | '(' contract FATARROW contract ')'
+   | contract (FATARROW contract)+
    ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
@@ -123,6 +122,7 @@ expression
    | functionDeclaration                                             # FunctionDeclarationExpression
    | condExp                                                         # ConditionalExpression
    | identifier                                                      # IdentifierExpression
+   | contract                                                        # ContractExpression
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
@@ -140,6 +140,10 @@ identifierWithTypeStrict // enforce having parenthesis to disambiguate
 
 identifierWithType
    : IDENTIFIER typeAnnotation
+   ;
+
+identifierWithContractAndType
+   : IDENTIFIER contractAnnotation typeAnnotation
    ;
 
 funcApplication
@@ -165,7 +169,8 @@ condExp
 
 letGlobalBinding
 	: LET (REC?) idType=identifierWithType  EQUALSTRUC  init=expression
-	| LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	| LET (REC?) idConType=identifierWithContractAndType  EQUALSTRUC  init=expression
+	| LET (REC?) id=identifier (contractAnnotation?)  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
    ;
 
 letLocalBinding
@@ -188,8 +193,12 @@ letLocalBinding
 //    :  '|'  pattern=expression  ARROW  result=expression 
 //    ;
 
+contractAnnotation
+   : HASH con=identifier
+   ;
+
 identifierList
- 	:  identifier ( identifier | identifierWithTypeStrict)*
+ 	:  identifier (contractAnnotation?) ( identifier | identifierWithTypeStrict)*
    ;
 
 expressionLists
@@ -198,21 +207,4 @@ expressionLists
 
 functionDeclaration
    : LET  (REC?)  ids=identifierList (retType=typeAnnotation?) '=' body=expression
-   ;
-
-// test must return true/false
-// for predicate on the i-th argument, assume we can only access the i-th input
-// for predicate on return values, assume we have access to all of the inputs
-predContract
-   : '{' idType=identifierWithType PIPE test=expression '}' 
-   | '{' id=identifier PIPE test=expression '}' 
-   ;
-
-predContractList
-   : (predContract FATARROW)*
-   ;
-
-// need to check that the arity of the contract and the function matches
-functionContract
-   : inputPreds=predContractList outputPred=predContract 
    ;

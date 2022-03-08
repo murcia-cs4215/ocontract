@@ -37,6 +37,7 @@ import { LetLocalBindingExpressionContext } from './GrammarParser';
 import { FunctionDeclarationExpressionContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
 import { IdentifierExpressionContext } from './GrammarParser';
+import { ContractExpressionContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
 import { StatementsContext } from './GrammarParser';
 import { ContractContext } from './GrammarParser';
@@ -45,17 +46,16 @@ import { TypeAnnotationContext } from './GrammarParser';
 import { IdentifierContext } from './GrammarParser';
 import { IdentifierWithTypeStrictContext } from './GrammarParser';
 import { IdentifierWithTypeContext } from './GrammarParser';
+import { IdentifierWithContractAndTypeContext } from './GrammarParser';
 import { FuncApplicationContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { CondExpContext } from './GrammarParser';
 import { LetGlobalBindingContext } from './GrammarParser';
 import { LetLocalBindingContext } from './GrammarParser';
+import { ContractAnnotationContext } from './GrammarParser';
 import { IdentifierListContext } from './GrammarParser';
 import { ExpressionListsContext } from './GrammarParser';
 import { FunctionDeclarationContext } from './GrammarParser';
-import { PredContractContext } from './GrammarParser';
-import { PredContractListContext } from './GrammarParser';
-import { FunctionContractContext } from './GrammarParser';
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
@@ -352,6 +352,14 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitIdentifierExpression?: (ctx: IdentifierExpressionContext) => Result;
 
   /**
+   * Visit a parse tree produced by the `ContractExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitContractExpression?: (ctx: ContractExpressionContext) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.start`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -410,6 +418,15 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitIdentifierWithType?: (ctx: IdentifierWithTypeContext) => Result;
 
   /**
+   * Visit a parse tree produced by `GrammarParser.identifierWithContractAndType`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifierWithContractAndType?: (
+    ctx: IdentifierWithContractAndTypeContext,
+  ) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.funcApplication`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -445,6 +462,13 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitLetLocalBinding?: (ctx: LetLocalBindingContext) => Result;
 
   /**
+   * Visit a parse tree produced by `GrammarParser.contractAnnotation`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitContractAnnotation?: (ctx: ContractAnnotationContext) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.identifierList`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -464,25 +488,4 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => Result;
-
-  /**
-   * Visit a parse tree produced by `GrammarParser.predContract`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPredContract?: (ctx: PredContractContext) => Result;
-
-  /**
-   * Visit a parse tree produced by `GrammarParser.predContractList`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitPredContractList?: (ctx: PredContractListContext) => Result;
-
-  /**
-   * Visit a parse tree produced by `GrammarParser.functionContract`.
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  visitFunctionContract?: (ctx: FunctionContractContext) => Result;
 }
