@@ -38,14 +38,17 @@ THEN: 'then';
 ELSE: 'else';
 // FUN: 'fun';
 // ARROW: '->';
-// PIPE: '|>';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
+CON: 'contract';
+FATARROW: '=>';
+PIPE: '|';
 
 // LISTSTART: '[';
 // LISTEND: ']';
 DOUBLESEMICOLON: ';;';
+COLON: ':';
 
 TYPE
   : 'int'
@@ -67,7 +70,15 @@ IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
  */
 start : statements* EOF;
 
-statements: expression DOUBLESEMICOLON;
+statements
+   : contract DOUBLESEMICOLON
+   | expression DOUBLESEMICOLON
+   ;
+
+contract
+   : CON id=identifier EQUALSTRUC functionContract
+   | CON id=identifier EQUALSTRUC predContract
+   ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
 
@@ -115,8 +126,20 @@ expression
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
+typeAnnotation
+   : COLON TYPE
+   ;
+
 identifier // want identifier to be a node in the parser tree which can be visited
-   :  IDENTIFIER 
+   :  IDENTIFIER
+   ;
+
+identifierWithTypeStrict // enforce having parenthesis to disambiguate
+   :  '(' IDENTIFIER typeAnnotation ')'
+   ;
+
+identifierWithType
+   : IDENTIFIER typeAnnotation
    ;
 
 funcApplication
@@ -141,7 +164,8 @@ condExp
    ;
 
 letGlobalBinding
-	: LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	: LET (REC?) idType=identifierWithType  EQUALSTRUC  init=expression
+	| LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
    ;
 
 letLocalBinding
@@ -165,7 +189,7 @@ letLocalBinding
 //    ;
 
 identifierList
- 	:  identifier ( identifier)*
+ 	:  identifier ( identifier | identifierWithTypeStrict)*
    ;
 
 expressionLists
@@ -173,5 +197,22 @@ expressionLists
    ;
 
 functionDeclaration
-   : LET  (REC?)  ids=identifierList '=' body=expression
+   : LET  (REC?)  ids=identifierList (retType=typeAnnotation?) '=' body=expression
+   ;
+
+// test must return true/false
+// for predicate on the i-th argument, assume we can only access the i-th input
+// for predicate on return values, assume we have access to all of the inputs
+predContract
+   : '{' idType=identifierWithType PIPE test=expression '}' 
+   | '{' id=identifier PIPE test=expression '}' 
+   ;
+
+predContractList
+   : (predContract FATARROW)*
+   ;
+
+// need to check that the arity of the contract and the function matches
+functionContract
+   : inputPreds=predContractList outputPred=predContract 
    ;

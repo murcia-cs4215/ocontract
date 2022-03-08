@@ -39,8 +39,12 @@ import { ConditionalExpressionContext } from './GrammarParser';
 import { IdentifierExpressionContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
 import { StatementsContext } from './GrammarParser';
+import { ContractContext } from './GrammarParser';
 import { ExpressionContext } from './GrammarParser';
+import { TypeAnnotationContext } from './GrammarParser';
 import { IdentifierContext } from './GrammarParser';
+import { IdentifierWithTypeStrictContext } from './GrammarParser';
+import { IdentifierWithTypeContext } from './GrammarParser';
 import { FuncApplicationContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { CondExpContext } from './GrammarParser';
@@ -49,6 +53,9 @@ import { LetLocalBindingContext } from './GrammarParser';
 import { IdentifierListContext } from './GrammarParser';
 import { ExpressionListsContext } from './GrammarParser';
 import { FunctionDeclarationContext } from './GrammarParser';
+import { PredContractContext } from './GrammarParser';
+import { PredContractListContext } from './GrammarParser';
+import { FunctionContractContext } from './GrammarParser';
 
 /**
  * This interface defines a complete generic visitor for a parse tree produced
@@ -359,6 +366,13 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitStatements?: (ctx: StatementsContext) => Result;
 
   /**
+   * Visit a parse tree produced by `GrammarParser.contract`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitContract?: (ctx: ContractContext) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.expression`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -366,11 +380,34 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitExpression?: (ctx: ExpressionContext) => Result;
 
   /**
+   * Visit a parse tree produced by `GrammarParser.typeAnnotation`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitTypeAnnotation?: (ctx: TypeAnnotationContext) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.identifier`.
    * @param ctx the parse tree
    * @return the visitor result
    */
   visitIdentifier?: (ctx: IdentifierContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.identifierWithTypeStrict`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifierWithTypeStrict?: (
+    ctx: IdentifierWithTypeStrictContext,
+  ) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.identifierWithType`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifierWithType?: (ctx: IdentifierWithTypeContext) => Result;
 
   /**
    * Visit a parse tree produced by `GrammarParser.funcApplication`.
@@ -427,4 +464,25 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitFunctionDeclaration?: (ctx: FunctionDeclarationContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.predContract`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitPredContract?: (ctx: PredContractContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.predContractList`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitPredContractList?: (ctx: PredContractListContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.functionContract`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitFunctionContract?: (ctx: FunctionContractContext) => Result;
 }
