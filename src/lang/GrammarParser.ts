@@ -11,6 +11,7 @@ import { RecognitionException } from 'antlr4ts/RecognitionException';
 import { RuleContext } from 'antlr4ts/RuleContext';
 import { Token } from 'antlr4ts/Token';
 import { TokenStream } from 'antlr4ts/TokenStream';
+//import { RuleVersion } from "antlr4ts/RuleVersion";
 import { TerminalNode } from 'antlr4ts/tree/TerminalNode';
 import { Vocabulary } from 'antlr4ts/Vocabulary';
 import { VocabularyImpl } from 'antlr4ts/VocabularyImpl';
@@ -315,62 +316,62 @@ export class GrammarParser extends Parser {
         switch (this.interpreter.adaptivePredict(this._input, 1, this._ctx)) {
           case 1:
             {
-              _localctx = new CallFunctionContext(_localctx);
+              _localctx = new NumberContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
 
               this.state = 36;
-              this.funcApplication();
+              this.match(GrammarParser.NUMBER);
             }
             break;
 
           case 2:
             {
-              _localctx = new NumberContext(_localctx);
+              _localctx = new FloatContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 37;
-              this.match(GrammarParser.NUMBER);
+              this.match(GrammarParser.FLOAT);
             }
             break;
 
           case 3:
             {
-              _localctx = new FloatContext(_localctx);
+              _localctx = new BooleanContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 38;
-              this.match(GrammarParser.FLOAT);
+              this.match(GrammarParser.BOOLEAN);
             }
             break;
 
           case 4:
             {
-              _localctx = new BooleanContext(_localctx);
+              _localctx = new CharContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 39;
-              this.match(GrammarParser.BOOLEAN);
+              this.match(GrammarParser.CHAR);
             }
             break;
 
           case 5:
             {
-              _localctx = new CharContext(_localctx);
+              _localctx = new StringContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 40;
-              this.match(GrammarParser.CHAR);
+              this.match(GrammarParser.STRING);
             }
             break;
 
           case 6:
             {
-              _localctx = new StringContext(_localctx);
+              _localctx = new IdentifierExpressionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 41;
-              this.match(GrammarParser.STRING);
+              this.identifier();
             }
             break;
 
@@ -454,11 +455,11 @@ export class GrammarParser extends Parser {
 
           case 14:
             {
-              _localctx = new IdentifierExpressionContext(_localctx);
+              _localctx = new CallFunctionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
               this.state = 51;
-              this.identifier();
+              this.funcApplication();
             }
             break;
         }
@@ -1341,8 +1342,10 @@ export class GrammarParser extends Parser {
   }
   // @RuleVersion(0)
   public functionDeclaration(): FunctionDeclarationContext {
-    const _localctx: FunctionDeclarationContext =
-      new FunctionDeclarationContext(this._ctx, this.state);
+    const _localctx: FunctionDeclarationContext = new FunctionDeclarationContext(
+      this._ctx,
+      this.state,
+    );
     this.enterRule(_localctx, 22, GrammarParser.RULE_functionDeclaration);
     let _la: number;
     try {
@@ -1496,20 +1499,20 @@ export class GrammarParser extends Parser {
     '\x02\x02\x1C\x1F\x03\x02\x02\x02\x1D\x1B\x03\x02\x02\x02\x1D\x1E\x03\x02' +
     '\x02\x02\x1E \x03\x02\x02\x02\x1F\x1D\x03\x02\x02\x02 !\x07\x02\x02\x03' +
     '!\x03\x03\x02\x02\x02"#\x05\x06\x04\x02#$\x07\'\x02\x02$\x05\x03\x02' +
-    "\x02\x02%&\b\x04\x01\x02&7\x05\n\x06\x02'7\x07\x1B\x02\x02(7\x07\x1F" +
-    '\x02\x02)7\x07 \x02\x02*7\x07\x1D\x02\x02+7\x07\x1E\x02\x02,7\x05\f\x07' +
-    '\x02-.\x07\t\x02\x02.7\x05\x06\x04\v/0\x07\x1A\x02\x0207\x05\x06\x04\n' +
-    '17\x05\x10\t\x0227\x05\x12\n\x0237\x05\x18\r\x0247\x05\x0E\b\x0257\x05' +
-    "\b\x05\x026%\x03\x02\x02\x026'\x03\x02\x02\x026(\x03\x02\x02\x026)\x03" +
-    '\x02\x02\x026*\x03\x02\x02\x026+\x03\x02\x02\x026,\x03\x02\x02\x026-\x03' +
-    '\x02\x02\x026/\x03\x02\x02\x0261\x03\x02\x02\x0262\x03\x02\x02\x0263\x03' +
-    '\x02\x02\x0264\x03\x02\x02\x0265\x03\x02\x02\x027y\x03\x02\x02\x0289\f' +
-    '\x1E\x02\x029:\x07\x05\x02\x02:x\x05\x06\x04\x1E;<\f\x1D\x02\x02<=\x07' +
-    '\x06\x02\x02=x\x05\x06\x04\x1E>?\f\x1C\x02\x02?@\x07\x07\x02\x02@x\x05' +
-    '\x06\x04\x1DAB\f\x1B\x02\x02BC\x07\r\x02\x02Cx\x05\x06\x04\x1CDE\f\x1A' +
-    '\x02\x02EF\x07\x0E\x02\x02Fx\x05\x06\x04\x1BGH\f\x19\x02\x02HI\x07\n\x02' +
-    '\x02Ix\x05\x06\x04\x1AJK\f\x18\x02\x02KL\x07\b\x02\x02Lx\x05\x06\x04\x19' +
-    'MN\f\x17\x02\x02NO\x07\t\x02\x02Ox\x05\x06\x04\x18PQ\f\x16\x02\x02QR\x07' +
+    "\x02\x02%&\b\x04\x01\x02&7\x07\x1B\x02\x02'7\x07\x1F\x02\x02(7\x07 \x02" +
+    '\x02)7\x07\x1D\x02\x02*7\x07\x1E\x02\x02+7\x05\b\x05\x02,7\x05\f\x07\x02' +
+    '-.\x07\t\x02\x02.7\x05\x06\x04\v/0\x07\x1A\x02\x0207\x05\x06\x04\n17\x05' +
+    '\x10\t\x0227\x05\x12\n\x0237\x05\x18\r\x0247\x05\x0E\b\x0257\x05\n\x06' +
+    "\x026%\x03\x02\x02\x026'\x03\x02\x02\x026(\x03\x02\x02\x026)\x03\x02" +
+    '\x02\x026*\x03\x02\x02\x026+\x03\x02\x02\x026,\x03\x02\x02\x026-\x03\x02' +
+    '\x02\x026/\x03\x02\x02\x0261\x03\x02\x02\x0262\x03\x02\x02\x0263\x03\x02' +
+    '\x02\x0264\x03\x02\x02\x0265\x03\x02\x02\x027y\x03\x02\x02\x0289\f\x1E' +
+    '\x02\x029:\x07\x05\x02\x02:x\x05\x06\x04\x1E;<\f\x1D\x02\x02<=\x07\x06' +
+    '\x02\x02=x\x05\x06\x04\x1E>?\f\x1C\x02\x02?@\x07\x07\x02\x02@x\x05\x06' +
+    '\x04\x1DAB\f\x1B\x02\x02BC\x07\r\x02\x02Cx\x05\x06\x04\x1CDE\f\x1A\x02' +
+    '\x02EF\x07\x0E\x02\x02Fx\x05\x06\x04\x1BGH\f\x19\x02\x02HI\x07\n\x02\x02' +
+    'Ix\x05\x06\x04\x1AJK\f\x18\x02\x02KL\x07\b\x02\x02Lx\x05\x06\x04\x19M' +
+    'N\f\x17\x02\x02NO\x07\t\x02\x02Ox\x05\x06\x04\x18PQ\f\x16\x02\x02QR\x07' +
     '\v\x02\x02Rx\x05\x06\x04\x17ST\f\x15\x02\x02TU\x07\f\x02\x02Ux\x05\x06' +
     '\x04\x16VW\f\x14\x02\x02WX\x07\x0F\x02\x02Xx\x05\x06\x04\x15YZ\f\x13\x02' +
     '\x02Z[\x07\x10\x02\x02[x\x05\x06\x04\x14\\]\f\x12\x02\x02]^\x07\x11\x02' +
@@ -1645,35 +1648,6 @@ export class ExpressionContext extends ParserRuleContext {
   }
   public copyFrom(ctx: ExpressionContext): void {
     super.copyFrom(ctx);
-  }
-}
-export class CallFunctionContext extends ExpressionContext {
-  public funcApplication(): FuncApplicationContext {
-    return this.getRuleContext(0, FuncApplicationContext);
-  }
-  constructor(ctx: ExpressionContext) {
-    super(ctx.parent, ctx.invokingState);
-    this.copyFrom(ctx);
-  }
-  // @Override
-  public enterRule(listener: GrammarListener): void {
-    if (listener.enterCallFunction) {
-      listener.enterCallFunction(this);
-    }
-  }
-  // @Override
-  public exitRule(listener: GrammarListener): void {
-    if (listener.exitCallFunction) {
-      listener.exitCallFunction(this);
-    }
-  }
-  // @Override
-  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitCallFunction) {
-      return visitor.visitCallFunction(this);
-    } else {
-      return visitor.visitChildren(this);
-    }
   }
 }
 export class NumberContext extends ExpressionContext {
@@ -1816,6 +1790,35 @@ export class StringContext extends ExpressionContext {
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
     if (visitor.visitString) {
       return visitor.visitString(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+export class IdentifierExpressionContext extends ExpressionContext {
+  public identifier(): IdentifierContext {
+    return this.getRuleContext(0, IdentifierContext);
+  }
+  constructor(ctx: ExpressionContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
+  // @Override
+  public enterRule(listener: GrammarListener): void {
+    if (listener.enterIdentifierExpression) {
+      listener.enterIdentifierExpression(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: GrammarListener): void {
+    if (listener.exitIdentifierExpression) {
+      listener.exitIdentifierExpression(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
+    if (visitor.visitIdentifierExpression) {
+      return visitor.visitIdentifierExpression(this);
     } else {
       return visitor.visitChildren(this);
     }
@@ -2895,9 +2898,9 @@ export class ConditionalExpressionContext extends ExpressionContext {
     }
   }
 }
-export class IdentifierExpressionContext extends ExpressionContext {
-  public identifier(): IdentifierContext {
-    return this.getRuleContext(0, IdentifierContext);
+export class CallFunctionContext extends ExpressionContext {
+  public funcApplication(): FuncApplicationContext {
+    return this.getRuleContext(0, FuncApplicationContext);
   }
   constructor(ctx: ExpressionContext) {
     super(ctx.parent, ctx.invokingState);
@@ -2905,20 +2908,20 @@ export class IdentifierExpressionContext extends ExpressionContext {
   }
   // @Override
   public enterRule(listener: GrammarListener): void {
-    if (listener.enterIdentifierExpression) {
-      listener.enterIdentifierExpression(this);
+    if (listener.enterCallFunction) {
+      listener.enterCallFunction(this);
     }
   }
   // @Override
   public exitRule(listener: GrammarListener): void {
-    if (listener.exitIdentifierExpression) {
-      listener.exitIdentifierExpression(this);
+    if (listener.exitCallFunction) {
+      listener.exitCallFunction(this);
     }
   }
   // @Override
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitIdentifierExpression) {
-      return visitor.visitIdentifierExpression(this);
+    if (visitor.visitCallFunction) {
+      return visitor.visitCallFunction(this);
     } else {
       return visitor.visitChildren(this);
     }

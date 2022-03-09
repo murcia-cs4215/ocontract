@@ -2,12 +2,12 @@
 
 import { ParseTreeListener } from 'antlr4ts/tree/ParseTreeListener';
 
-import { CallFunctionContext } from './GrammarParser';
 import { NumberContext } from './GrammarParser';
 import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
 import { CharContext } from './GrammarParser';
 import { StringContext } from './GrammarParser';
+import { IdentifierExpressionContext } from './GrammarParser';
 import { ParenthesesContext } from './GrammarParser';
 import { PowerContext } from './GrammarParser';
 import { MultiplicationContext } from './GrammarParser';
@@ -36,7 +36,7 @@ import { LetGlobalBindingExpressionContext } from './GrammarParser';
 import { LetLocalBindingExpressionContext } from './GrammarParser';
 import { FunctionDeclarationExpressionContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
-import { IdentifierExpressionContext } from './GrammarParser';
+import { CallFunctionContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
 import { StatementsContext } from './GrammarParser';
 import { ExpressionContext } from './GrammarParser';
@@ -55,19 +55,6 @@ import { FunctionDeclarationContext } from './GrammarParser';
  * `GrammarParser`.
  */
 export interface GrammarListener extends ParseTreeListener {
-  /**
-   * Enter a parse tree produced by the `CallFunction`
-   * labeled alternative in `GrammarParser.expression`.
-   * @param ctx the parse tree
-   */
-  enterCallFunction?: (ctx: CallFunctionContext) => void;
-  /**
-   * Exit a parse tree produced by the `CallFunction`
-   * labeled alternative in `GrammarParser.expression`.
-   * @param ctx the parse tree
-   */
-  exitCallFunction?: (ctx: CallFunctionContext) => void;
-
   /**
    * Enter a parse tree produced by the `Number`
    * labeled alternative in `GrammarParser.expression`.
@@ -132,6 +119,19 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitString?: (ctx: StringContext) => void;
+
+  /**
+   * Enter a parse tree produced by the `IdentifierExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+  /**
+   * Exit a parse tree produced by the `IdentifierExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
 
   /**
    * Enter a parse tree produced by the `Parentheses`
@@ -510,17 +510,17 @@ export interface GrammarListener extends ParseTreeListener {
   exitConditionalExpression?: (ctx: ConditionalExpressionContext) => void;
 
   /**
-   * Enter a parse tree produced by the `IdentifierExpression`
+   * Enter a parse tree produced by the `CallFunction`
    * labeled alternative in `GrammarParser.expression`.
    * @param ctx the parse tree
    */
-  enterIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+  enterCallFunction?: (ctx: CallFunctionContext) => void;
   /**
-   * Exit a parse tree produced by the `IdentifierExpression`
+   * Exit a parse tree produced by the `CallFunction`
    * labeled alternative in `GrammarParser.expression`.
    * @param ctx the parse tree
    */
-  exitIdentifierExpression?: (ctx: IdentifierExpressionContext) => void;
+  exitCallFunction?: (ctx: CallFunctionContext) => void;
 
   /**
    * Enter a parse tree produced by `GrammarParser.start`.

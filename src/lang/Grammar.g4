@@ -75,14 +75,14 @@ statements: expression DOUBLESEMICOLON;
 expression
    // : patternMatching # PatternMatchingExpression
    // | arrowFunction   # ArrowFunctionExpression 
-   : funcApplication                                                 # CallFunction
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
-   | NUMBER                                                          # Number
+   : NUMBER                                                          # Number
    | FLOAT                                                           # Float
    | BOOLEAN                                                         # Boolean
    | CHAR                                                            # Char
    | STRING                                                          # String
+   | identifier                                                      # IdentifierExpression
    | parenthesesExpression                                           # Parentheses
    | <assoc=right> left=expression  operator=POW  right=expression   # Power
    | left=expression  operator=MUL  right=expression                 # Multiplication
@@ -111,7 +111,7 @@ expression
    | <assoc=right> letLocalBinding                                   # LetLocalBindingExpression
    | functionDeclaration                                             # FunctionDeclarationExpression
    | condExp                                                         # ConditionalExpression
-   | identifier                                                      # IdentifierExpression
+   | funcApplication                                                 # CallFunction
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
