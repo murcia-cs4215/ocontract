@@ -7,6 +7,7 @@ import {
 } from 'checkers/types/runtimeChecker';
 
 import { Node } from 'parser/types';
+import { formatType } from 'utils/formatters';
 import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
 import { Context, RuntimeResult } from '../types';
@@ -20,7 +21,11 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import { handleRuntimeError, InterpreterError } from './errors';
+import {
+  handleRuntimeError,
+  InterpreterError,
+  NotAFunctionError,
+} from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -199,7 +204,7 @@ function apply(
   if (!(func.value instanceof Closure)) {
     return handleRuntimeError(
       context,
-      new InterpreterError(context.runtime.nodes[0]),
+      new NotAFunctionError(formatType(func.type), context.runtime.nodes[0]),
     );
   }
   const closure = func.value;

@@ -52,6 +52,20 @@ export class TooManyArgumentsError extends RuntimeSourceError {
   }
 }
 
+export class NotAFunctionError extends RuntimeSourceError {
+  constructor(public expressionType: string, node: Node) {
+    super(node);
+  }
+
+  public explain(): string {
+    return `This expression has type ${this.expressionType}`;
+  }
+
+  public elaborate(): string {
+    return 'This is not a function; it cannot be applied.';
+  }
+}
+
 export function handleRuntimeError(
   context: Context,
   error: RuntimeSourceError,
