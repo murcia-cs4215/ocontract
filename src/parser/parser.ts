@@ -28,8 +28,7 @@ import {
   ExpressionContext,
   FloatContext,
   FuncApplicationContext,
-  FunctionDeclarationContext,
-  FunctionDeclarationExpressionContext,
+  FuncDeclarationContext,
   GrammarParser,
   GreaterThanContext,
   GreaterThanOrEqualContext,
@@ -38,7 +37,6 @@ import {
   LessThanContext,
   LessThanOrEqualContext,
   LetGlobalBindingContext,
-  LetGlobalBindingExpressionContext,
   LetLocalBindingContext,
   LetLocalBindingExpressionContext,
   ModulusContext,
@@ -378,20 +376,10 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
-  visitLetGlobalBindingExpression(
-    ctx: LetGlobalBindingExpressionContext,
-  ): ExpressionStatement {
-    return this.visit(ctx.letGlobalBinding());
-  }
   visitLetLocalBindingExpression(
     ctx: LetLocalBindingExpressionContext,
   ): ExpressionStatement {
     return this.visit(ctx.letLocalBinding());
-  }
-  visitFunctionDeclarationExpression(
-    ctx: FunctionDeclarationExpressionContext,
-  ): ExpressionStatement {
-    return this.visit(ctx.functionDeclaration());
   }
   visitConditionalExpression(
     ctx: ConditionalExpressionContext,
@@ -411,7 +399,7 @@ class StatementParser
     });
   }
   visitFuncApplication(ctx: FuncApplicationContext): ExpressionStatement {
-    const args = ctx._args.expression();
+    const args = ctx._args.funcArgument();
     return this.wrapAsStatement({
       type: 'CallExpression',
       callee: this.visit(ctx._func).expression,
@@ -443,7 +431,7 @@ class StatementParser
     });
   }
   visitLetLocalBinding(ctx: LetLocalBindingContext): ExpressionStatement {
-    const left = ctx.letGlobalBinding() ?? ctx.functionDeclaration();
+    const left = ctx.letGlobalBinding() ?? ctx.funcDeclaration();
     return this.wrapAsStatement({
       type: 'LocalLetExpression',
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -452,9 +440,7 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
-  visitFunctionDeclaration(
-    ctx: FunctionDeclarationContext,
-  ): ExpressionStatement {
+  visitFuncDeclaration(ctx: FuncDeclarationContext): ExpressionStatement {
     const identifiers = ctx._ids.identifier();
     return this.wrapAsStatement({
       type: 'FunctionExpression',
@@ -585,21 +571,6 @@ class StatementsParser
   visitOr(ctx: OrContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitLetGlobalBindingExpression(
-    ctx: LetGlobalBindingExpressionContext,
-  ): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitLetLocalBindingExpression(
-    ctx: LetLocalBindingExpressionContext,
-  ): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitFunctionDeclarationExpression(
-    ctx: FunctionDeclarationExpressionContext,
-  ): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
   visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
@@ -624,7 +595,7 @@ class StatementsParser
   visitLetLocalBinding(ctx: LetLocalBindingContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitFunctionDeclaration(ctx: FunctionDeclarationContext): Statement[] {
+  visitFuncDeclaration(ctx: FuncDeclarationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }
