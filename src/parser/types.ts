@@ -157,7 +157,7 @@ export interface GlobalLetExpression extends BaseExpression {
 
 export interface LocalLetExpression extends BaseExpression {
   type: 'LocalLetExpression';
-  left: GlobalLetExpression;
+  left: GlobalLetExpression | FunctionExpression;
   right: Expression;
 }
 

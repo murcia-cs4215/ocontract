@@ -42,6 +42,7 @@ ELSE: 'else';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
+COLON: ':';
 
 // LISTSTART: '[';
 // LISTEND: ']';
