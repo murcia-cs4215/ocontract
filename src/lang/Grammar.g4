@@ -38,18 +38,14 @@ THEN: 'then';
 ELSE: 'else';
 // FUN: 'fun';
 // ARROW: '->';
+// PIPE: '|>';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
-CON: 'contract';
-FATARROW: '=>';
-PIPE: '|';
-HASH: '#';
 
 // LISTSTART: '[';
 // LISTEND: ']';
 DOUBLESEMICOLON: ';;';
-COLON: ':';
 
 TYPE
   : 'int'
@@ -66,17 +62,23 @@ TYPE
 
 // match the last
 IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
+
+atom
+   : NUMBER                                                          # Number
+   | FLOAT                                                           # Float
+   | BOOLEAN                                                         # Boolean
+   | CHAR                                                            # Char
+   | STRING                                                          # String
+   ;
 /*
  * Productions
  */
-start : statements* EOF;
+start : (statement DOUBLESEMICOLON)* EOF;
 
-statements: expression DOUBLESEMICOLON;
-
-contract
-   : CON '(' expression ')' 
-   | '(' contract FATARROW contract ')'
-   | contract (FATARROW contract)+
+statement
+   : expression
+   | letGlobalBinding
+   | funcDeclaration
    ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
@@ -85,14 +87,10 @@ contract
 expression
    // : patternMatching # PatternMatchingExpression
    // | arrowFunction   # ArrowFunctionExpression 
-   : funcApplication                                                 # CallFunction
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
-   | NUMBER                                                          # Number
-   | FLOAT                                                           # Float
-   | BOOLEAN                                                         # Boolean
-   | CHAR                                                            # Char
-   | STRING                                                          # String
+   : atom                                                            # AtomExpression
+   | identifier                                                      # IdentifierExpression
    | parenthesesExpression                                           # Parentheses
    | <assoc=right> left=expression  operator=POW  right=expression   # Power
    | left=expression  operator=MUL  right=expression                 # Multiplication
@@ -117,12 +115,9 @@ expression
    | operator=NOT  argument=expression                               # Not
    | left=expression  operator=AND  right=expression                 # And
    | left=expression  operator=OR  right=expression                  # Or
-   | letGlobalBinding                                                # LetGlobalBindingExpression
-   | <assoc=right> letLocalBinding                                   # LetLocalBindingExpression
-   | functionDeclaration                                             # FunctionDeclarationExpression
    | condExp                                                         # ConditionalExpression
-   | identifier                                                      # IdentifierExpression
-   | contract                                                        # ContractExpression
+   | letLocalBinding                                                 # LetLocalBindingExpression
+   | funcApplication                                                 # CallFunction
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
@@ -130,51 +125,66 @@ typeAnnotation
    : COLON TYPE
    ;
 
-identifier // want identifier to be a node in the parser tree which can be visited
-   :  IDENTIFIER
-   ;
-
-identifierWithTypeStrict // enforce having parenthesis to disambiguate
-   :  '(' IDENTIFIER typeAnnotation ')'
+identifierWithTypeParen // enforce having parenthesis to disambiguate
+   :  '(' identifierWithType ')'
    ;
 
 identifierWithType
-   : IDENTIFIER typeAnnotation
+   : identifier typeAnnotation
    ;
 
-identifierWithContractAndType
-   : IDENTIFIER contractAnnotation typeAnnotation
+
+condExp
+   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
+   ;
+
+parenthesesExpression
+   :  '('  inner=expression  ')'  
+   ;
+
+funcArgument
+   :  atom
+   |  identifier
+   |  parenthesesExpression
+   ; 
+
+identifier: IDENTIFIER;
+
+identifierList
+ 	:  identifier ( identifier | identifierWithTypeParen)*
+   ;
+
+funcDeclaration
+   : LET  (REC?)  ids=identifierList (retType=typeAnnotation?) '=' body=expression
+   ;
+
+funcApplyArgumentList
+   : funcArgument ( funcArgument)*
    ;
 
 funcApplication
-   : func=identifier  args=expressionLists
+   : func=identifier  args=funcApplyArgumentList
    ;
 
 // arrowFunctionBody // need arrowFunctionBody be a child node of ArrowFunctionExpression
 //    : expression
 //    ;
 
-parenthesesExpression
-   :  '('  inner=expression  ')'  
-   ;
-   
+
 // arrowFunction
 //    :  FUN  param=identifier  ARROW  body=arrowFunctionBody 
 //    ;
 
 // We will enforce the presence of an alternate for now, although it's optional in OCaml.
-condExp
-   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
-   ;
+
 
 letGlobalBinding
 	: LET (REC?) idType=identifierWithType  EQUALSTRUC  init=expression
-	| LET (REC?) idConType=identifierWithContractAndType  EQUALSTRUC  init=expression
-	| LET (REC?) id=identifier (contractAnnotation?)  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	| LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
    ;
 
 letLocalBinding
-   : (letGlobalBinding | functionDeclaration)  IN  exp2=expression
+   : (letGlobalBinding | funcDeclaration)  IN  exp2=expression
    ;
 
 // listElement
@@ -192,19 +202,3 @@ letLocalBinding
 // patternBranch
 //    :  '|'  pattern=expression  ARROW  result=expression 
 //    ;
-
-contractAnnotation
-   : HASH con=identifier
-   ;
-
-identifierList
- 	:  identifier (contractAnnotation?) ( identifier | identifierWithTypeStrict)*
-   ;
-
-expressionLists
- 	:  expression ( expression)*
-   ;
-
-functionDeclaration
-   : LET  (REC?)  ids=identifierList (retType=typeAnnotation?) '=' body=expression
-   ;
