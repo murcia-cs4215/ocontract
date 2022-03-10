@@ -38,7 +38,7 @@ THEN: 'then';
 ELSE: 'else';
 FUN: 'fun';
 ARROW: '->';
-// PIPE: '|>';
+PIPE: '|';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
@@ -133,14 +133,17 @@ typeAnnotation
    : COLON type
    ;
 
-identifierWithTypeParen // enforce having parenthesis to disambiguate
-   :  '(' identifierWithType ')'
+contractAnnotation
+   : PIPE expression
    ;
 
-identifierWithType
-   : identifier typeAnnotation
+identifierWithContextParen // enforce having parenthesis to disambiguate
+   :  '(' identifierWithContext (contractAnnotation?) ')'
    ;
 
+identifierWithContext
+   : identifier (typeAnnotation?)
+   ;
 
 condExp
    :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
@@ -158,8 +161,8 @@ funcArgument
 
 identifier: IDENTIFIER;
 
-identifierListWithTypes
- 	:  ( identifier | identifierWithTypeParen)+
+identifierListWithContext
+ 	:  ( identifier | identifierWithContextParen)+
    ;
 
 identifierList
@@ -167,7 +170,7 @@ identifierList
    ;
 
 funcDeclaration
-   : LET  (REC?) funcName=identifier  params=identifierListWithTypes (retType=typeAnnotation?) '=' body=expression
+   : LET  (REC?) funcName=identifier  params=identifierListWithContext (retType=typeAnnotation?) (contract=contractAnnotation)? '=' body=expression
    ;
 
 funcApplyArgumentList
@@ -183,8 +186,8 @@ lambda
    ;
 
 letGlobalBinding
-	: LET (REC?) idType=identifierWithType  EQUALSTRUC  init=expression
-	| LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	: LET (REC?) idParen=identifierWithContextParen EQUALSTRUC  init=expression
+	| LET (REC?) id=identifierWithContext  EQUALSTRUC  init=expression
    ;
 
 letLocalBinding

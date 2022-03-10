@@ -56,33 +56,35 @@ export class GrammarParser extends Parser {
   public static readonly ELSE = 33;
   public static readonly FUN = 34;
   public static readonly ARROW = 35;
-  public static readonly LET = 36;
-  public static readonly IN = 37;
-  public static readonly REC = 38;
-  public static readonly COLON = 39;
-  public static readonly DOUBLESEMICOLON = 40;
-  public static readonly PRIMITIVETYPE = 41;
-  public static readonly IDENTIFIER = 42;
+  public static readonly PIPE = 36;
+  public static readonly LET = 37;
+  public static readonly IN = 38;
+  public static readonly REC = 39;
+  public static readonly COLON = 40;
+  public static readonly DOUBLESEMICOLON = 41;
+  public static readonly PRIMITIVETYPE = 42;
+  public static readonly IDENTIFIER = 43;
   public static readonly RULE_type = 0;
   public static readonly RULE_atom = 1;
   public static readonly RULE_start = 2;
   public static readonly RULE_statement = 3;
   public static readonly RULE_expression = 4;
   public static readonly RULE_typeAnnotation = 5;
-  public static readonly RULE_identifierWithTypeParen = 6;
-  public static readonly RULE_identifierWithType = 7;
-  public static readonly RULE_condExp = 8;
-  public static readonly RULE_parenthesesExpression = 9;
-  public static readonly RULE_funcArgument = 10;
-  public static readonly RULE_identifier = 11;
-  public static readonly RULE_identifierListWithTypes = 12;
-  public static readonly RULE_identifierList = 13;
-  public static readonly RULE_funcDeclaration = 14;
-  public static readonly RULE_funcApplyArgumentList = 15;
-  public static readonly RULE_funcApplication = 16;
-  public static readonly RULE_lambda = 17;
-  public static readonly RULE_letGlobalBinding = 18;
-  public static readonly RULE_letLocalBinding = 19;
+  public static readonly RULE_contractAnnotation = 6;
+  public static readonly RULE_identifierWithContextParen = 7;
+  public static readonly RULE_identifierWithContext = 8;
+  public static readonly RULE_condExp = 9;
+  public static readonly RULE_parenthesesExpression = 10;
+  public static readonly RULE_funcArgument = 11;
+  public static readonly RULE_identifier = 12;
+  public static readonly RULE_identifierListWithContext = 13;
+  public static readonly RULE_identifierList = 14;
+  public static readonly RULE_funcDeclaration = 15;
+  public static readonly RULE_funcApplyArgumentList = 16;
+  public static readonly RULE_funcApplication = 17;
+  public static readonly RULE_lambda = 18;
+  public static readonly RULE_letGlobalBinding = 19;
+  public static readonly RULE_letLocalBinding = 20;
   // tslint:disable:no-trailing-whitespace
   public static readonly ruleNames: string[] = [
     'type',
@@ -91,13 +93,14 @@ export class GrammarParser extends Parser {
     'statement',
     'expression',
     'typeAnnotation',
-    'identifierWithTypeParen',
-    'identifierWithType',
+    'contractAnnotation',
+    'identifierWithContextParen',
+    'identifierWithContext',
     'condExp',
     'parenthesesExpression',
     'funcArgument',
     'identifier',
-    'identifierListWithTypes',
+    'identifierListWithContext',
     'identifierList',
     'funcDeclaration',
     'funcApplyArgumentList',
@@ -144,6 +147,7 @@ export class GrammarParser extends Parser {
     "'else'",
     "'fun'",
     "'->'",
+    "'|'",
     "'let'",
     "'in'",
     "'rec'",
@@ -187,6 +191,7 @@ export class GrammarParser extends Parser {
     'ELSE',
     'FUN',
     'ARROW',
+    'PIPE',
     'LET',
     'IN',
     'REC',
@@ -252,22 +257,22 @@ export class GrammarParser extends Parser {
       let _alt: number;
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 46;
+        this.state = 48;
         this._errHandler.sync(this);
         switch (this._input.LA(1)) {
           case GrammarParser.PRIMITIVETYPE:
             {
-              this.state = 41;
+              this.state = 43;
               this.match(GrammarParser.PRIMITIVETYPE);
             }
             break;
           case GrammarParser.T__0:
             {
-              this.state = 42;
-              this.match(GrammarParser.T__0);
-              this.state = 43;
-              this.type(0);
               this.state = 44;
+              this.match(GrammarParser.T__0);
+              this.state = 45;
+              this.type(0);
+              this.state = 46;
               this.match(GrammarParser.T__1);
             }
             break;
@@ -275,7 +280,7 @@ export class GrammarParser extends Parser {
             throw new NoViableAltException(this);
         }
         this._ctx._stop = this._input.tryLT(-1);
-        this.state = 53;
+        this.state = 55;
         this._errHandler.sync(this);
         _alt = this.interpreter.adaptivePredict(this._input, 1, this._ctx);
         while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
@@ -291,20 +296,20 @@ export class GrammarParser extends Parser {
                   _startState,
                   GrammarParser.RULE_type,
                 );
-                this.state = 48;
+                this.state = 50;
                 if (!this.precpred(this._ctx, 1)) {
                   throw this.createFailedPredicateException(
                     'this.precpred(this._ctx, 1)',
                   );
                 }
-                this.state = 49;
+                this.state = 51;
                 this.match(GrammarParser.ARROW);
-                this.state = 50;
+                this.state = 52;
                 this.type(2);
               }
             }
           }
-          this.state = 55;
+          this.state = 57;
           this._errHandler.sync(this);
           _alt = this.interpreter.adaptivePredict(this._input, 1, this._ctx);
         }
@@ -327,14 +332,14 @@ export class GrammarParser extends Parser {
     let _localctx: AtomContext = new AtomContext(this._ctx, this.state);
     this.enterRule(_localctx, 2, GrammarParser.RULE_atom);
     try {
-      this.state = 61;
+      this.state = 63;
       this._errHandler.sync(this);
       switch (this._input.LA(1)) {
         case GrammarParser.NUMBER:
           _localctx = new NumberContext(_localctx);
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 56;
+            this.state = 58;
             this.match(GrammarParser.NUMBER);
           }
           break;
@@ -342,7 +347,7 @@ export class GrammarParser extends Parser {
           _localctx = new FloatContext(_localctx);
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 57;
+            this.state = 59;
             this.match(GrammarParser.FLOAT);
           }
           break;
@@ -350,7 +355,7 @@ export class GrammarParser extends Parser {
           _localctx = new BooleanContext(_localctx);
           this.enterOuterAlt(_localctx, 3);
           {
-            this.state = 58;
+            this.state = 60;
             this.match(GrammarParser.BOOLEAN);
           }
           break;
@@ -358,7 +363,7 @@ export class GrammarParser extends Parser {
           _localctx = new CharContext(_localctx);
           this.enterOuterAlt(_localctx, 4);
           {
-            this.state = 59;
+            this.state = 61;
             this.match(GrammarParser.CHAR);
           }
           break;
@@ -366,7 +371,7 @@ export class GrammarParser extends Parser {
           _localctx = new StringContext(_localctx);
           this.enterOuterAlt(_localctx, 5);
           {
-            this.state = 60;
+            this.state = 62;
             this.match(GrammarParser.STRING);
           }
           break;
@@ -394,7 +399,7 @@ export class GrammarParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 68;
+        this.state = 70;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         while (
@@ -419,17 +424,17 @@ export class GrammarParser extends Parser {
         ) {
           {
             {
-              this.state = 63;
+              this.state = 65;
               this.statement();
-              this.state = 64;
+              this.state = 66;
               this.match(GrammarParser.DOUBLESEMICOLON);
             }
           }
-          this.state = 70;
+          this.state = 72;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         }
-        this.state = 71;
+        this.state = 73;
         this.match(GrammarParser.EOF);
       }
     } catch (re) {
@@ -453,13 +458,13 @@ export class GrammarParser extends Parser {
     );
     this.enterRule(_localctx, 6, GrammarParser.RULE_statement);
     try {
-      this.state = 76;
+      this.state = 78;
       this._errHandler.sync(this);
       switch (this.interpreter.adaptivePredict(this._input, 4, this._ctx)) {
         case 1:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 73;
+            this.state = 75;
             this.expression(0);
           }
           break;
@@ -467,7 +472,7 @@ export class GrammarParser extends Parser {
         case 2:
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 74;
+            this.state = 76;
             this.letGlobalBinding();
           }
           break;
@@ -475,7 +480,7 @@ export class GrammarParser extends Parser {
         case 3:
           this.enterOuterAlt(_localctx, 3);
           {
-            this.state = 75;
+            this.state = 77;
             this.funcDeclaration();
           }
           break;
@@ -515,7 +520,7 @@ export class GrammarParser extends Parser {
       let _alt: number;
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 90;
+        this.state = 92;
         this._errHandler.sync(this);
         switch (this.interpreter.adaptivePredict(this._input, 5, this._ctx)) {
           case 1:
@@ -524,7 +529,7 @@ export class GrammarParser extends Parser {
               this._ctx = _localctx;
               _prevctx = _localctx;
 
-              this.state = 79;
+              this.state = 81;
               this.atom();
             }
             break;
@@ -534,7 +539,7 @@ export class GrammarParser extends Parser {
               _localctx = new IdentifierExpressionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 80;
+              this.state = 82;
               this.identifier();
             }
             break;
@@ -544,7 +549,7 @@ export class GrammarParser extends Parser {
               _localctx = new ParenthesesContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 81;
+              this.state = 83;
               this.parenthesesExpression();
             }
             break;
@@ -554,11 +559,11 @@ export class GrammarParser extends Parser {
               _localctx = new NegativeContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 82;
+              this.state = 84;
               (_localctx as NegativeContext)._operator = this.match(
                 GrammarParser.SUB,
               );
-              this.state = 83;
+              this.state = 85;
               (_localctx as NegativeContext)._argument = this.expression(8);
             }
             break;
@@ -568,11 +573,11 @@ export class GrammarParser extends Parser {
               _localctx = new NotContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 84;
+              this.state = 86;
               (_localctx as NotContext)._operator = this.match(
                 GrammarParser.NOT,
               );
-              this.state = 85;
+              this.state = 87;
               (_localctx as NotContext)._argument = this.expression(7);
             }
             break;
@@ -582,7 +587,7 @@ export class GrammarParser extends Parser {
               _localctx = new ConditionalExpressionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 86;
+              this.state = 88;
               this.condExp();
             }
             break;
@@ -592,7 +597,7 @@ export class GrammarParser extends Parser {
               _localctx = new LetLocalBindingExpressionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 87;
+              this.state = 89;
               this.letLocalBinding();
             }
             break;
@@ -602,7 +607,7 @@ export class GrammarParser extends Parser {
               _localctx = new LambdaExpressionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 88;
+              this.state = 90;
               this.lambda();
             }
             break;
@@ -612,13 +617,13 @@ export class GrammarParser extends Parser {
               _localctx = new CallFunctionContext(_localctx);
               this._ctx = _localctx;
               _prevctx = _localctx;
-              this.state = 89;
+              this.state = 91;
               this.funcApplication();
             }
             break;
         }
         this._ctx._stop = this._input.tryLT(-1);
-        this.state = 157;
+        this.state = 159;
         this._errHandler.sync(this);
         _alt = this.interpreter.adaptivePredict(this._input, 7, this._ctx);
         while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
@@ -628,7 +633,7 @@ export class GrammarParser extends Parser {
             }
             _prevctx = _localctx;
             {
-              this.state = 155;
+              this.state = 157;
               this._errHandler.sync(this);
               switch (
                 this.interpreter.adaptivePredict(this._input, 6, this._ctx)
@@ -644,17 +649,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 92;
+                    this.state = 94;
                     if (!this.precpred(this._ctx, 27)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 27)',
                       );
                     }
-                    this.state = 93;
+                    this.state = 95;
                     (_localctx as PowerContext)._operator = this.match(
                       GrammarParser.POW,
                     );
-                    this.state = 94;
+                    this.state = 96;
                     (_localctx as PowerContext)._right = this.expression(27);
                   }
                   break;
@@ -670,17 +675,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 95;
+                    this.state = 97;
                     if (!this.precpred(this._ctx, 26)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 26)',
                       );
                     }
-                    this.state = 96;
+                    this.state = 98;
                     (_localctx as MultiplicationContext)._operator = this.match(
                       GrammarParser.MUL,
                     );
-                    this.state = 97;
+                    this.state = 99;
                     (_localctx as MultiplicationContext)._right =
                       this.expression(27);
                   }
@@ -697,17 +702,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 98;
+                    this.state = 100;
                     if (!this.precpred(this._ctx, 25)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 25)',
                       );
                     }
-                    this.state = 99;
+                    this.state = 101;
                     (_localctx as DivisionContext)._operator = this.match(
                       GrammarParser.DIV,
                     );
-                    this.state = 100;
+                    this.state = 102;
                     (_localctx as DivisionContext)._right = this.expression(26);
                   }
                   break;
@@ -723,16 +728,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 101;
+                    this.state = 103;
                     if (!this.precpred(this._ctx, 24)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 24)',
                       );
                     }
-                    this.state = 102;
+                    this.state = 104;
                     (_localctx as MultiplicationFloatContext)._operator =
                       this.match(GrammarParser.MULFLOAT);
-                    this.state = 103;
+                    this.state = 105;
                     (_localctx as MultiplicationFloatContext)._right =
                       this.expression(25);
                   }
@@ -749,17 +754,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 104;
+                    this.state = 106;
                     if (!this.precpred(this._ctx, 23)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 23)',
                       );
                     }
-                    this.state = 105;
+                    this.state = 107;
                     (_localctx as DivisionFloatContext)._operator = this.match(
                       GrammarParser.DIVFLOAT,
                     );
-                    this.state = 106;
+                    this.state = 108;
                     (_localctx as DivisionFloatContext)._right =
                       this.expression(24);
                   }
@@ -776,17 +781,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 107;
+                    this.state = 109;
                     if (!this.precpred(this._ctx, 22)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 22)',
                       );
                     }
-                    this.state = 108;
+                    this.state = 110;
                     (_localctx as ModulusContext)._operator = this.match(
                       GrammarParser.MOD,
                     );
-                    this.state = 109;
+                    this.state = 111;
                     (_localctx as ModulusContext)._right = this.expression(23);
                   }
                   break;
@@ -802,17 +807,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 110;
+                    this.state = 112;
                     if (!this.precpred(this._ctx, 21)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 21)',
                       );
                     }
-                    this.state = 111;
+                    this.state = 113;
                     (_localctx as AdditionContext)._operator = this.match(
                       GrammarParser.ADD,
                     );
-                    this.state = 112;
+                    this.state = 114;
                     (_localctx as AdditionContext)._right = this.expression(22);
                   }
                   break;
@@ -828,17 +833,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 113;
+                    this.state = 115;
                     if (!this.precpred(this._ctx, 20)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 20)',
                       );
                     }
-                    this.state = 114;
+                    this.state = 116;
                     (_localctx as SubtractionContext)._operator = this.match(
                       GrammarParser.SUB,
                     );
-                    this.state = 115;
+                    this.state = 117;
                     (_localctx as SubtractionContext)._right =
                       this.expression(21);
                   }
@@ -855,17 +860,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 116;
+                    this.state = 118;
                     if (!this.precpred(this._ctx, 19)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 19)',
                       );
                     }
-                    this.state = 117;
+                    this.state = 119;
                     (_localctx as AdditionFloatContext)._operator = this.match(
                       GrammarParser.ADDFLOAT,
                     );
-                    this.state = 118;
+                    this.state = 120;
                     (_localctx as AdditionFloatContext)._right =
                       this.expression(20);
                   }
@@ -882,16 +887,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 119;
+                    this.state = 121;
                     if (!this.precpred(this._ctx, 18)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 18)',
                       );
                     }
-                    this.state = 120;
+                    this.state = 122;
                     (_localctx as SubtractionFloatContext)._operator =
                       this.match(GrammarParser.SUBFLOAT);
-                    this.state = 121;
+                    this.state = 123;
                     (_localctx as SubtractionFloatContext)._right =
                       this.expression(19);
                   }
@@ -908,17 +913,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 122;
+                    this.state = 124;
                     if (!this.precpred(this._ctx, 17)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 17)',
                       );
                     }
-                    this.state = 123;
+                    this.state = 125;
                     (_localctx as LessThanContext)._operator = this.match(
                       GrammarParser.LESSTHAN,
                     );
-                    this.state = 124;
+                    this.state = 126;
                     (_localctx as LessThanContext)._right = this.expression(18);
                   }
                   break;
@@ -934,16 +939,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 125;
+                    this.state = 127;
                     if (!this.precpred(this._ctx, 16)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 16)',
                       );
                     }
-                    this.state = 126;
+                    this.state = 128;
                     (_localctx as LessThanOrEqualContext)._operator =
                       this.match(GrammarParser.LESSTHANOREQUAL);
-                    this.state = 127;
+                    this.state = 129;
                     (_localctx as LessThanOrEqualContext)._right =
                       this.expression(17);
                   }
@@ -960,17 +965,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 128;
+                    this.state = 130;
                     if (!this.precpred(this._ctx, 15)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 15)',
                       );
                     }
-                    this.state = 129;
+                    this.state = 131;
                     (_localctx as GreaterThanContext)._operator = this.match(
                       GrammarParser.GREATERTHAN,
                     );
-                    this.state = 130;
+                    this.state = 132;
                     (_localctx as GreaterThanContext)._right =
                       this.expression(16);
                   }
@@ -987,16 +992,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 131;
+                    this.state = 133;
                     if (!this.precpred(this._ctx, 14)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 14)',
                       );
                     }
-                    this.state = 132;
+                    this.state = 134;
                     (_localctx as GreaterThanOrEqualContext)._operator =
                       this.match(GrammarParser.GREATERTHANOREQUAL);
-                    this.state = 133;
+                    this.state = 135;
                     (_localctx as GreaterThanOrEqualContext)._right =
                       this.expression(15);
                   }
@@ -1013,16 +1018,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 134;
+                    this.state = 136;
                     if (!this.precpred(this._ctx, 13)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 13)',
                       );
                     }
-                    this.state = 135;
+                    this.state = 137;
                     (_localctx as EqualStructuralContext)._operator =
                       this.match(GrammarParser.EQUALSTRUC);
-                    this.state = 136;
+                    this.state = 138;
                     (_localctx as EqualStructuralContext)._right =
                       this.expression(14);
                   }
@@ -1039,16 +1044,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 137;
+                    this.state = 139;
                     if (!this.precpred(this._ctx, 12)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 12)',
                       );
                     }
-                    this.state = 138;
+                    this.state = 140;
                     (_localctx as NotEqualStructuralContext)._operator =
                       this.match(GrammarParser.NOTEQUALSTRUC);
-                    this.state = 139;
+                    this.state = 141;
                     (_localctx as NotEqualStructuralContext)._right =
                       this.expression(13);
                   }
@@ -1065,17 +1070,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 140;
+                    this.state = 142;
                     if (!this.precpred(this._ctx, 11)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 11)',
                       );
                     }
-                    this.state = 141;
+                    this.state = 143;
                     (_localctx as EqualPhysicalContext)._operator = this.match(
                       GrammarParser.EQUALPHYS,
                     );
-                    this.state = 142;
+                    this.state = 144;
                     (_localctx as EqualPhysicalContext)._right =
                       this.expression(12);
                   }
@@ -1092,16 +1097,16 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 143;
+                    this.state = 145;
                     if (!this.precpred(this._ctx, 10)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 10)',
                       );
                     }
-                    this.state = 144;
+                    this.state = 146;
                     (_localctx as NotEqualPhysicalContext)._operator =
                       this.match(GrammarParser.NOTEQUALPHYS);
-                    this.state = 145;
+                    this.state = 147;
                     (_localctx as NotEqualPhysicalContext)._right =
                       this.expression(11);
                   }
@@ -1118,17 +1123,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 146;
+                    this.state = 148;
                     if (!this.precpred(this._ctx, 9)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 9)',
                       );
                     }
-                    this.state = 147;
+                    this.state = 149;
                     (_localctx as ConcatenationContext)._operator = this.match(
                       GrammarParser.CONCAT,
                     );
-                    this.state = 148;
+                    this.state = 150;
                     (_localctx as ConcatenationContext)._right =
                       this.expression(10);
                   }
@@ -1145,17 +1150,17 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 149;
+                    this.state = 151;
                     if (!this.precpred(this._ctx, 6)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 6)',
                       );
                     }
-                    this.state = 150;
+                    this.state = 152;
                     (_localctx as AndContext)._operator = this.match(
                       GrammarParser.AND,
                     );
-                    this.state = 151;
+                    this.state = 153;
                     (_localctx as AndContext)._right = this.expression(7);
                   }
                   break;
@@ -1171,24 +1176,24 @@ export class GrammarParser extends Parser {
                       _startState,
                       GrammarParser.RULE_expression,
                     );
-                    this.state = 152;
+                    this.state = 154;
                     if (!this.precpred(this._ctx, 5)) {
                       throw this.createFailedPredicateException(
                         'this.precpred(this._ctx, 5)',
                       );
                     }
-                    this.state = 153;
+                    this.state = 155;
                     (_localctx as OrContext)._operator = this.match(
                       GrammarParser.OR,
                     );
-                    this.state = 154;
+                    this.state = 156;
                     (_localctx as OrContext)._right = this.expression(6);
                   }
                   break;
               }
             }
           }
-          this.state = 159;
+          this.state = 161;
           this._errHandler.sync(this);
           _alt = this.interpreter.adaptivePredict(this._input, 7, this._ctx);
         }
@@ -1216,9 +1221,9 @@ export class GrammarParser extends Parser {
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 160;
+        this.state = 162;
         this.match(GrammarParser.COLON);
-        this.state = 161;
+        this.state = 163;
         this.type(0);
       }
     } catch (re) {
@@ -1235,18 +1240,62 @@ export class GrammarParser extends Parser {
     return _localctx;
   }
   // @RuleVersion(0)
-  public identifierWithTypeParen(): IdentifierWithTypeParenContext {
-    const _localctx: IdentifierWithTypeParenContext =
-      new IdentifierWithTypeParenContext(this._ctx, this.state);
-    this.enterRule(_localctx, 12, GrammarParser.RULE_identifierWithTypeParen);
+  public contractAnnotation(): ContractAnnotationContext {
+    const _localctx: ContractAnnotationContext = new ContractAnnotationContext(
+      this._ctx,
+      this.state,
+    );
+    this.enterRule(_localctx, 12, GrammarParser.RULE_contractAnnotation);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 163;
-        this.match(GrammarParser.T__0);
-        this.state = 164;
-        this.identifierWithType();
         this.state = 165;
+        this.match(GrammarParser.PIPE);
+        this.state = 166;
+        this.expression(0);
+      }
+    } catch (re) {
+      if (re instanceof RecognitionException) {
+        _localctx.exception = re;
+        this._errHandler.reportError(this, re);
+        this._errHandler.recover(this, re);
+      } else {
+        throw re;
+      }
+    } finally {
+      this.exitRule();
+    }
+    return _localctx;
+  }
+  // @RuleVersion(0)
+  public identifierWithContextParen(): IdentifierWithContextParenContext {
+    const _localctx: IdentifierWithContextParenContext =
+      new IdentifierWithContextParenContext(this._ctx, this.state);
+    this.enterRule(
+      _localctx,
+      14,
+      GrammarParser.RULE_identifierWithContextParen,
+    );
+    let _la: number;
+    try {
+      this.enterOuterAlt(_localctx, 1);
+      {
+        this.state = 168;
+        this.match(GrammarParser.T__0);
+        this.state = 169;
+        this.identifierWithContext();
+        {
+          this.state = 171;
+          this._errHandler.sync(this);
+          _la = this._input.LA(1);
+          if (_la === GrammarParser.PIPE) {
+            {
+              this.state = 170;
+              this.contractAnnotation();
+            }
+          }
+        }
+        this.state = 173;
         this.match(GrammarParser.T__1);
       }
     } catch (re) {
@@ -1263,19 +1312,27 @@ export class GrammarParser extends Parser {
     return _localctx;
   }
   // @RuleVersion(0)
-  public identifierWithType(): IdentifierWithTypeContext {
-    const _localctx: IdentifierWithTypeContext = new IdentifierWithTypeContext(
-      this._ctx,
-      this.state,
-    );
-    this.enterRule(_localctx, 14, GrammarParser.RULE_identifierWithType);
+  public identifierWithContext(): IdentifierWithContextContext {
+    const _localctx: IdentifierWithContextContext =
+      new IdentifierWithContextContext(this._ctx, this.state);
+    this.enterRule(_localctx, 16, GrammarParser.RULE_identifierWithContext);
+    let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 167;
+        this.state = 175;
         this.identifier();
-        this.state = 168;
-        this.typeAnnotation();
+        {
+          this.state = 177;
+          this._errHandler.sync(this);
+          _la = this._input.LA(1);
+          if (_la === GrammarParser.COLON) {
+            {
+              this.state = 176;
+              this.typeAnnotation();
+            }
+          }
+        }
       }
     } catch (re) {
       if (re instanceof RecognitionException) {
@@ -1293,21 +1350,21 @@ export class GrammarParser extends Parser {
   // @RuleVersion(0)
   public condExp(): CondExpContext {
     const _localctx: CondExpContext = new CondExpContext(this._ctx, this.state);
-    this.enterRule(_localctx, 16, GrammarParser.RULE_condExp);
+    this.enterRule(_localctx, 18, GrammarParser.RULE_condExp);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 170;
+        this.state = 179;
         this.match(GrammarParser.IF);
-        this.state = 171;
+        this.state = 180;
         _localctx._test = this.expression(0);
-        this.state = 172;
+        this.state = 181;
         this.match(GrammarParser.THEN);
-        this.state = 173;
+        this.state = 182;
         _localctx._consequent = this.expression(0);
-        this.state = 174;
+        this.state = 183;
         this.match(GrammarParser.ELSE);
-        this.state = 175;
+        this.state = 184;
         _localctx._alternate = this.expression(0);
       }
     } catch (re) {
@@ -1327,15 +1384,15 @@ export class GrammarParser extends Parser {
   public parenthesesExpression(): ParenthesesExpressionContext {
     const _localctx: ParenthesesExpressionContext =
       new ParenthesesExpressionContext(this._ctx, this.state);
-    this.enterRule(_localctx, 18, GrammarParser.RULE_parenthesesExpression);
+    this.enterRule(_localctx, 20, GrammarParser.RULE_parenthesesExpression);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 177;
+        this.state = 186;
         this.match(GrammarParser.T__0);
-        this.state = 178;
+        this.state = 187;
         _localctx._inner = this.expression(0);
-        this.state = 179;
+        this.state = 188;
         this.match(GrammarParser.T__1);
       }
     } catch (re) {
@@ -1357,9 +1414,9 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 20, GrammarParser.RULE_funcArgument);
+    this.enterRule(_localctx, 22, GrammarParser.RULE_funcArgument);
     try {
-      this.state = 184;
+      this.state = 193;
       this._errHandler.sync(this);
       switch (this._input.LA(1)) {
         case GrammarParser.NUMBER:
@@ -1369,21 +1426,21 @@ export class GrammarParser extends Parser {
         case GrammarParser.BOOLEAN:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 181;
+            this.state = 190;
             this.atom();
           }
           break;
         case GrammarParser.IDENTIFIER:
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 182;
+            this.state = 191;
             this.identifier();
           }
           break;
         case GrammarParser.T__0:
           this.enterOuterAlt(_localctx, 3);
           {
-            this.state = 183;
+            this.state = 192;
             this.parenthesesExpression();
           }
           break;
@@ -1409,11 +1466,11 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 22, GrammarParser.RULE_identifier);
+    this.enterRule(_localctx, 24, GrammarParser.RULE_identifier);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 186;
+        this.state = 195;
         this.match(GrammarParser.IDENTIFIER);
       }
     } catch (re) {
@@ -1430,39 +1487,39 @@ export class GrammarParser extends Parser {
     return _localctx;
   }
   // @RuleVersion(0)
-  public identifierListWithTypes(): IdentifierListWithTypesContext {
-    const _localctx: IdentifierListWithTypesContext =
-      new IdentifierListWithTypesContext(this._ctx, this.state);
-    this.enterRule(_localctx, 24, GrammarParser.RULE_identifierListWithTypes);
+  public identifierListWithContext(): IdentifierListWithContextContext {
+    const _localctx: IdentifierListWithContextContext =
+      new IdentifierListWithContextContext(this._ctx, this.state);
+    this.enterRule(_localctx, 26, GrammarParser.RULE_identifierListWithContext);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 190;
+        this.state = 199;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         do {
           {
-            this.state = 190;
+            this.state = 199;
             this._errHandler.sync(this);
             switch (this._input.LA(1)) {
               case GrammarParser.IDENTIFIER:
                 {
-                  this.state = 188;
+                  this.state = 197;
                   this.identifier();
                 }
                 break;
               case GrammarParser.T__0:
                 {
-                  this.state = 189;
-                  this.identifierWithTypeParen();
+                  this.state = 198;
+                  this.identifierWithContextParen();
                 }
                 break;
               default:
                 throw new NoViableAltException(this);
             }
           }
-          this.state = 192;
+          this.state = 201;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         } while (
@@ -1489,22 +1546,22 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 26, GrammarParser.RULE_identifierList);
+    this.enterRule(_localctx, 28, GrammarParser.RULE_identifierList);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 195;
+        this.state = 204;
         this._errHandler.sync(this);
         _la = this._input.LA(1);
         do {
           {
             {
-              this.state = 194;
+              this.state = 203;
               this.identifier();
             }
           }
-          this.state = 197;
+          this.state = 206;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
         } while (_la === GrammarParser.IDENTIFIER);
@@ -1528,42 +1585,52 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 28, GrammarParser.RULE_funcDeclaration);
+    this.enterRule(_localctx, 30, GrammarParser.RULE_funcDeclaration);
     let _la: number;
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 199;
+        this.state = 208;
         this.match(GrammarParser.LET);
         {
-          this.state = 201;
+          this.state = 210;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
           if (_la === GrammarParser.REC) {
             {
-              this.state = 200;
+              this.state = 209;
               this.match(GrammarParser.REC);
             }
           }
         }
-        this.state = 203;
+        this.state = 212;
         _localctx._funcName = this.identifier();
-        this.state = 204;
-        _localctx._params = this.identifierListWithTypes();
+        this.state = 213;
+        _localctx._params = this.identifierListWithContext();
         {
-          this.state = 206;
+          this.state = 215;
           this._errHandler.sync(this);
           _la = this._input.LA(1);
           if (_la === GrammarParser.COLON) {
             {
-              this.state = 205;
+              this.state = 214;
               _localctx._retType = this.typeAnnotation();
             }
           }
         }
-        this.state = 208;
+        this.state = 218;
+        this._errHandler.sync(this);
+        _la = this._input.LA(1);
+        if (_la === GrammarParser.PIPE) {
+          {
+            this.state = 217;
+            _localctx._contract = this.contractAnnotation();
+          }
+        }
+
+        this.state = 220;
         this.match(GrammarParser.EQUALSTRUC);
-        this.state = 209;
+        this.state = 221;
         _localctx._body = this.expression(0);
       }
     } catch (re) {
@@ -1583,28 +1650,28 @@ export class GrammarParser extends Parser {
   public funcApplyArgumentList(): FuncApplyArgumentListContext {
     const _localctx: FuncApplyArgumentListContext =
       new FuncApplyArgumentListContext(this._ctx, this.state);
-    this.enterRule(_localctx, 30, GrammarParser.RULE_funcApplyArgumentList);
+    this.enterRule(_localctx, 32, GrammarParser.RULE_funcApplyArgumentList);
     try {
       let _alt: number;
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 211;
+        this.state = 223;
         this.funcArgument();
-        this.state = 215;
+        this.state = 227;
         this._errHandler.sync(this);
-        _alt = this.interpreter.adaptivePredict(this._input, 14, this._ctx);
+        _alt = this.interpreter.adaptivePredict(this._input, 17, this._ctx);
         while (_alt !== 2 && _alt !== ATN.INVALID_ALT_NUMBER) {
           if (_alt === 1) {
             {
               {
-                this.state = 212;
+                this.state = 224;
                 this.funcArgument();
               }
             }
           }
-          this.state = 217;
+          this.state = 229;
           this._errHandler.sync(this);
-          _alt = this.interpreter.adaptivePredict(this._input, 14, this._ctx);
+          _alt = this.interpreter.adaptivePredict(this._input, 17, this._ctx);
         }
       }
     } catch (re) {
@@ -1626,13 +1693,13 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 32, GrammarParser.RULE_funcApplication);
+    this.enterRule(_localctx, 34, GrammarParser.RULE_funcApplication);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 218;
+        this.state = 230;
         _localctx._func = this.identifier();
-        this.state = 219;
+        this.state = 231;
         _localctx._args = this.funcApplyArgumentList();
       }
     } catch (re) {
@@ -1651,19 +1718,19 @@ export class GrammarParser extends Parser {
   // @RuleVersion(0)
   public lambda(): LambdaContext {
     const _localctx: LambdaContext = new LambdaContext(this._ctx, this.state);
-    this.enterRule(_localctx, 34, GrammarParser.RULE_lambda);
+    this.enterRule(_localctx, 36, GrammarParser.RULE_lambda);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 221;
+        this.state = 233;
         this.match(GrammarParser.FUN);
         {
-          this.state = 222;
+          this.state = 234;
           _localctx._params = this.identifierList();
         }
-        this.state = 223;
+        this.state = 235;
         this.match(GrammarParser.ARROW);
-        this.state = 224;
+        this.state = 236;
         _localctx._body = this.expression(0);
       }
     } catch (re) {
@@ -1685,33 +1752,33 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 36, GrammarParser.RULE_letGlobalBinding);
+    this.enterRule(_localctx, 38, GrammarParser.RULE_letGlobalBinding);
     let _la: number;
     try {
-      this.state = 242;
+      this.state = 254;
       this._errHandler.sync(this);
-      switch (this.interpreter.adaptivePredict(this._input, 17, this._ctx)) {
+      switch (this.interpreter.adaptivePredict(this._input, 20, this._ctx)) {
         case 1:
           this.enterOuterAlt(_localctx, 1);
           {
-            this.state = 226;
+            this.state = 238;
             this.match(GrammarParser.LET);
             {
-              this.state = 228;
+              this.state = 240;
               this._errHandler.sync(this);
               _la = this._input.LA(1);
               if (_la === GrammarParser.REC) {
                 {
-                  this.state = 227;
+                  this.state = 239;
                   this.match(GrammarParser.REC);
                 }
               }
             }
-            this.state = 230;
-            _localctx._idType = this.identifierWithType();
-            this.state = 231;
+            this.state = 242;
+            _localctx._idParen = this.identifierWithContextParen();
+            this.state = 243;
             this.match(GrammarParser.EQUALSTRUC);
-            this.state = 232;
+            this.state = 244;
             _localctx._init = this.expression(0);
           }
           break;
@@ -1719,24 +1786,24 @@ export class GrammarParser extends Parser {
         case 2:
           this.enterOuterAlt(_localctx, 2);
           {
-            this.state = 234;
+            this.state = 246;
             this.match(GrammarParser.LET);
             {
-              this.state = 236;
+              this.state = 248;
               this._errHandler.sync(this);
               _la = this._input.LA(1);
               if (_la === GrammarParser.REC) {
                 {
-                  this.state = 235;
+                  this.state = 247;
                   this.match(GrammarParser.REC);
                 }
               }
             }
-            this.state = 238;
-            _localctx._id = this.identifier();
-            this.state = 239;
+            this.state = 250;
+            _localctx._id = this.identifierWithContext();
+            this.state = 251;
             this.match(GrammarParser.EQUALSTRUC);
-            this.state = 240;
+            this.state = 252;
             _localctx._init = this.expression(0);
           }
           break;
@@ -1760,30 +1827,30 @@ export class GrammarParser extends Parser {
       this._ctx,
       this.state,
     );
-    this.enterRule(_localctx, 38, GrammarParser.RULE_letLocalBinding);
+    this.enterRule(_localctx, 40, GrammarParser.RULE_letLocalBinding);
     try {
       this.enterOuterAlt(_localctx, 1);
       {
-        this.state = 246;
+        this.state = 258;
         this._errHandler.sync(this);
-        switch (this.interpreter.adaptivePredict(this._input, 18, this._ctx)) {
+        switch (this.interpreter.adaptivePredict(this._input, 21, this._ctx)) {
           case 1:
             {
-              this.state = 244;
+              this.state = 256;
               this.letGlobalBinding();
             }
             break;
 
           case 2:
             {
-              this.state = 245;
+              this.state = 257;
               this.funcDeclaration();
             }
             break;
         }
-        this.state = 248;
+        this.state = 260;
         this.match(GrammarParser.IN);
-        this.state = 249;
+        this.state = 261;
         _localctx._exp2 = this.expression(0);
       }
     } catch (re) {
@@ -1896,121 +1963,127 @@ export class GrammarParser extends Parser {
   }
 
   public static readonly _serializedATN: string =
-    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03,\xFE\x04\x02' +
+    '\x03\uC91D\uCABA\u058D\uAFBA\u4F53\u0607\uEA8B\uC241\x03-\u010A\x04\x02' +
     '\t\x02\x04\x03\t\x03\x04\x04\t\x04\x04\x05\t\x05\x04\x06\t\x06\x04\x07' +
     '\t\x07\x04\b\t\b\x04\t\t\t\x04\n\t\n\x04\v\t\v\x04\f\t\f\x04\r\t\r\x04' +
     '\x0E\t\x0E\x04\x0F\t\x0F\x04\x10\t\x10\x04\x11\t\x11\x04\x12\t\x12\x04' +
-    '\x13\t\x13\x04\x14\t\x14\x04\x15\t\x15\x03\x02\x03\x02\x03\x02\x03\x02' +
-    '\x03\x02\x03\x02\x05\x021\n\x02\x03\x02\x03\x02\x03\x02\x07\x026\n\x02' +
-    '\f\x02\x0E\x029\v\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03\x05\x03' +
-    '@\n\x03\x03\x04\x03\x04\x03\x04\x07\x04E\n\x04\f\x04\x0E\x04H\v\x04\x03' +
-    '\x04\x03\x04\x03\x05\x03\x05\x03\x05\x05\x05O\n\x05\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x05\x06]\n\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03' +
-    '\x06\x03\x06\x03\x06\x07\x06\x9E\n\x06\f\x06\x0E\x06\xA1\v\x06\x03\x07' +
-    '\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\b\x03\t\x03\t\x03\t\x03\n\x03\n' +
-    '\x03\n\x03\n\x03\n\x03\n\x03\n\x03\v\x03\v\x03\v\x03\v\x03\f\x03\f\x03' +
-    '\f\x05\f\xBB\n\f\x03\r\x03\r\x03\x0E\x03\x0E\x06\x0E\xC1\n\x0E\r\x0E\x0E' +
-    '\x0E\xC2\x03\x0F\x06\x0F\xC6\n\x0F\r\x0F\x0E\x0F\xC7\x03\x10\x03\x10\x05' +
-    '\x10\xCC\n\x10\x03\x10\x03\x10\x03\x10\x05\x10\xD1\n\x10\x03\x10\x03\x10' +
-    '\x03\x10\x03\x11\x03\x11\x07\x11\xD8\n\x11\f\x11\x0E\x11\xDB\v\x11\x03' +
-    '\x12\x03\x12\x03\x12\x03\x13\x03\x13\x03\x13\x03\x13\x03\x13\x03\x14\x03' +
-    '\x14\x05\x14\xE7\n\x14\x03\x14\x03\x14\x03\x14\x03\x14\x03\x14\x03\x14' +
-    '\x05\x14\xEF\n\x14\x03\x14\x03\x14\x03\x14\x03\x14\x05\x14\xF5\n\x14\x03' +
-    '\x15\x03\x15\x05\x15\xF9\n\x15\x03\x15\x03\x15\x03\x15\x03\x15\x02\x02' +
-    '\x04\x02\n\x16\x02\x02\x04\x02\x06\x02\b\x02\n\x02\f\x02\x0E\x02\x10\x02' +
-    '\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C\x02\x1E\x02 \x02"\x02$\x02' +
-    '&\x02(\x02\x02\x02\x02\u011B\x020\x03\x02\x02\x02\x04?\x03\x02\x02\x02' +
-    '\x06F\x03\x02\x02\x02\bN\x03\x02\x02\x02\n\\\x03\x02\x02\x02\f\xA2\x03' +
-    '\x02\x02\x02\x0E\xA5\x03\x02\x02\x02\x10\xA9\x03\x02\x02\x02\x12\xAC\x03' +
-    '\x02\x02\x02\x14\xB3\x03\x02\x02\x02\x16\xBA\x03\x02\x02\x02\x18\xBC\x03' +
-    '\x02\x02\x02\x1A\xC0\x03\x02\x02\x02\x1C\xC5\x03\x02\x02\x02\x1E\xC9\x03' +
-    '\x02\x02\x02 \xD5\x03\x02\x02\x02"\xDC\x03\x02\x02\x02$\xDF\x03\x02\x02' +
-    '\x02&\xF4\x03\x02\x02\x02(\xF8\x03\x02\x02\x02*+\b\x02\x01\x02+1\x07+' +
-    '\x02\x02,-\x07\x03\x02\x02-.\x05\x02\x02\x02./\x07\x04\x02\x02/1\x03\x02' +
-    '\x02\x020*\x03\x02\x02\x020,\x03\x02\x02\x0217\x03\x02\x02\x0223\f\x03' +
-    '\x02\x0234\x07%\x02\x0246\x05\x02\x02\x0452\x03\x02\x02\x0269\x03\x02' +
-    '\x02\x0275\x03\x02\x02\x0278\x03\x02\x02\x028\x03\x03\x02\x02\x0297\x03' +
-    '\x02\x02\x02:@\x07\x1B\x02\x02;@\x07\x1F\x02\x02<@\x07 \x02\x02=@\x07' +
-    '\x1D\x02\x02>@\x07\x1E\x02\x02?:\x03\x02\x02\x02?;\x03\x02\x02\x02?<\x03' +
-    '\x02\x02\x02?=\x03\x02\x02\x02?>\x03\x02\x02\x02@\x05\x03\x02\x02\x02' +
-    'AB\x05\b\x05\x02BC\x07*\x02\x02CE\x03\x02\x02\x02DA\x03\x02\x02\x02EH' +
-    '\x03\x02\x02\x02FD\x03\x02\x02\x02FG\x03\x02\x02\x02GI\x03\x02\x02\x02' +
-    'HF\x03\x02\x02\x02IJ\x07\x02\x02\x03J\x07\x03\x02\x02\x02KO\x05\n\x06' +
-    '\x02LO\x05&\x14\x02MO\x05\x1E\x10\x02NK\x03\x02\x02\x02NL\x03\x02\x02' +
-    '\x02NM\x03\x02\x02\x02O\t\x03\x02\x02\x02PQ\b\x06\x01\x02Q]\x05\x04\x03' +
-    '\x02R]\x05\x18\r\x02S]\x05\x14\v\x02TU\x07\t\x02\x02U]\x05\n\x06\nVW\x07' +
-    '\x1A\x02\x02W]\x05\n\x06\tX]\x05\x12\n\x02Y]\x05(\x15\x02Z]\x05$\x13\x02' +
-    '[]\x05"\x12\x02\\P\x03\x02\x02\x02\\R\x03\x02\x02\x02\\S\x03\x02\x02' +
-    '\x02\\T\x03\x02\x02\x02\\V\x03\x02\x02\x02\\X\x03\x02\x02\x02\\Y\x03\x02' +
-    '\x02\x02\\Z\x03\x02\x02\x02\\[\x03\x02\x02\x02]\x9F\x03\x02\x02\x02^_' +
-    '\f\x1D\x02\x02_`\x07\x05\x02\x02`\x9E\x05\n\x06\x1Dab\f\x1C\x02\x02bc' +
-    '\x07\x06\x02\x02c\x9E\x05\n\x06\x1Dde\f\x1B\x02\x02ef\x07\x07\x02\x02' +
-    'f\x9E\x05\n\x06\x1Cgh\f\x1A\x02\x02hi\x07\r\x02\x02i\x9E\x05\n\x06\x1B' +
-    'jk\f\x19\x02\x02kl\x07\x0E\x02\x02l\x9E\x05\n\x06\x1Amn\f\x18\x02\x02' +
-    'no\x07\n\x02\x02o\x9E\x05\n\x06\x19pq\f\x17\x02\x02qr\x07\b\x02\x02r\x9E' +
-    '\x05\n\x06\x18st\f\x16\x02\x02tu\x07\t\x02\x02u\x9E\x05\n\x06\x17vw\f' +
-    '\x15\x02\x02wx\x07\v\x02\x02x\x9E\x05\n\x06\x16yz\f\x14\x02\x02z{\x07' +
-    '\f\x02\x02{\x9E\x05\n\x06\x15|}\f\x13\x02\x02}~\x07\x0F\x02\x02~\x9E\x05' +
-    '\n\x06\x14\x7F\x80\f\x12\x02\x02\x80\x81\x07\x10\x02\x02\x81\x9E\x05\n' +
-    '\x06\x13\x82\x83\f\x11\x02\x02\x83\x84\x07\x11\x02\x02\x84\x9E\x05\n\x06' +
-    '\x12\x85\x86\f\x10\x02\x02\x86\x87\x07\x12\x02\x02\x87\x9E\x05\n\x06\x11' +
-    '\x88\x89\f\x0F\x02\x02\x89\x8A\x07\x13\x02\x02\x8A\x9E\x05\n\x06\x10\x8B' +
-    '\x8C\f\x0E\x02\x02\x8C\x8D\x07\x14\x02\x02\x8D\x9E\x05\n\x06\x0F\x8E\x8F' +
-    '\f\r\x02\x02\x8F\x90\x07\x15\x02\x02\x90\x9E\x05\n\x06\x0E\x91\x92\f\f' +
-    '\x02\x02\x92\x93\x07\x16\x02\x02\x93\x9E\x05\n\x06\r\x94\x95\f\v\x02\x02' +
-    '\x95\x96\x07\x17\x02\x02\x96\x9E\x05\n\x06\f\x97\x98\f\b\x02\x02\x98\x99' +
-    '\x07\x18\x02\x02\x99\x9E\x05\n\x06\t\x9A\x9B\f\x07\x02\x02\x9B\x9C\x07' +
-    '\x19\x02\x02\x9C\x9E\x05\n\x06\b\x9D^\x03\x02\x02\x02\x9Da\x03\x02\x02' +
-    '\x02\x9Dd\x03\x02\x02\x02\x9Dg\x03\x02\x02\x02\x9Dj\x03\x02\x02\x02\x9D' +
-    'm\x03\x02\x02\x02\x9Dp\x03\x02\x02\x02\x9Ds\x03\x02\x02\x02\x9Dv\x03\x02' +
-    '\x02\x02\x9Dy\x03\x02\x02\x02\x9D|\x03\x02\x02\x02\x9D\x7F\x03\x02\x02' +
-    '\x02\x9D\x82\x03\x02\x02\x02\x9D\x85\x03\x02\x02\x02\x9D\x88\x03\x02\x02' +
-    '\x02\x9D\x8B\x03\x02\x02\x02\x9D\x8E\x03\x02\x02\x02\x9D\x91\x03\x02\x02' +
-    '\x02\x9D\x94\x03\x02\x02\x02\x9D\x97\x03\x02\x02\x02\x9D\x9A\x03\x02\x02' +
-    '\x02\x9E\xA1\x03\x02\x02\x02\x9F\x9D\x03\x02\x02\x02\x9F\xA0\x03\x02\x02' +
-    '\x02\xA0\v\x03\x02\x02\x02\xA1\x9F\x03\x02\x02\x02\xA2\xA3\x07)\x02\x02' +
-    '\xA3\xA4\x05\x02\x02\x02\xA4\r\x03\x02\x02\x02\xA5\xA6\x07\x03\x02\x02' +
-    '\xA6\xA7\x05\x10\t\x02\xA7\xA8\x07\x04\x02\x02\xA8\x0F\x03\x02\x02\x02' +
-    '\xA9\xAA\x05\x18\r\x02\xAA\xAB\x05\f\x07\x02\xAB\x11\x03\x02\x02\x02\xAC' +
-    '\xAD\x07!\x02\x02\xAD\xAE\x05\n\x06\x02\xAE\xAF\x07"\x02\x02\xAF\xB0' +
-    '\x05\n\x06\x02\xB0\xB1\x07#\x02\x02\xB1\xB2\x05\n\x06\x02\xB2\x13\x03' +
-    '\x02\x02\x02\xB3\xB4\x07\x03\x02\x02\xB4\xB5\x05\n\x06\x02\xB5\xB6\x07' +
-    '\x04\x02\x02\xB6\x15\x03\x02\x02\x02\xB7\xBB\x05\x04\x03\x02\xB8\xBB\x05' +
-    '\x18\r\x02\xB9\xBB\x05\x14\v\x02\xBA\xB7\x03\x02\x02\x02\xBA\xB8\x03\x02' +
-    '\x02\x02\xBA\xB9\x03\x02\x02\x02\xBB\x17\x03\x02\x02\x02\xBC\xBD\x07,' +
-    '\x02\x02\xBD\x19\x03\x02\x02\x02\xBE\xC1\x05\x18\r\x02\xBF\xC1\x05\x0E' +
-    '\b\x02\xC0\xBE\x03\x02\x02\x02\xC0\xBF\x03\x02\x02\x02\xC1\xC2\x03\x02' +
-    '\x02\x02\xC2\xC0\x03\x02\x02\x02\xC2\xC3\x03\x02\x02\x02\xC3\x1B\x03\x02' +
-    '\x02\x02\xC4\xC6\x05\x18\r\x02\xC5\xC4\x03\x02\x02\x02\xC6\xC7\x03\x02' +
-    '\x02\x02\xC7\xC5\x03\x02\x02\x02\xC7\xC8\x03\x02\x02\x02\xC8\x1D\x03\x02' +
-    '\x02\x02\xC9\xCB\x07&\x02\x02\xCA\xCC\x07(\x02\x02\xCB\xCA\x03\x02\x02' +
-    '\x02\xCB\xCC\x03\x02\x02\x02\xCC\xCD\x03\x02\x02\x02\xCD\xCE\x05\x18\r' +
-    '\x02\xCE\xD0\x05\x1A\x0E\x02\xCF\xD1\x05\f\x07\x02\xD0\xCF\x03\x02\x02' +
-    '\x02\xD0\xD1\x03\x02\x02\x02\xD1\xD2\x03\x02\x02\x02\xD2\xD3\x07\x13\x02' +
-    '\x02\xD3\xD4\x05\n\x06\x02\xD4\x1F\x03\x02\x02\x02\xD5\xD9\x05\x16\f\x02' +
-    '\xD6\xD8\x05\x16\f\x02\xD7\xD6\x03\x02\x02\x02\xD8\xDB\x03\x02\x02\x02' +
-    '\xD9\xD7\x03\x02\x02\x02\xD9\xDA\x03\x02\x02\x02\xDA!\x03\x02\x02\x02' +
-    '\xDB\xD9\x03\x02\x02\x02\xDC\xDD\x05\x18\r\x02\xDD\xDE\x05 \x11\x02\xDE' +
-    '#\x03\x02\x02\x02\xDF\xE0\x07$\x02\x02\xE0\xE1\x05\x1C\x0F\x02\xE1\xE2' +
-    '\x07%\x02\x02\xE2\xE3\x05\n\x06\x02\xE3%\x03\x02\x02\x02\xE4\xE6\x07&' +
-    '\x02\x02\xE5\xE7\x07(\x02\x02\xE6\xE5\x03\x02\x02\x02\xE6\xE7\x03\x02' +
-    '\x02\x02\xE7\xE8\x03\x02\x02\x02\xE8\xE9\x05\x10\t\x02\xE9\xEA\x07\x13' +
-    '\x02\x02\xEA\xEB\x05\n\x06\x02\xEB\xF5\x03\x02\x02\x02\xEC\xEE\x07&\x02' +
-    '\x02\xED\xEF\x07(\x02\x02\xEE\xED\x03\x02\x02\x02\xEE\xEF\x03\x02\x02' +
-    '\x02\xEF\xF0\x03\x02\x02\x02\xF0\xF1\x05\x18\r\x02\xF1\xF2\x07\x13\x02' +
-    '\x02\xF2\xF3\x05\n\x06\x02\xF3\xF5\x03\x02\x02\x02\xF4\xE4\x03\x02\x02' +
-    "\x02\xF4\xEC\x03\x02\x02\x02\xF5'\x03\x02\x02\x02\xF6\xF9\x05&\x14\x02" +
-    '\xF7\xF9\x05\x1E\x10\x02\xF8\xF6\x03\x02\x02\x02\xF8\xF7\x03\x02\x02\x02' +
-    "\xF9\xFA\x03\x02\x02\x02\xFA\xFB\x07'\x02\x02\xFB\xFC\x05\n\x06\x02\xFC" +
-    ')\x03\x02\x02\x02\x1507?FN\\\x9D\x9F\xBA\xC0\xC2\xC7\xCB\xD0\xD9\xE6\xEE' +
-    '\xF4\xF8';
+    '\x13\t\x13\x04\x14\t\x14\x04\x15\t\x15\x04\x16\t\x16\x03\x02\x03\x02\x03' +
+    '\x02\x03\x02\x03\x02\x03\x02\x05\x023\n\x02\x03\x02\x03\x02\x03\x02\x07' +
+    '\x028\n\x02\f\x02\x0E\x02;\v\x02\x03\x03\x03\x03\x03\x03\x03\x03\x03\x03' +
+    '\x05\x03B\n\x03\x03\x04\x03\x04\x03\x04\x07\x04G\n\x04\f\x04\x0E\x04J' +
+    '\v\x04\x03\x04\x03\x04\x03\x05\x03\x05\x03\x05\x05\x05Q\n\x05\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x05\x06_\n\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06\x03\x06' +
+    '\x03\x06\x03\x06\x03\x06\x03\x06\x07\x06\xA0\n\x06\f\x06\x0E\x06\xA3\v' +
+    '\x06\x03\x07\x03\x07\x03\x07\x03\b\x03\b\x03\b\x03\t\x03\t\x03\t\x05\t' +
+    '\xAE\n\t\x03\t\x03\t\x03\n\x03\n\x05\n\xB4\n\n\x03\v\x03\v\x03\v\x03\v' +
+    '\x03\v\x03\v\x03\v\x03\f\x03\f\x03\f\x03\f\x03\r\x03\r\x03\r\x05\r\xC4' +
+    '\n\r\x03\x0E\x03\x0E\x03\x0F\x03\x0F\x06\x0F\xCA\n\x0F\r\x0F\x0E\x0F\xCB' +
+    '\x03\x10\x06\x10\xCF\n\x10\r\x10\x0E\x10\xD0\x03\x11\x03\x11\x05\x11\xD5' +
+    '\n\x11\x03\x11\x03\x11\x03\x11\x05\x11\xDA\n\x11\x03\x11\x05\x11\xDD\n' +
+    '\x11\x03\x11\x03\x11\x03\x11\x03\x12\x03\x12\x07\x12\xE4\n\x12\f\x12\x0E' +
+    '\x12\xE7\v\x12\x03\x13\x03\x13\x03\x13\x03\x14\x03\x14\x03\x14\x03\x14' +
+    '\x03\x14\x03\x15\x03\x15\x05\x15\xF3\n\x15\x03\x15\x03\x15\x03\x15\x03' +
+    '\x15\x03\x15\x03\x15\x05\x15\xFB\n\x15\x03\x15\x03\x15\x03\x15\x03\x15' +
+    '\x05\x15\u0101\n\x15\x03\x16\x03\x16\x05\x16\u0105\n\x16\x03\x16\x03\x16' +
+    '\x03\x16\x03\x16\x02\x02\x04\x02\n\x17\x02\x02\x04\x02\x06\x02\b\x02\n' +
+    '\x02\f\x02\x0E\x02\x10\x02\x12\x02\x14\x02\x16\x02\x18\x02\x1A\x02\x1C' +
+    '\x02\x1E\x02 \x02"\x02$\x02&\x02(\x02*\x02\x02\x02\x02\u0129\x022\x03' +
+    '\x02\x02\x02\x04A\x03\x02\x02\x02\x06H\x03\x02\x02\x02\bP\x03\x02\x02' +
+    '\x02\n^\x03\x02\x02\x02\f\xA4\x03\x02\x02\x02\x0E\xA7\x03\x02\x02\x02' +
+    '\x10\xAA\x03\x02\x02\x02\x12\xB1\x03\x02\x02\x02\x14\xB5\x03\x02\x02\x02' +
+    '\x16\xBC\x03\x02\x02\x02\x18\xC3\x03\x02\x02\x02\x1A\xC5\x03\x02\x02\x02' +
+    '\x1C\xC9\x03\x02\x02\x02\x1E\xCE\x03\x02\x02\x02 \xD2\x03\x02\x02\x02' +
+    '"\xE1\x03\x02\x02\x02$\xE8\x03\x02\x02\x02&\xEB\x03\x02\x02\x02(\u0100' +
+    '\x03\x02\x02\x02*\u0104\x03\x02\x02\x02,-\b\x02\x01\x02-3\x07,\x02\x02' +
+    './\x07\x03\x02\x02/0\x05\x02\x02\x0201\x07\x04\x02\x0213\x03\x02\x02\x02' +
+    '2,\x03\x02\x02\x022.\x03\x02\x02\x0239\x03\x02\x02\x0245\f\x03\x02\x02' +
+    '56\x07%\x02\x0268\x05\x02\x02\x0474\x03\x02\x02\x028;\x03\x02\x02\x02' +
+    '97\x03\x02\x02\x029:\x03\x02\x02\x02:\x03\x03\x02\x02\x02;9\x03\x02\x02' +
+    '\x02<B\x07\x1B\x02\x02=B\x07\x1F\x02\x02>B\x07 \x02\x02?B\x07\x1D\x02' +
+    '\x02@B\x07\x1E\x02\x02A<\x03\x02\x02\x02A=\x03\x02\x02\x02A>\x03\x02\x02' +
+    '\x02A?\x03\x02\x02\x02A@\x03\x02\x02\x02B\x05\x03\x02\x02\x02CD\x05\b' +
+    '\x05\x02DE\x07+\x02\x02EG\x03\x02\x02\x02FC\x03\x02\x02\x02GJ\x03\x02' +
+    '\x02\x02HF\x03\x02\x02\x02HI\x03\x02\x02\x02IK\x03\x02\x02\x02JH\x03\x02' +
+    '\x02\x02KL\x07\x02\x02\x03L\x07\x03\x02\x02\x02MQ\x05\n\x06\x02NQ\x05' +
+    '(\x15\x02OQ\x05 \x11\x02PM\x03\x02\x02\x02PN\x03\x02\x02\x02PO\x03\x02' +
+    '\x02\x02Q\t\x03\x02\x02\x02RS\b\x06\x01\x02S_\x05\x04\x03\x02T_\x05\x1A' +
+    '\x0E\x02U_\x05\x16\f\x02VW\x07\t\x02\x02W_\x05\n\x06\nXY\x07\x1A\x02\x02' +
+    'Y_\x05\n\x06\tZ_\x05\x14\v\x02[_\x05*\x16\x02\\_\x05&\x14\x02]_\x05$\x13' +
+    '\x02^R\x03\x02\x02\x02^T\x03\x02\x02\x02^U\x03\x02\x02\x02^V\x03\x02\x02' +
+    '\x02^X\x03\x02\x02\x02^Z\x03\x02\x02\x02^[\x03\x02\x02\x02^\\\x03\x02' +
+    '\x02\x02^]\x03\x02\x02\x02_\xA1\x03\x02\x02\x02`a\f\x1D\x02\x02ab\x07' +
+    '\x05\x02\x02b\xA0\x05\n\x06\x1Dcd\f\x1C\x02\x02de\x07\x06\x02\x02e\xA0' +
+    '\x05\n\x06\x1Dfg\f\x1B\x02\x02gh\x07\x07\x02\x02h\xA0\x05\n\x06\x1Cij' +
+    '\f\x1A\x02\x02jk\x07\r\x02\x02k\xA0\x05\n\x06\x1Blm\f\x19\x02\x02mn\x07' +
+    '\x0E\x02\x02n\xA0\x05\n\x06\x1Aop\f\x18\x02\x02pq\x07\n\x02\x02q\xA0\x05' +
+    '\n\x06\x19rs\f\x17\x02\x02st\x07\b\x02\x02t\xA0\x05\n\x06\x18uv\f\x16' +
+    '\x02\x02vw\x07\t\x02\x02w\xA0\x05\n\x06\x17xy\f\x15\x02\x02yz\x07\v\x02' +
+    '\x02z\xA0\x05\n\x06\x16{|\f\x14\x02\x02|}\x07\f\x02\x02}\xA0\x05\n\x06' +
+    '\x15~\x7F\f\x13\x02\x02\x7F\x80\x07\x0F\x02\x02\x80\xA0\x05\n\x06\x14' +
+    '\x81\x82\f\x12\x02\x02\x82\x83\x07\x10\x02\x02\x83\xA0\x05\n\x06\x13\x84' +
+    '\x85\f\x11\x02\x02\x85\x86\x07\x11\x02\x02\x86\xA0\x05\n\x06\x12\x87\x88' +
+    '\f\x10\x02\x02\x88\x89\x07\x12\x02\x02\x89\xA0\x05\n\x06\x11\x8A\x8B\f' +
+    '\x0F\x02\x02\x8B\x8C\x07\x13\x02\x02\x8C\xA0\x05\n\x06\x10\x8D\x8E\f\x0E' +
+    '\x02\x02\x8E\x8F\x07\x14\x02\x02\x8F\xA0\x05\n\x06\x0F\x90\x91\f\r\x02' +
+    '\x02\x91\x92\x07\x15\x02\x02\x92\xA0\x05\n\x06\x0E\x93\x94\f\f\x02\x02' +
+    '\x94\x95\x07\x16\x02\x02\x95\xA0\x05\n\x06\r\x96\x97\f\v\x02\x02\x97\x98' +
+    '\x07\x17\x02\x02\x98\xA0\x05\n\x06\f\x99\x9A\f\b\x02\x02\x9A\x9B\x07\x18' +
+    '\x02\x02\x9B\xA0\x05\n\x06\t\x9C\x9D\f\x07\x02\x02\x9D\x9E\x07\x19\x02' +
+    '\x02\x9E\xA0\x05\n\x06\b\x9F`\x03\x02\x02\x02\x9Fc\x03\x02\x02\x02\x9F' +
+    'f\x03\x02\x02\x02\x9Fi\x03\x02\x02\x02\x9Fl\x03\x02\x02\x02\x9Fo\x03\x02' +
+    '\x02\x02\x9Fr\x03\x02\x02\x02\x9Fu\x03\x02\x02\x02\x9Fx\x03\x02\x02\x02' +
+    '\x9F{\x03\x02\x02\x02\x9F~\x03\x02\x02\x02\x9F\x81\x03\x02\x02\x02\x9F' +
+    '\x84\x03\x02\x02\x02\x9F\x87\x03\x02\x02\x02\x9F\x8A\x03\x02\x02\x02\x9F' +
+    '\x8D\x03\x02\x02\x02\x9F\x90\x03\x02\x02\x02\x9F\x93\x03\x02\x02\x02\x9F' +
+    '\x96\x03\x02\x02\x02\x9F\x99\x03\x02\x02\x02\x9F\x9C\x03\x02\x02\x02\xA0' +
+    '\xA3\x03\x02\x02\x02\xA1\x9F\x03\x02\x02\x02\xA1\xA2\x03\x02\x02\x02\xA2' +
+    '\v\x03\x02\x02\x02\xA3\xA1\x03\x02\x02\x02\xA4\xA5\x07*\x02\x02\xA5\xA6' +
+    '\x05\x02\x02\x02\xA6\r\x03\x02\x02\x02\xA7\xA8\x07&\x02\x02\xA8\xA9\x05' +
+    '\n\x06\x02\xA9\x0F\x03\x02\x02\x02\xAA\xAB\x07\x03\x02\x02\xAB\xAD\x05' +
+    '\x12\n\x02\xAC\xAE\x05\x0E\b\x02\xAD\xAC\x03\x02\x02\x02\xAD\xAE\x03\x02' +
+    '\x02\x02\xAE\xAF\x03\x02\x02\x02\xAF\xB0\x07\x04\x02\x02\xB0\x11\x03\x02' +
+    '\x02\x02\xB1\xB3\x05\x1A\x0E\x02\xB2\xB4\x05\f\x07\x02\xB3\xB2\x03\x02' +
+    '\x02\x02\xB3\xB4\x03\x02\x02\x02\xB4\x13\x03\x02\x02\x02\xB5\xB6\x07!' +
+    '\x02\x02\xB6\xB7\x05\n\x06\x02\xB7\xB8\x07"\x02\x02\xB8\xB9\x05\n\x06' +
+    '\x02\xB9\xBA\x07#\x02\x02\xBA\xBB\x05\n\x06\x02\xBB\x15\x03\x02\x02\x02' +
+    '\xBC\xBD\x07\x03\x02\x02\xBD\xBE\x05\n\x06\x02\xBE\xBF\x07\x04\x02\x02' +
+    '\xBF\x17\x03\x02\x02\x02\xC0\xC4\x05\x04\x03\x02\xC1\xC4\x05\x1A\x0E\x02' +
+    '\xC2\xC4\x05\x16\f\x02\xC3\xC0\x03\x02\x02\x02\xC3\xC1\x03\x02\x02\x02' +
+    '\xC3\xC2\x03\x02\x02\x02\xC4\x19\x03\x02\x02\x02\xC5\xC6\x07-\x02\x02' +
+    '\xC6\x1B\x03\x02\x02\x02\xC7\xCA\x05\x1A\x0E\x02\xC8\xCA\x05\x10\t\x02' +
+    '\xC9\xC7\x03\x02\x02\x02\xC9\xC8\x03\x02\x02\x02\xCA\xCB\x03\x02\x02\x02' +
+    '\xCB\xC9\x03\x02\x02\x02\xCB\xCC\x03\x02\x02\x02\xCC\x1D\x03\x02\x02\x02' +
+    '\xCD\xCF\x05\x1A\x0E\x02\xCE\xCD\x03\x02\x02\x02\xCF\xD0\x03\x02\x02\x02' +
+    '\xD0\xCE\x03\x02\x02\x02\xD0\xD1\x03\x02\x02\x02\xD1\x1F\x03\x02\x02\x02' +
+    "\xD2\xD4\x07'\x02\x02\xD3\xD5\x07)\x02\x02\xD4\xD3\x03\x02\x02\x02\xD4" +
+    '\xD5\x03\x02\x02\x02\xD5\xD6\x03\x02\x02\x02\xD6\xD7\x05\x1A\x0E\x02\xD7' +
+    '\xD9\x05\x1C\x0F\x02\xD8\xDA\x05\f\x07\x02\xD9\xD8\x03\x02\x02\x02\xD9' +
+    '\xDA\x03\x02\x02\x02\xDA\xDC\x03\x02\x02\x02\xDB\xDD\x05\x0E\b\x02\xDC' +
+    '\xDB\x03\x02\x02\x02\xDC\xDD\x03\x02\x02\x02\xDD\xDE\x03\x02\x02\x02\xDE' +
+    '\xDF\x07\x13\x02\x02\xDF\xE0\x05\n\x06\x02\xE0!\x03\x02\x02\x02\xE1\xE5' +
+    '\x05\x18\r\x02\xE2\xE4\x05\x18\r\x02\xE3\xE2\x03\x02\x02\x02\xE4\xE7\x03' +
+    '\x02\x02\x02\xE5\xE3\x03\x02\x02\x02\xE5\xE6\x03\x02\x02\x02\xE6#\x03' +
+    '\x02\x02\x02\xE7\xE5\x03\x02\x02\x02\xE8\xE9\x05\x1A\x0E\x02\xE9\xEA\x05' +
+    '"\x12\x02\xEA%\x03\x02\x02\x02\xEB\xEC\x07$\x02\x02\xEC\xED\x05\x1E\x10' +
+    "\x02\xED\xEE\x07%\x02\x02\xEE\xEF\x05\n\x06\x02\xEF'\x03\x02\x02\x02" +
+    "\xF0\xF2\x07'\x02\x02\xF1\xF3\x07)\x02\x02\xF2\xF1\x03\x02\x02\x02\xF2" +
+    '\xF3\x03\x02\x02\x02\xF3\xF4\x03\x02\x02\x02\xF4\xF5\x05\x10\t\x02\xF5' +
+    '\xF6\x07\x13\x02\x02\xF6\xF7\x05\n\x06\x02\xF7\u0101\x03\x02\x02\x02\xF8' +
+    "\xFA\x07'\x02\x02\xF9\xFB\x07)\x02\x02\xFA\xF9\x03\x02\x02\x02\xFA\xFB" +
+    '\x03\x02\x02\x02\xFB\xFC\x03\x02\x02\x02\xFC\xFD\x05\x12\n\x02\xFD\xFE' +
+    '\x07\x13\x02\x02\xFE\xFF\x05\n\x06\x02\xFF\u0101\x03\x02\x02\x02\u0100' +
+    '\xF0\x03\x02\x02\x02\u0100\xF8\x03\x02\x02\x02\u0101)\x03\x02\x02\x02' +
+    '\u0102\u0105\x05(\x15\x02\u0103\u0105\x05 \x11\x02\u0104\u0102\x03\x02' +
+    '\x02\x02\u0104\u0103\x03\x02\x02\x02\u0105\u0106\x03\x02\x02\x02\u0106' +
+    '\u0107\x07(\x02\x02\u0107\u0108\x05\n\x06\x02\u0108+\x03\x02\x02\x02\x18' +
+    '29AHP^\x9F\xA1\xAD\xB3\xC3\xC9\xCB\xD0\xD4\xD9\xDC\xE5\xF2\xFA\u0100\u0104';
   public static __ATN: ATN;
   public static get _ATN(): ATN {
     if (!GrammarParser.__ATN) {
@@ -3497,69 +3570,108 @@ export class TypeAnnotationContext extends ParserRuleContext {
   }
 }
 
-export class IdentifierWithTypeParenContext extends ParserRuleContext {
-  public identifierWithType(): IdentifierWithTypeContext {
-    return this.getRuleContext(0, IdentifierWithTypeContext);
+export class ContractAnnotationContext extends ParserRuleContext {
+  public PIPE(): TerminalNode {
+    return this.getToken(GrammarParser.PIPE, 0);
+  }
+  public expression(): ExpressionContext {
+    return this.getRuleContext(0, ExpressionContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
     super(parent, invokingState);
   }
   // @Override
   public get ruleIndex(): number {
-    return GrammarParser.RULE_identifierWithTypeParen;
+    return GrammarParser.RULE_contractAnnotation;
   }
   // @Override
   public enterRule(listener: GrammarListener): void {
-    if (listener.enterIdentifierWithTypeParen) {
-      listener.enterIdentifierWithTypeParen(this);
+    if (listener.enterContractAnnotation) {
+      listener.enterContractAnnotation(this);
     }
   }
   // @Override
   public exitRule(listener: GrammarListener): void {
-    if (listener.exitIdentifierWithTypeParen) {
-      listener.exitIdentifierWithTypeParen(this);
+    if (listener.exitContractAnnotation) {
+      listener.exitContractAnnotation(this);
     }
   }
   // @Override
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitIdentifierWithTypeParen) {
-      return visitor.visitIdentifierWithTypeParen(this);
+    if (visitor.visitContractAnnotation) {
+      return visitor.visitContractAnnotation(this);
     } else {
       return visitor.visitChildren(this);
     }
   }
 }
 
-export class IdentifierWithTypeContext extends ParserRuleContext {
-  public identifier(): IdentifierContext {
-    return this.getRuleContext(0, IdentifierContext);
+export class IdentifierWithContextParenContext extends ParserRuleContext {
+  public identifierWithContext(): IdentifierWithContextContext {
+    return this.getRuleContext(0, IdentifierWithContextContext);
   }
-  public typeAnnotation(): TypeAnnotationContext {
-    return this.getRuleContext(0, TypeAnnotationContext);
+  public contractAnnotation(): ContractAnnotationContext | undefined {
+    return this.tryGetRuleContext(0, ContractAnnotationContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
     super(parent, invokingState);
   }
   // @Override
   public get ruleIndex(): number {
-    return GrammarParser.RULE_identifierWithType;
+    return GrammarParser.RULE_identifierWithContextParen;
   }
   // @Override
   public enterRule(listener: GrammarListener): void {
-    if (listener.enterIdentifierWithType) {
-      listener.enterIdentifierWithType(this);
+    if (listener.enterIdentifierWithContextParen) {
+      listener.enterIdentifierWithContextParen(this);
     }
   }
   // @Override
   public exitRule(listener: GrammarListener): void {
-    if (listener.exitIdentifierWithType) {
-      listener.exitIdentifierWithType(this);
+    if (listener.exitIdentifierWithContextParen) {
+      listener.exitIdentifierWithContextParen(this);
     }
   }
   // @Override
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitIdentifierWithType) {
-      return visitor.visitIdentifierWithType(this);
+    if (visitor.visitIdentifierWithContextParen) {
+      return visitor.visitIdentifierWithContextParen(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+
+export class IdentifierWithContextContext extends ParserRuleContext {
+  public identifier(): IdentifierContext {
+    return this.getRuleContext(0, IdentifierContext);
+  }
+  public typeAnnotation(): TypeAnnotationContext | undefined {
+    return this.tryGetRuleContext(0, TypeAnnotationContext);
+  }
+  constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+    super(parent, invokingState);
+  }
+  // @Override
+  public get ruleIndex(): number {
+    return GrammarParser.RULE_identifierWithContext;
+  }
+  // @Override
+  public enterRule(listener: GrammarListener): void {
+    if (listener.enterIdentifierWithContext) {
+      listener.enterIdentifierWithContext(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: GrammarListener): void {
+    if (listener.exitIdentifierWithContext) {
+      listener.exitIdentifierWithContext(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
+    if (visitor.visitIdentifierWithContext) {
+      return visitor.visitIdentifierWithContext(this);
     } else {
       return visitor.visitChildren(this);
     }
@@ -3723,7 +3835,7 @@ export class IdentifierContext extends ParserRuleContext {
   }
 }
 
-export class IdentifierListWithTypesContext extends ParserRuleContext {
+export class IdentifierListWithContextContext extends ParserRuleContext {
   public identifier(): IdentifierContext[];
   public identifier(i: number): IdentifierContext;
   public identifier(i?: number): IdentifierContext | IdentifierContext[] {
@@ -3733,15 +3845,17 @@ export class IdentifierListWithTypesContext extends ParserRuleContext {
       return this.getRuleContext(i, IdentifierContext);
     }
   }
-  public identifierWithTypeParen(): IdentifierWithTypeParenContext[];
-  public identifierWithTypeParen(i: number): IdentifierWithTypeParenContext;
-  public identifierWithTypeParen(
+  public identifierWithContextParen(): IdentifierWithContextParenContext[];
+  public identifierWithContextParen(
+    i: number,
+  ): IdentifierWithContextParenContext;
+  public identifierWithContextParen(
     i?: number,
-  ): IdentifierWithTypeParenContext | IdentifierWithTypeParenContext[] {
+  ): IdentifierWithContextParenContext | IdentifierWithContextParenContext[] {
     if (i === undefined) {
-      return this.getRuleContexts(IdentifierWithTypeParenContext);
+      return this.getRuleContexts(IdentifierWithContextParenContext);
     } else {
-      return this.getRuleContext(i, IdentifierWithTypeParenContext);
+      return this.getRuleContext(i, IdentifierWithContextParenContext);
     }
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
@@ -3749,24 +3863,24 @@ export class IdentifierListWithTypesContext extends ParserRuleContext {
   }
   // @Override
   public get ruleIndex(): number {
-    return GrammarParser.RULE_identifierListWithTypes;
+    return GrammarParser.RULE_identifierListWithContext;
   }
   // @Override
   public enterRule(listener: GrammarListener): void {
-    if (listener.enterIdentifierListWithTypes) {
-      listener.enterIdentifierListWithTypes(this);
+    if (listener.enterIdentifierListWithContext) {
+      listener.enterIdentifierListWithContext(this);
     }
   }
   // @Override
   public exitRule(listener: GrammarListener): void {
-    if (listener.exitIdentifierListWithTypes) {
-      listener.exitIdentifierListWithTypes(this);
+    if (listener.exitIdentifierListWithContext) {
+      listener.exitIdentifierListWithContext(this);
     }
   }
   // @Override
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitIdentifierListWithTypes) {
-      return visitor.visitIdentifierListWithTypes(this);
+    if (visitor.visitIdentifierListWithContext) {
+      return visitor.visitIdentifierListWithContext(this);
     } else {
       return visitor.visitChildren(this);
     }
@@ -3814,8 +3928,9 @@ export class IdentifierListContext extends ParserRuleContext {
 
 export class FuncDeclarationContext extends ParserRuleContext {
   public _funcName!: IdentifierContext;
-  public _params!: IdentifierListWithTypesContext;
+  public _params!: IdentifierListWithContextContext;
   public _retType!: TypeAnnotationContext;
+  public _contract!: ContractAnnotationContext;
   public _body!: ExpressionContext;
   public LET(): TerminalNode {
     return this.getToken(GrammarParser.LET, 0);
@@ -3826,11 +3941,14 @@ export class FuncDeclarationContext extends ParserRuleContext {
   public identifier(): IdentifierContext {
     return this.getRuleContext(0, IdentifierContext);
   }
-  public identifierListWithTypes(): IdentifierListWithTypesContext {
-    return this.getRuleContext(0, IdentifierListWithTypesContext);
+  public identifierListWithContext(): IdentifierListWithContextContext {
+    return this.getRuleContext(0, IdentifierListWithContextContext);
   }
   public expression(): ExpressionContext {
     return this.getRuleContext(0, ExpressionContext);
+  }
+  public contractAnnotation(): ContractAnnotationContext | undefined {
+    return this.tryGetRuleContext(0, ContractAnnotationContext);
   }
   public REC(): TerminalNode | undefined {
     return this.tryGetToken(GrammarParser.REC, 0);
@@ -3989,17 +4107,19 @@ export class LambdaContext extends ParserRuleContext {
 }
 
 export class LetGlobalBindingContext extends ParserRuleContext {
-  public _idType!: IdentifierWithTypeContext;
+  public _idParen!: IdentifierWithContextParenContext;
   public _init!: ExpressionContext;
-  public _id!: IdentifierContext;
+  public _id!: IdentifierWithContextContext;
   public LET(): TerminalNode {
     return this.getToken(GrammarParser.LET, 0);
   }
   public EQUALSTRUC(): TerminalNode {
     return this.getToken(GrammarParser.EQUALSTRUC, 0);
   }
-  public identifierWithType(): IdentifierWithTypeContext | undefined {
-    return this.tryGetRuleContext(0, IdentifierWithTypeContext);
+  public identifierWithContextParen():
+    | IdentifierWithContextParenContext
+    | undefined {
+    return this.tryGetRuleContext(0, IdentifierWithContextParenContext);
   }
   public expression(): ExpressionContext {
     return this.getRuleContext(0, ExpressionContext);
@@ -4007,8 +4127,8 @@ export class LetGlobalBindingContext extends ParserRuleContext {
   public REC(): TerminalNode | undefined {
     return this.tryGetToken(GrammarParser.REC, 0);
   }
-  public identifier(): IdentifierContext | undefined {
-    return this.tryGetRuleContext(0, IdentifierContext);
+  public identifierWithContext(): IdentifierWithContextContext | undefined {
+    return this.tryGetRuleContext(0, IdentifierWithContextContext);
   }
   constructor(parent: ParserRuleContext | undefined, invokingState: number) {
     super(parent, invokingState);
