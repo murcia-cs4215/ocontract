@@ -34,7 +34,7 @@ export function run(code: string, context: Context): Result {
           ? result.value.unwrap()
           : result.value,
     };
-  } catch {
+  } catch (e) {
     cleanUpContextAfterRun(context);
     return { status: 'errored' };
   }

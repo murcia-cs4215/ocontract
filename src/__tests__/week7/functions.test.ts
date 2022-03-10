@@ -98,3 +98,15 @@ test('multiple closures all capture their previous environments correctly', () =
     type: intType,
   });
 });
+
+test('recursive functions', () => {
+  const res = runTest(`
+    let rec fact n = if n == 0 then 1 else fact (n - 1) * n;;
+    fact 5;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 120,
+    type: intType,
+  });
+});
