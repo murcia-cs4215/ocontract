@@ -15,6 +15,8 @@ import {
   AdditionContext,
   AdditionFloatContext,
   AndContext,
+  AtomContext,
+  AtomExpressionContext,
   BooleanContext,
   CallFunctionContext,
   CharContext,
@@ -28,6 +30,7 @@ import {
   ExpressionContext,
   FloatContext,
   FuncApplicationContext,
+  FuncArgumentContext,
   FuncDeclarationContext,
   GrammarParser,
   GreaterThanContext,
@@ -64,6 +67,7 @@ import { FatalSyntaxError } from './errors';
 import {
   Expression,
   ExpressionStatement,
+  FunctionExpression,
   GlobalLetExpression,
   Identifier,
   Program,
@@ -119,52 +123,13 @@ class StatementParser
       loc: expression.loc,
     };
   }
-  visitCallFunction(ctx: CallFunctionContext): ExpressionStatement {
-    return this.visit(ctx.funcApplication());
+  visitAtomExpression(ctx: AtomExpressionContext): ExpressionStatement {
+    return this.visit(ctx.atom());
   }
-  visitNumber(ctx: NumberContext): ExpressionStatement {
-    return this.wrapAsStatement({
-      type: 'Literal',
-      valueType: 'int',
-      value: parseInt(ctx.text),
-      loc: contextToLocation(ctx),
-    });
-  }
-  visitFloat(ctx: FloatContext): ExpressionStatement {
-    return this.wrapAsStatement({
-      type: 'Literal',
-      valueType: 'float',
-      value: parseFloat(ctx.text),
-      loc: contextToLocation(ctx),
-    });
-  }
-  visitBoolean(ctx: BooleanContext): ExpressionStatement {
-    return this.wrapAsStatement({
-      type: 'Literal',
-      valueType: 'bool',
-      value: ctx.text.trim().toLowerCase() === 'true',
-      loc: contextToLocation(ctx),
-    });
-  }
-  visitChar(ctx: CharContext): ExpressionStatement {
-    return this.wrapAsStatement({
-      type: 'Literal',
-      valueType: 'char',
-      value: ctx.text.trim().charAt(1),
-      loc: contextToLocation(ctx),
-    });
-  }
-  visitString(ctx: StringContext): ExpressionStatement {
-    const value = ctx.text.trim();
-    const wrappedValue = new StringWrapper(
-      value.substring(1, value.length - 1),
-    );
-    return this.wrapAsStatement({
-      type: 'Literal',
-      valueType: 'string',
-      value: wrappedValue,
-      loc: contextToLocation(ctx),
-    });
+  visitIdentifierExpression(
+    ctx: IdentifierExpressionContext,
+  ): ExpressionStatement {
+    return this.visit(ctx.identifier());
   }
   visitParentheses(ctx: ParenthesesContext): ExpressionStatement {
     return this.visit(ctx.parenthesesExpression());
@@ -376,34 +341,88 @@ class StatementParser
       loc: contextToLocation(ctx),
     });
   }
-  visitLetLocalBindingExpression(
-    ctx: LetLocalBindingExpressionContext,
-  ): ExpressionStatement {
-    return this.visit(ctx.letLocalBinding());
-  }
   visitConditionalExpression(
     ctx: ConditionalExpressionContext,
   ): ExpressionStatement {
     return this.visit(ctx.condExp());
   }
-  visitIdentifierExpression(
-    ctx: IdentifierExpressionContext,
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
   ): ExpressionStatement {
-    return this.visit(ctx.identifier());
+    return this.visit(ctx.letLocalBinding());
   }
-  visitIdentifier(ctx: IdentifierContext): ExpressionStatement {
+  visitCallFunction(ctx: CallFunctionContext): ExpressionStatement {
+    return this.visit(ctx.funcApplication());
+  }
+  visitNumber(ctx: NumberContext): ExpressionStatement {
     return this.wrapAsStatement({
-      type: 'Identifier',
-      name: ctx.IDENTIFIER().text,
+      type: 'Literal',
+      valueType: 'int',
+      value: parseInt(ctx.text),
       loc: contextToLocation(ctx),
     });
   }
-  visitFuncApplication(ctx: FuncApplicationContext): ExpressionStatement {
-    const args = ctx._args.funcArgument();
+  visitFloat(ctx: FloatContext): ExpressionStatement {
     return this.wrapAsStatement({
-      type: 'CallExpression',
-      callee: this.visit(ctx._func).expression,
-      arguments: args.map((arg) => this.visit(arg).expression),
+      type: 'Literal',
+      valueType: 'float',
+      value: parseFloat(ctx.text),
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitBoolean(ctx: BooleanContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'Literal',
+      valueType: 'bool',
+      value: ctx.text.trim().toLowerCase() === 'true',
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitChar(ctx: CharContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'Literal',
+      valueType: 'char',
+      value: ctx.text.trim().charAt(1),
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitString(ctx: StringContext): ExpressionStatement {
+    const value = ctx.text.trim();
+    const wrappedValue = new StringWrapper(
+      value.substring(1, value.length - 1),
+    );
+    return this.wrapAsStatement({
+      type: 'Literal',
+      valueType: 'string',
+      value: wrappedValue,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitAtom(ctx: AtomContext): ExpressionStatement {
+    // This method shouldn't be reached, but just in case...
+    if (ctx instanceof NumberContext) {
+      return this.visitNumber(ctx);
+    }
+    if (ctx instanceof FloatContext) {
+      return this.visitFloat(ctx);
+    }
+    if (ctx instanceof CharContext) {
+      return this.visitChar(ctx);
+    }
+    if (ctx instanceof StringContext) {
+      return this.visitString(ctx);
+    }
+    if (ctx instanceof BooleanContext) {
+      return this.visitBoolean(ctx);
+    }
+    return this.visit(ctx);
+  }
+  visitCondExp(ctx: CondExpContext): ExpressionStatement {
+    return this.wrapAsStatement({
+      type: 'ConditionalExpression',
+      test: this.visit(ctx._test).expression,
+      consequent: this.visit(ctx._consequent).expression,
+      alternate: this.visit(ctx._alternate).expression,
       loc: contextToLocation(ctx),
     });
   }
@@ -412,12 +431,37 @@ class StatementParser
   ): ExpressionStatement {
     return this.visit(ctx._inner);
   }
-  visitCondExp(ctx: CondExpContext): ExpressionStatement {
+  visitFuncArgument(ctx: FuncArgumentContext): ExpressionStatement {
+    const arg = ctx.atom() ?? ctx.identifier() ?? ctx.parenthesesExpression();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return this.visit(arg!);
+  }
+  visitIdentifier(ctx: IdentifierContext): ExpressionStatement {
     return this.wrapAsStatement({
-      type: 'ConditionalExpression',
-      test: this.visit(ctx._test).expression,
-      consequent: this.visit(ctx._consequent).expression,
-      alternate: this.visit(ctx._alternate).expression,
+      type: 'Identifier',
+      name: ctx.IDENTIFIER().text,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitFuncDeclaration(ctx: FuncDeclarationContext): ExpressionStatement {
+    const identifiers = ctx._ids.identifier();
+    return this.wrapAsStatement({
+      type: 'FunctionExpression',
+      recursive: ctx.REC() !== undefined,
+      id: this.visit(identifiers[0]).expression as Identifier,
+      params: identifiers
+        .slice(1)
+        .map((id) => this.visit(id).expression) as Identifier[],
+      body: this.visit(ctx._body).expression,
+      loc: contextToLocation(ctx),
+    });
+  }
+  visitFuncApplication(ctx: FuncApplicationContext): ExpressionStatement {
+    const args = ctx._args.funcArgument();
+    return this.wrapAsStatement({
+      type: 'CallExpression',
+      callee: this.visit(ctx._func).expression,
+      arguments: args.map((arg) => this.visitFuncArgument(arg).expression),
       loc: contextToLocation(ctx),
     });
   }
@@ -435,21 +479,10 @@ class StatementParser
     return this.wrapAsStatement({
       type: 'LocalLetExpression',
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      left: this.visit(left!).expression as GlobalLetExpression,
+      left: this.visit(left!).expression as
+        | GlobalLetExpression
+        | FunctionExpression,
       right: this.visit(ctx._exp2).expression,
-      loc: contextToLocation(ctx),
-    });
-  }
-  visitFuncDeclaration(ctx: FuncDeclarationContext): ExpressionStatement {
-    const identifiers = ctx._ids.identifier();
-    return this.wrapAsStatement({
-      type: 'FunctionExpression',
-      recursive: ctx.REC() !== undefined,
-      id: this.visit(identifiers[0]).expression as Identifier,
-      params: identifiers
-        .slice(1)
-        .map((id) => this.visit(id).expression) as Identifier[],
-      body: this.visit(ctx._body).expression,
       loc: contextToLocation(ctx),
     });
   }
@@ -481,22 +514,10 @@ class StatementsParser
   visitErrorNode(node: ErrorNode): Statement[] {
     throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
   }
-  visitCallFunction(ctx: CallFunctionContext): Statement[] {
+  visitAtomExpression(ctx: AtomExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitNumber(ctx: NumberContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitFloat(ctx: FloatContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitBoolean(ctx: BooleanContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitChar(ctx: CharContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitString(ctx: StringContext): Statement[] {
+  visitIdentifierExpression(ctx: IdentifierExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitParentheses(ctx: ParenthesesContext): Statement[] {
@@ -574,28 +595,54 @@ class StatementsParser
   visitConditionalExpression(ctx: ConditionalExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitIdentifierExpression(ctx: IdentifierExpressionContext): Statement[] {
+  visitLetLocalBindingExpression(
+    ctx: LetLocalBindingExpressionContext,
+  ): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitIdentifier(ctx: IdentifierContext): Statement[] {
+  visitCallFunction(ctx: CallFunctionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitFuncApplication(ctx: FuncApplicationContext): Statement[] {
+  visitNumber(ctx: NumberContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFloat(ctx: FloatContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitBoolean(ctx: BooleanContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitChar(ctx: CharContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitString(ctx: StringContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitAtom(ctx: AtomContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitCondExp(ctx: CondExpContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitParenthesesExpression(ctx: ParenthesesExpressionContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
-  visitCondExp(ctx: CondExpContext): Statement[] {
+  visitFuncArgument(ctx: FuncArgumentContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitIdentifier(ctx: IdentifierContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFuncDeclaration(ctx: FuncDeclarationContext): Statement[] {
+    return [ctx.accept(this.statementParser)];
+  }
+  visitFuncApplication(ctx: FuncApplicationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
   visitLetLocalBinding(ctx: LetLocalBindingContext): Statement[] {
-    return [ctx.accept(this.statementParser)];
-  }
-  visitFuncDeclaration(ctx: FuncDeclarationContext): Statement[] {
     return [ctx.accept(this.statementParser)];
   }
 }
