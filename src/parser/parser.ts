@@ -444,14 +444,13 @@ class StatementParser
     });
   }
   visitFuncDeclaration(ctx: FuncDeclarationContext): ExpressionStatement {
-    const identifiers = ctx._ids.identifier();
+    const funcName = ctx._funcName;
+    const params = ctx._params.identifier();
     return this.wrapAsStatement({
       type: 'FunctionExpression',
       recursive: ctx.REC() !== undefined,
-      id: this.visit(identifiers[0]).expression as Identifier,
-      params: identifiers
-        .slice(1)
-        .map((id) => this.visit(id).expression) as Identifier[],
+      id: this.visit(funcName).expression as Identifier,
+      params: params.map((id) => this.visit(id).expression) as Identifier[],
       body: this.visit(ctx._body).expression,
       loc: contextToLocation(ctx),
     });

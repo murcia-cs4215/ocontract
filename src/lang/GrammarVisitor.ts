@@ -30,12 +30,14 @@ import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
 import { LetLocalBindingExpressionContext } from './GrammarParser';
+import { LambdaExpressionContext } from './GrammarParser';
 import { CallFunctionContext } from './GrammarParser';
 import { NumberContext } from './GrammarParser';
 import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
 import { CharContext } from './GrammarParser';
 import { StringContext } from './GrammarParser';
+import { TypeContext } from './GrammarParser';
 import { AtomContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
 import { StatementContext } from './GrammarParser';
@@ -47,10 +49,12 @@ import { CondExpContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { FuncArgumentContext } from './GrammarParser';
 import { IdentifierContext } from './GrammarParser';
+import { IdentifierListWithTypesContext } from './GrammarParser';
 import { IdentifierListContext } from './GrammarParser';
 import { FuncDeclarationContext } from './GrammarParser';
 import { FuncApplyArgumentListContext } from './GrammarParser';
 import { FuncApplicationContext } from './GrammarParser';
+import { LambdaContext } from './GrammarParser';
 import { LetGlobalBindingContext } from './GrammarParser';
 import { LetLocalBindingContext } from './GrammarParser';
 
@@ -289,6 +293,14 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   ) => Result;
 
   /**
+   * Visit a parse tree produced by the `LambdaExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLambdaExpression?: (ctx: LambdaExpressionContext) => Result;
+
+  /**
    * Visit a parse tree produced by the `CallFunction`
    * labeled alternative in `GrammarParser.expression`.
    * @param ctx the parse tree
@@ -335,6 +347,13 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitString?: (ctx: StringContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.type`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitType?: (ctx: TypeContext) => Result;
 
   /**
    * Visit a parse tree produced by `GrammarParser.atom`.
@@ -416,6 +435,15 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
   visitIdentifier?: (ctx: IdentifierContext) => Result;
 
   /**
+   * Visit a parse tree produced by `GrammarParser.identifierListWithTypes`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitIdentifierListWithTypes?: (
+    ctx: IdentifierListWithTypesContext,
+  ) => Result;
+
+  /**
    * Visit a parse tree produced by `GrammarParser.identifierList`.
    * @param ctx the parse tree
    * @return the visitor result
@@ -442,6 +470,13 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
    * @return the visitor result
    */
   visitFuncApplication?: (ctx: FuncApplicationContext) => Result;
+
+  /**
+   * Visit a parse tree produced by `GrammarParser.lambda`.
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  visitLambda?: (ctx: LambdaContext) => Result;
 
   /**
    * Visit a parse tree produced by `GrammarParser.letGlobalBinding`.

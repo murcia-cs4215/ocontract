@@ -36,8 +36,8 @@ BOOLEAN: 'true' | 'false';
 IF: 'if';
 THEN: 'then';
 ELSE: 'else';
-// FUN: 'fun';
-// ARROW: '->';
+FUN: 'fun';
+ARROW: '->';
 // PIPE: '|>';
 LET: 'let';
 IN: 'in';
@@ -48,14 +48,20 @@ COLON: ':';
 // LISTEND: ']';
 DOUBLESEMICOLON: ';;';
 
-TYPE
-  : 'int'
-  | 'float'
-  | 'char'
-  | 'string'
-  | 'bool'
-  | 'unit'
-  ;
+PRIMITIVETYPE
+   : 'int'
+   | 'float'
+   | 'char'
+   | 'string'
+   | 'bool'
+   | 'unit'
+   ;
+
+type
+   : PRIMITIVETYPE
+   | '(' type ')'
+   | type ARROW type
+   ;
 
 // pattern matching related tokens
 // MATCH: 'match';
@@ -118,12 +124,13 @@ expression
    | left=expression  operator=OR  right=expression                  # Or
    | condExp                                                         # ConditionalExpression
    | letLocalBinding                                                 # LetLocalBindingExpression
+   | lambda                                                          # LambdaExpression
    | funcApplication                                                 # CallFunction
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
 typeAnnotation
-   : COLON TYPE
+   : COLON type
    ;
 
 identifierWithTypeParen // enforce having parenthesis to disambiguate
@@ -151,12 +158,16 @@ funcArgument
 
 identifier: IDENTIFIER;
 
+identifierListWithTypes
+ 	:  ( identifier | identifierWithTypeParen)+
+   ;
+
 identifierList
- 	:  identifier ( identifier | identifierWithTypeParen)*
+   :  ( identifier)+
    ;
 
 funcDeclaration
-   : LET  (REC?)  ids=identifierList (retType=typeAnnotation?) '=' body=expression
+   : LET  (REC?) funcName=identifier  params=identifierListWithTypes (retType=typeAnnotation?) '=' body=expression
    ;
 
 funcApplyArgumentList
@@ -167,17 +178,9 @@ funcApplication
    : func=identifier  args=funcApplyArgumentList
    ;
 
-// arrowFunctionBody // need arrowFunctionBody be a child node of ArrowFunctionExpression
-//    : expression
-//    ;
-
-
-// arrowFunction
-//    :  FUN  param=identifier  ARROW  body=arrowFunctionBody 
-//    ;
-
-// We will enforce the presence of an alternate for now, although it's optional in OCaml.
-
+lambda
+   :  FUN  (params=identifierList) ARROW  body=expression 
+   ;
 
 letGlobalBinding
 	: LET (REC?) idType=identifierWithType  EQUALSTRUC  init=expression

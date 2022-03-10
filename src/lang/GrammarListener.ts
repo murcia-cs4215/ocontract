@@ -30,12 +30,14 @@ import { AndContext } from './GrammarParser';
 import { OrContext } from './GrammarParser';
 import { ConditionalExpressionContext } from './GrammarParser';
 import { LetLocalBindingExpressionContext } from './GrammarParser';
+import { LambdaExpressionContext } from './GrammarParser';
 import { CallFunctionContext } from './GrammarParser';
 import { NumberContext } from './GrammarParser';
 import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
 import { CharContext } from './GrammarParser';
 import { StringContext } from './GrammarParser';
+import { TypeContext } from './GrammarParser';
 import { AtomContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
 import { StatementContext } from './GrammarParser';
@@ -47,10 +49,12 @@ import { CondExpContext } from './GrammarParser';
 import { ParenthesesExpressionContext } from './GrammarParser';
 import { FuncArgumentContext } from './GrammarParser';
 import { IdentifierContext } from './GrammarParser';
+import { IdentifierListWithTypesContext } from './GrammarParser';
 import { IdentifierListContext } from './GrammarParser';
 import { FuncDeclarationContext } from './GrammarParser';
 import { FuncApplyArgumentListContext } from './GrammarParser';
 import { FuncApplicationContext } from './GrammarParser';
+import { LambdaContext } from './GrammarParser';
 import { LetGlobalBindingContext } from './GrammarParser';
 import { LetLocalBindingContext } from './GrammarParser';
 
@@ -428,6 +432,19 @@ export interface GrammarListener extends ParseTreeListener {
   ) => void;
 
   /**
+   * Enter a parse tree produced by the `LambdaExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  enterLambdaExpression?: (ctx: LambdaExpressionContext) => void;
+  /**
+   * Exit a parse tree produced by the `LambdaExpression`
+   * labeled alternative in `GrammarParser.expression`.
+   * @param ctx the parse tree
+   */
+  exitLambdaExpression?: (ctx: LambdaExpressionContext) => void;
+
+  /**
    * Enter a parse tree produced by the `CallFunction`
    * labeled alternative in `GrammarParser.expression`.
    * @param ctx the parse tree
@@ -504,6 +521,17 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitString?: (ctx: StringContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.type`.
+   * @param ctx the parse tree
+   */
+  enterType?: (ctx: TypeContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.type`.
+   * @param ctx the parse tree
+   */
+  exitType?: (ctx: TypeContext) => void;
 
   /**
    * Enter a parse tree produced by `GrammarParser.atom`.
@@ -627,6 +655,17 @@ export interface GrammarListener extends ParseTreeListener {
   exitIdentifier?: (ctx: IdentifierContext) => void;
 
   /**
+   * Enter a parse tree produced by `GrammarParser.identifierListWithTypes`.
+   * @param ctx the parse tree
+   */
+  enterIdentifierListWithTypes?: (ctx: IdentifierListWithTypesContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.identifierListWithTypes`.
+   * @param ctx the parse tree
+   */
+  exitIdentifierListWithTypes?: (ctx: IdentifierListWithTypesContext) => void;
+
+  /**
    * Enter a parse tree produced by `GrammarParser.identifierList`.
    * @param ctx the parse tree
    */
@@ -669,6 +708,17 @@ export interface GrammarListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   exitFuncApplication?: (ctx: FuncApplicationContext) => void;
+
+  /**
+   * Enter a parse tree produced by `GrammarParser.lambda`.
+   * @param ctx the parse tree
+   */
+  enterLambda?: (ctx: LambdaContext) => void;
+  /**
+   * Exit a parse tree produced by `GrammarParser.lambda`.
+   * @param ctx the parse tree
+   */
+  exitLambda?: (ctx: LambdaContext) => void;
 
   /**
    * Enter a parse tree produced by `GrammarParser.letGlobalBinding`.
