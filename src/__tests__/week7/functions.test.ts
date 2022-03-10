@@ -1,6 +1,9 @@
 import { runTest } from 'utils/tests';
 import { intType } from 'utils/typing';
 
+import { createContext } from '../../context';
+import { run } from '../../index';
+
 test('single parameter function', () => {
   const res = runTest('let x a = a + 10;;');
   expect(res.status).toBe('finished');
@@ -97,4 +100,34 @@ test('multiple closures all capture their previous environments correctly', () =
     value: 45,
     type: intType,
   });
+});
+
+test('recursive functions', () => {
+  const res = runTest(`
+    let rec fact n = if n == 0 then 1 else fact (n - 1) * n;;
+    fact 5;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 120,
+    type: intType,
+  });
+});
+
+test('application of non-function', () => {
+  const context = createContext();
+  const res = run(
+    `
+    let x = 5;;
+    x 10;;
+  `,
+    context,
+  );
+  expect(res).toEqual({
+    status: 'errored',
+  });
+  expect(context.errors).toHaveLength(1);
+  expect(context.errors[0].elaborate()).toBe(
+    'This is not a function; it cannot be applied.',
+  );
 });

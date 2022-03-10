@@ -119,3 +119,12 @@ test('operation after binding', () => {
     type: intType,
   });
 });
+
+test('local binding with functions', () => {
+  const res = runTest('let x y = y + 10 in x 20 + 10;;');
+  expect(res).toEqual({
+    status: 'finished',
+    value: 40,
+    type: intType,
+  });
+});
