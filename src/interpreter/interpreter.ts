@@ -216,7 +216,7 @@ function apply(
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
   const functionEnvironment = createFunctionEnvironment(closure, args);
-  context.runtime.environments = closure.clonedEnvironments;
+  context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
 
   const originalNode = closure.originalNode;
