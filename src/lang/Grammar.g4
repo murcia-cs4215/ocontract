@@ -85,7 +85,6 @@ start : (statement DOUBLESEMICOLON)* EOF;
 statement
    : expression
    | letGlobalBinding
-   | funcDeclaration
    ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
@@ -169,10 +168,6 @@ identifierList
    :  ( identifier)+
    ;
 
-funcDeclaration
-   : LET  (REC?) funcName=identifier  params=identifierListWithContext (retType=typeAnnotation?) (contract=contractAnnotation)? '=' body=expression
-   ;
-
 funcApplyArgumentList
    : funcArgument ( funcArgument)*
    ;
@@ -186,12 +181,11 @@ lambda
    ;
 
 letGlobalBinding
-	: LET (REC?) idParen=identifierWithContextParen EQUALSTRUC  init=expression
-	| LET (REC?) id=identifierWithContext  EQUALSTRUC  init=expression
+	: LET (REC?) id=identifier (params=identifierListWithContext?) (idType=typeAnnotation?) (contract=contractAnnotation)? EQUALSTRUC  init=expression
    ;
 
 letLocalBinding
-   : (letGlobalBinding | funcDeclaration)  IN  exp2=expression
+   : letGlobalBinding IN  exp2=expression
    ;
 
 // listElement

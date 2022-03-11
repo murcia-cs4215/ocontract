@@ -88,7 +88,7 @@ export function createFunctionEnvironment(
   args: RuntimeResult[],
 ): Environment {
   const environment = {
-    name: closure.name,
+    name: 'idk', // TODO: is the "name" field important?
     tail: closure.clonedEnvironments[0],
     head: {} as Frame,
     id: uniqueId(),

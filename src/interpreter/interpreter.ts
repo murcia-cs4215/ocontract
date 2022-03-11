@@ -6,7 +6,7 @@ import {
   RHS,
 } from 'checkers/types/runtimeChecker';
 
-import { Node } from 'parser/types';
+import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import { formatType } from 'utils/formatters';
 import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
@@ -108,14 +108,31 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
   },
-  GlobalLetExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'GlobalLetExpression') {
+  GlobalLetStatement: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'GlobalLetStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
-    const value = evaluate(node.right, context);
-    return setVariable(context, identifier.name, value);
+    if (node.params.length > 0) {
+      // is function declaration
+      const closure = Closure.createFromLambdaExpression(
+        convertGlobalLetFuncToLambda(node),
+        context,
+      );
+      // Define self in the closure's cloned environment only if recursive
+      if (node.recursive) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        closure.clonedEnvironments[0]!.head[identifier.name] = {
+          value: closure,
+          type: closure.getType(),
+        };
+      }
+      return setVariable(context, identifier.name, closure);
+    } else {
+      const value = evaluate(node.right, context);
+      return setVariable(context, identifier.name, value);
+    }
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LocalLetExpression') {
@@ -128,6 +145,17 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     popEnvironment(context);
     return result;
   },
+  /*
+  LambdaExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'LambdaExpression') {
+      return handleRuntimeError(context, new InterpreterError(node));
+    }
+    const closure = Closure.createFromLambdaExpression(node, context);
+    // Define self in the closure's cloned environment only if recursive
+    return setVariable(context, identifier.name, closure);
+  },
+  */
+  /*
   FunctionExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'FunctionExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
@@ -145,6 +173,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     return setVariable(context, identifier.name, closure);
   },
+  */
   CallExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'CallExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
@@ -158,16 +187,6 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     return evaluate(node.expression, context);
-  },
-  SequenceStatement: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'SequenceExpression') {
-      return handleRuntimeError(context, new InterpreterError(node));
-    }
-    let value = { value: undefined, type: unitType } as RuntimeResult;
-    for (const expression of node.expressions) {
-      value = evaluate(expression, context);
-    }
-    return value;
   },
   Program: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Program') {
@@ -229,11 +248,9 @@ function apply(
     return result;
   }
 
-  const curriedClosure = Closure.createFromFunctionExpression(
+  const curriedClosure = Closure.createFromLambdaExpression(
     {
-      type: 'FunctionExpression',
-      id: { type: 'Identifier', name: 'curried' },
-      recursive: false,
+      type: 'LambdaExpression',
       params: originalNode.params.slice(args.length),
       body: originalNode.body,
     },
@@ -246,6 +263,16 @@ function apply(
 }
 
 // HELPER FUNCTIONS
+
+function convertGlobalLetFuncToLambda(
+  node: GlobalLetStatement,
+): LambdaExpression {
+  return {
+    type: 'LambdaExpression',
+    params: node.params,
+    body: node.right,
+  };
+}
 
 function visitNode(context: Context, node: Node): void {
   context.runtime.nodes.unshift(node);

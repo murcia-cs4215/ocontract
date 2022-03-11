@@ -22,26 +22,27 @@ interface BaseNode {
   loc?: SourceLocation;
 }
 
-export type Statement = ExpressionStatement;
-
-export type Expression =
-  | Literal
-  | UnaryExpression
-  | BinaryExpression
-  | LogicalExpression
-  | SequenceExpression
-  | ConditionalExpression
-  | GlobalLetExpression
-  | LocalLetExpression
-  | Identifier
-  | FunctionExpression
-  | CallExpression
-  | EmptyExpression;
-
 export interface Program extends BaseNode {
   type: 'Program';
   body: Array<Statement>;
 }
+
+export type Statement =
+  | ExpressionStatement
+  | GlobalLetStatement
+  | EmptyStatement;
+
+export type Expression =
+  | Literal
+  | Identifier
+  | UnaryExpression
+  | BinaryExpression
+  | LogicalExpression
+  | ConditionalExpression
+  | LocalLetExpression
+  | LambdaExpression
+  | CallExpression
+  | EmptyExpression;
 
 export type Node = Program | Statement | Expression | Literal | Identifier;
 
@@ -54,6 +55,18 @@ type BaseStatement = BaseNode;
 export interface ExpressionStatement extends BaseStatement {
   type: 'ExpressionStatement';
   expression: Expression;
+}
+
+export interface GlobalLetStatement extends BaseStatement {
+  type: 'GlobalLetStatement';
+  recursive: boolean;
+  left: Identifier;
+  params: Array<Identifier>;
+  right: Expression;
+}
+
+export interface EmptyStatement extends BaseStatement {
+  type: 'EmptyStatement';
 }
 
 /**
@@ -148,16 +161,9 @@ export interface LogicalExpression extends BaseExpression {
  * BINDINGS
  */
 
-export interface GlobalLetExpression extends BaseExpression {
-  type: 'GlobalLetExpression';
-  recursive: boolean;
-  left: Identifier;
-  right: Expression;
-}
-
 export interface LocalLetExpression extends BaseExpression {
   type: 'LocalLetExpression';
-  left: GlobalLetExpression | FunctionExpression;
+  left: GlobalLetStatement;
   right: Expression;
 }
 
@@ -165,10 +171,6 @@ export interface LocalLetExpression extends BaseExpression {
  * OTHER EXPRESSIONS
  */
 
-export interface SequenceExpression extends BaseExpression {
-  type: 'SequenceExpression';
-  expressions: Array<Expression>;
-}
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression';
   test: Expression;
@@ -195,11 +197,8 @@ interface BaseFunction extends BaseNode {
   body: Expression;
 }
 
-// AKA function declaration
-export interface FunctionExpression extends BaseFunction, BaseExpression {
-  type: 'FunctionExpression';
-  id: Identifier;
-  recursive: boolean;
+export interface LambdaExpression extends BaseFunction, BaseExpression {
+  type: 'LambdaExpression';
 }
 
 interface BaseCallExpression extends BaseExpression {
