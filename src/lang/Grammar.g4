@@ -174,6 +174,7 @@ funcApplyArgumentList
 
 funcApplication
    : func=identifier  args=funcApplyArgumentList
+   | '(' lambdaFunc=lambda ')'  args=funcApplyArgumentList
    ;
 
 lambda

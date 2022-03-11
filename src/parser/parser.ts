@@ -392,9 +392,12 @@ class ExpressionParser
   }
   visitFuncApplication(ctx: FuncApplicationContext): Expression {
     const args = ctx._args.funcArgument();
+    const callee = ctx._func
+      ? this.visit(ctx._func)
+      : this.visit(ctx._lambdaFunc);
     return {
       type: 'CallExpression',
-      callee: this.visit(ctx._func),
+      callee: callee,
       arguments: args.map((arg) => this.visit(arg)),
       loc: contextToLocation(ctx),
     };

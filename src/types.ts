@@ -60,7 +60,7 @@ export interface Frame {
 
 export interface Environment {
   id: string;
-  name: string;
+  name?: string;
   tail: Environment | null;
   // callExpression?: es.CallExpression;
   head: Frame;

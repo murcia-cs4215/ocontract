@@ -145,16 +145,16 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     popEnvironment(context);
     return result;
   },
-  /*
   LambdaExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LambdaExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const closure = Closure.createFromLambdaExpression(node, context);
-    // Define self in the closure's cloned environment only if recursive
-    return setVariable(context, identifier.name, closure);
+    return {
+      value: closure,
+      type: unitType, // TODO: closure type?
+    };
   },
-  */
   /*
   FunctionExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'FunctionExpression') {
@@ -178,9 +178,24 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'CallExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    const func = evaluate(node.callee, context);
+    let result = evaluate(node.callee, context);
+    let closure = result.value;
+
     const args = node.arguments.map((arg) => evaluate(arg, context));
-    return apply(func, args, context);
+    for (let i = 0; i < args.length; i++) {
+      if (!(closure instanceof Closure)) {
+        return handleRuntimeError(
+          context,
+          new NotAFunctionError(
+            formatType(result.type),
+            context.runtime.nodes[0],
+          ),
+        );
+      }
+      result = apply(closure, [args[i]], context);
+      closure = result.value;
+    }
+    return result;
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
@@ -216,17 +231,10 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
 }
 
 function apply(
-  func: RuntimeResult,
+  closure: Closure,
   args: RuntimeResult[],
   context: Context,
 ): RuntimeResult {
-  if (!(func.value instanceof Closure)) {
-    return handleRuntimeError(
-      context,
-      new NotAFunctionError(formatType(func.type), context.runtime.nodes[0]),
-    );
-  }
-  const closure = func.value;
   checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
   // TODO: Do typechecking of function call
 
@@ -247,6 +255,13 @@ function apply(
     context.runtime.environments = originalEnvironments;
     return result;
   }
+  /*
+  else if (originalNode.params.length < args.length) {
+    // probably a curried lambda function: 
+    // eg: let x = fun a -> fun b -> a + b in x 1 2;;
+    return 
+  }
+  */
 
   const curriedClosure = Closure.createFromLambdaExpression(
     {
