@@ -137,16 +137,12 @@ typeAnnotation
 contractExpression // need to write a helper method to properly form the correct contract
    : expression
    | '{' identifier PIPE expression '}'
-   | contractExpression ARROW contractExpression
+   | contractExpression (ARROW contractExpression)+
    | '(' contractExpression ')'
    ;
 
-contractsList
-   : contractExpression (ARROW contractExpression)+
-   ;
-
 contractDeclaration
-   : CONTRACT identifier EQUALSTRUC contractsList 
+   : CONTRACT identifier EQUALSTRUC contractExpression 
    ;
 
 identifierWithContextParen // enforce having parenthesis to disambiguate
