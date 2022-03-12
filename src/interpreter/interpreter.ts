@@ -131,6 +131,18 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return setVariable(context, identifier.name, closure);
     } else {
       const value = evaluate(node.right, context);
+      if (value.value instanceof Closure) {
+        // is function declaration
+        const closure = value.value;
+        if (node.recursive) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          closure.clonedEnvironments[0]!.head[identifier.name] = {
+            value: closure,
+            type: closure.getType(),
+          };
+        }
+        return setVariable(context, identifier.name, closure);
+      }
       return setVariable(context, identifier.name, value);
     }
   },
@@ -152,28 +164,9 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const closure = Closure.createFromLambdaExpression(node, context);
     return {
       value: closure,
-      type: unitType, // TODO: closure type?
+      type: unitType, // TODO: update this?
     };
   },
-  /*
-  FunctionExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'FunctionExpression') {
-      return handleRuntimeError(context, new InterpreterError(node));
-    }
-    const identifier = node.id;
-    const closure = Closure.createFromFunctionExpression(node, context);
-
-    // Define self in the closure's cloned environment only if recursive
-    if (node.recursive) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      closure.clonedEnvironments[0]!.head[identifier.name] = {
-        value: closure,
-        type: closure.getType(),
-      };
-    }
-    return setVariable(context, identifier.name, closure);
-  },
-  */
   CallExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'CallExpression') {
       return handleRuntimeError(context, new InterpreterError(node));

@@ -139,3 +139,27 @@ test('returning lambda in hof', () => {
     type: intType,
   });
 });
+
+test('variable that is defined as lambda', () => {
+  const res = runTest(`
+    let f = fun x -> x + 1;;
+    f 1;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 2,
+    type: intType,
+  });
+});
+
+test('recursive function that is a variable that is defined as lambda', () => {
+  const res = runTest(`
+    let rec f = fun x -> if x == 0 then 1 else f (x - 1) * x;;
+    f 5;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 120,
+    type: intType,
+  });
+});
