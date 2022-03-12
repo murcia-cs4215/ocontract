@@ -43,6 +43,7 @@ LET: 'let';
 IN: 'in';
 REC: 'rec';
 COLON: ':';
+CONTRACT: 'contract';
 
 // LISTSTART: '[';
 // LISTEND: ']';
@@ -58,9 +59,9 @@ PRIMITIVETYPE
    ;
 
 type
-   : PRIMITIVETYPE
-   | '(' type ')'
-   | type ARROW type
+   : PRIMITIVETYPE                                                   # PrimType
+   | '(' type ')'                                                    # ParenType
+   | type (ARROW type)+                                              # FunType
    ;
 
 // pattern matching related tokens
@@ -85,6 +86,7 @@ start : (statement DOUBLESEMICOLON)* EOF;
 statement
    : expression
    | letGlobalBinding
+   | contractDeclaration
    ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
@@ -132,12 +134,23 @@ typeAnnotation
    : COLON type
    ;
 
-contractAnnotation
-   : PIPE expression
+contractExpression // need to write a helper method to properly form the correct contract
+   : expression
+   | '{' identifier PIPE expression '}'
+   | contractExpression ARROW contractExpression
+   | '(' contractExpression ')'
+   ;
+
+contractsList
+   : contractExpression (ARROW contractExpression)+
+   ;
+
+contractDeclaration
+   : CONTRACT identifier EQUALSTRUC contractsList 
    ;
 
 identifierWithContextParen // enforce having parenthesis to disambiguate
-   :  '(' identifierWithContext (contractAnnotation?) ')'
+   :  '(' identifierWithContext ')'
    ;
 
 identifierWithContext
@@ -182,7 +195,7 @@ lambda
    ;
 
 letGlobalBinding
-	: LET (REC?) id=identifier (params=identifierListWithContext?) (idType=typeAnnotation?) (contract=contractAnnotation)? EQUALSTRUC  init=expression
+	: LET (REC?) id=identifier (params=identifierListWithContext?) (idType=typeAnnotation?) EQUALSTRUC  init=expression
    ;
 
 letLocalBinding
