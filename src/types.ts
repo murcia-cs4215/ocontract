@@ -1,6 +1,6 @@
 import { SourceError } from 'errors/types';
 
-import { Node } from 'parser/types';
+import { ContractType, Node } from 'parser/types';
 
 /**
  * TYPES FOR TYPE CHECKING
@@ -71,6 +71,10 @@ export type TypeEnvironment = {
   typeMap: Map<string, Type | Type[]>;
 }[];
 
+export type ContractEnvironment = {
+  contractMap: Map<string, ContractType>;
+}[];
+
 export interface Context<T = any> {
   /** The external symbols that exist in the Context. */
   externalSymbols: string[];
@@ -98,4 +102,5 @@ export interface Context<T = any> {
   externalContext?: T;
 
   typeEnvironment: TypeEnvironment;
+  contractEnvironment: ContractEnvironment;
 }

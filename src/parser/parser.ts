@@ -19,6 +19,10 @@ import {
   CharContext,
   ConcatenationContext,
   CondExpContext,
+  ContractDeclarationContext,
+  ContractListContext,
+  ContractSetNotationContext,
+  ContractSimpleExpressionContext,
   DivisionContext,
   DivisionFloatContext,
   EqualPhysicalContext,
@@ -45,6 +49,7 @@ import {
   NotEqualStructuralContext,
   NumberContext,
   OrContext,
+  ParenthesesContractContext,
   ParenthesesExpressionContext,
   PowerContext,
   StatementContext,
@@ -59,6 +64,8 @@ import { Context } from '../types';
 
 import { FatalSyntaxError } from './errors';
 import {
+  ContractExpression,
+  ContractType,
   Expression,
   ExpressionStatement,
   GlobalLetStatement,
@@ -96,6 +103,74 @@ function nodeToErrorLocation(node: ErrorNode): SourceLocation {
     },
   };
 }
+
+class ContractParser
+  extends AbstractParseTreeVisitor<ContractExpression>
+  implements GrammarVisitor<ContractExpression>
+{
+  private expressionParser = new ExpressionParser();
+  private wrapWithContractExpression(
+    con: Array<ContractType>,
+  ): ContractExpression {
+    return {
+      type: 'ContractExpression',
+      contract: con,
+    };
+  }
+  protected defaultResult(): ContractExpression {
+    return this.wrapWithContractExpression([
+      {
+        type: 'EmptyContractExpression',
+      },
+    ]);
+  }
+
+  visitContractSimpleExpression(
+    ctx: ContractSimpleExpressionContext,
+  ): ContractExpression {
+    return this.wrapWithContractExpression([
+      {
+        type: 'FlatContractExpression',
+        contract: this.expressionParser.visit(ctx.expression()),
+      },
+    ]);
+  }
+
+  visitContractSetNotation(
+    ctx: ContractSetNotationContext,
+  ): ContractExpression {
+    return this.wrapWithContractExpression([
+      {
+        type: 'FlatContractExpression',
+        contract: {
+          type: 'LambdaExpression',
+          body: this.expressionParser.visit(ctx.expression()),
+          params: [this.expressionParser.visit(ctx.identifier()) as Identifier],
+        },
+      },
+    ]);
+  }
+
+  visitContractList(ctx: ContractListContext): ContractExpression {
+    let contractList: Array<ContractType> = [];
+    const contractExpArr = ctx.contractExpression();
+    for (let i = 0; i < contractExpArr.length; i++) {
+      contractList = contractList.concat(
+        this.visit(contractExpArr[i]).contract,
+      );
+    }
+    return this.wrapWithContractExpression(contractList);
+  }
+
+  visitParenthesesContract(
+    ctx: ParenthesesContractContext,
+  ): ContractExpression {
+    return this.wrapWithContractExpression([
+      this.visit(ctx.contractExpression()).contract,
+    ]);
+  }
+}
+
 class ExpressionParser
   extends AbstractParseTreeVisitor<Expression>
   implements GrammarVisitor<Expression>
@@ -430,6 +505,7 @@ class StatementParser
   implements GrammarVisitor<Statement>
 {
   private expressionParser = new ExpressionParser();
+  private contractParser = new ContractParser();
   protected defaultResult(): Statement {
     return {
       type: 'EmptyStatement',
@@ -446,10 +522,13 @@ class StatementParser
   visitStatement(ctx: StatementContext): Statement {
     const exp = ctx.expression();
     const letGlob = ctx.letGlobalBinding();
+    const conDecl = ctx.contractDeclaration();
     if (exp != undefined) {
       return this.visitExpression(exp);
     } else if (letGlob != undefined) {
       return this.visitLetGlobalBinding(letGlob);
+    } else if (conDecl != undefined) {
+      return this.visitContractDeclaration(conDecl);
     }
     return this.defaultResult();
   }
@@ -471,6 +550,15 @@ class StatementParser
       left: this.expressionParser.visit(ctx._id) as Identifier,
       params: params as Identifier[],
       right: this.expressionParser.visit(ctx._init),
+    };
+  }
+
+  visitContractDeclaration(ctx: ContractDeclarationContext): Statement {
+    const id = this.expressionParser.visit(ctx.identifier()) as Identifier;
+    return {
+      type: 'ContractDeclarationStatement',
+      id: id,
+      contract: this.contractParser.visit(ctx.contractExpression()),
     };
   }
 

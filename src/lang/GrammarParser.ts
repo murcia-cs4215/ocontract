@@ -1309,6 +1309,9 @@ export class GrammarParser extends Parser {
         switch (this.interpreter.adaptivePredict(this._input, 9, this._ctx)) {
           case 1:
             {
+              _localctx = new ContractSimpleExpressionContext(_localctx);
+              this._ctx = _localctx;
+
               this.state = 170;
               this.expression(0);
             }
@@ -1316,6 +1319,8 @@ export class GrammarParser extends Parser {
 
           case 2:
             {
+              _localctx = new ContractSetNotationContext(_localctx);
+              this._ctx = _localctx;
               this.state = 171;
               this.match(GrammarParser.T__2);
               this.state = 172;
@@ -1331,6 +1336,8 @@ export class GrammarParser extends Parser {
 
           case 3:
             {
+              _localctx = new ParenthesesContractContext(_localctx);
+              this._ctx = _localctx;
               this.state = 177;
               this.match(GrammarParser.T__0);
               this.state = 178;
@@ -1351,9 +1358,8 @@ export class GrammarParser extends Parser {
             }
             {
               {
-                _localctx = new ContractExpressionContext(
-                  _parentctx,
-                  _parentState,
+                _localctx = new ContractListContext(
+                  new ContractExpressionContext(_parentctx, _parentState),
                 );
                 this.pushNewRecursionContext(
                   _localctx,
@@ -3758,15 +3764,82 @@ export class TypeAnnotationContext extends ParserRuleContext {
 }
 
 export class ContractExpressionContext extends ParserRuleContext {
-  public expression(): ExpressionContext | undefined {
-    return this.tryGetRuleContext(0, ExpressionContext);
+  constructor(parent: ParserRuleContext | undefined, invokingState: number) {
+    super(parent, invokingState);
   }
-  public identifier(): IdentifierContext | undefined {
-    return this.tryGetRuleContext(0, IdentifierContext);
+  // @Override
+  public get ruleIndex(): number {
+    return GrammarParser.RULE_contractExpression;
   }
-  public PIPE(): TerminalNode | undefined {
-    return this.tryGetToken(GrammarParser.PIPE, 0);
+  public copyFrom(ctx: ContractExpressionContext): void {
+    super.copyFrom(ctx);
   }
+}
+export class ContractSimpleExpressionContext extends ContractExpressionContext {
+  public expression(): ExpressionContext {
+    return this.getRuleContext(0, ExpressionContext);
+  }
+  constructor(ctx: ContractExpressionContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
+  // @Override
+  public enterRule(listener: GrammarListener): void {
+    if (listener.enterContractSimpleExpression) {
+      listener.enterContractSimpleExpression(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: GrammarListener): void {
+    if (listener.exitContractSimpleExpression) {
+      listener.exitContractSimpleExpression(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
+    if (visitor.visitContractSimpleExpression) {
+      return visitor.visitContractSimpleExpression(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+export class ContractSetNotationContext extends ContractExpressionContext {
+  public identifier(): IdentifierContext {
+    return this.getRuleContext(0, IdentifierContext);
+  }
+  public PIPE(): TerminalNode {
+    return this.getToken(GrammarParser.PIPE, 0);
+  }
+  public expression(): ExpressionContext {
+    return this.getRuleContext(0, ExpressionContext);
+  }
+  constructor(ctx: ContractExpressionContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
+  // @Override
+  public enterRule(listener: GrammarListener): void {
+    if (listener.enterContractSetNotation) {
+      listener.enterContractSetNotation(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: GrammarListener): void {
+    if (listener.exitContractSetNotation) {
+      listener.exitContractSetNotation(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
+    if (visitor.visitContractSetNotation) {
+      return visitor.visitContractSetNotation(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+export class ContractListContext extends ContractExpressionContext {
   public contractExpression(): ContractExpressionContext[];
   public contractExpression(i: number): ContractExpressionContext;
   public contractExpression(
@@ -3787,29 +3860,55 @@ export class ContractExpressionContext extends ParserRuleContext {
       return this.getToken(GrammarParser.ARROW, i);
     }
   }
-  constructor(parent: ParserRuleContext | undefined, invokingState: number) {
-    super(parent, invokingState);
-  }
-  // @Override
-  public get ruleIndex(): number {
-    return GrammarParser.RULE_contractExpression;
+  constructor(ctx: ContractExpressionContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
   }
   // @Override
   public enterRule(listener: GrammarListener): void {
-    if (listener.enterContractExpression) {
-      listener.enterContractExpression(this);
+    if (listener.enterContractList) {
+      listener.enterContractList(this);
     }
   }
   // @Override
   public exitRule(listener: GrammarListener): void {
-    if (listener.exitContractExpression) {
-      listener.exitContractExpression(this);
+    if (listener.exitContractList) {
+      listener.exitContractList(this);
     }
   }
   // @Override
   public accept<Result>(visitor: GrammarVisitor<Result>): Result {
-    if (visitor.visitContractExpression) {
-      return visitor.visitContractExpression(this);
+    if (visitor.visitContractList) {
+      return visitor.visitContractList(this);
+    } else {
+      return visitor.visitChildren(this);
+    }
+  }
+}
+export class ParenthesesContractContext extends ContractExpressionContext {
+  public contractExpression(): ContractExpressionContext {
+    return this.getRuleContext(0, ContractExpressionContext);
+  }
+  constructor(ctx: ContractExpressionContext) {
+    super(ctx.parent, ctx.invokingState);
+    this.copyFrom(ctx);
+  }
+  // @Override
+  public enterRule(listener: GrammarListener): void {
+    if (listener.enterParenthesesContract) {
+      listener.enterParenthesesContract(this);
+    }
+  }
+  // @Override
+  public exitRule(listener: GrammarListener): void {
+    if (listener.exitParenthesesContract) {
+      listener.exitParenthesesContract(this);
+    }
+  }
+  // @Override
+  public accept<Result>(visitor: GrammarVisitor<Result>): Result {
+    if (visitor.visitParenthesesContract) {
+      return visitor.visitParenthesesContract(this);
     } else {
       return visitor.visitChildren(this);
     }

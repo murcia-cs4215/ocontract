@@ -41,6 +41,10 @@ import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
 import { CharContext } from './GrammarParser';
 import { StringContext } from './GrammarParser';
+import { ContractSimpleExpressionContext } from './GrammarParser';
+import { ContractSetNotationContext } from './GrammarParser';
+import { ContractListContext } from './GrammarParser';
+import { ParenthesesContractContext } from './GrammarParser';
 import { TypeContext } from './GrammarParser';
 import { AtomContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
@@ -375,6 +379,38 @@ export interface GrammarVisitor<Result> extends ParseTreeVisitor<Result> {
 	 * @return the visitor result
 	 */
 	visitString?: (ctx: StringContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `ContractSimpleExpression`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitContractSimpleExpression?: (ctx: ContractSimpleExpressionContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `ContractSetNotation`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitContractSetNotation?: (ctx: ContractSetNotationContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `ContractList`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitContractList?: (ctx: ContractListContext) => Result;
+
+	/**
+	 * Visit a parse tree produced by the `ParenthesesContract`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	visitParenthesesContract?: (ctx: ParenthesesContractContext) => Result;
 
 	/**
 	 * Visit a parse tree produced by `GrammarParser.type`.

@@ -30,6 +30,7 @@ export interface Program extends BaseNode {
 export type Statement =
   | ExpressionStatement
   | GlobalLetStatement
+  | ContractDeclarationStatement
   | EmptyStatement;
 
 export type Expression =
@@ -44,7 +45,7 @@ export type Expression =
   | CallExpression
   | EmptyExpression;
 
-export type Node = Program | Statement | Expression | Literal | Identifier;
+export type Node = Program | Statement | Expression | ContractExpression;
 
 /**
  * STATEMENT TYPES
@@ -63,6 +64,12 @@ export interface GlobalLetStatement extends BaseStatement {
   left: Identifier;
   params: Array<Identifier>;
   right: Expression;
+}
+
+export interface ContractDeclarationStatement extends BaseStatement {
+  type: 'ContractDeclarationStatement';
+  id: Identifier;
+  contract: ContractExpression;
 }
 
 export interface EmptyStatement extends BaseStatement {
@@ -183,7 +190,7 @@ export interface EmptyExpression extends BaseExpression {
 }
 
 // Identifier is also a node in itself
-export interface Identifier extends BaseNode, BaseExpression {
+export interface Identifier extends BaseExpression {
   type: 'Identifier';
   name: string;
 }
@@ -208,4 +215,27 @@ interface BaseCallExpression extends BaseExpression {
 
 export interface CallExpression extends BaseCallExpression {
   type: 'CallExpression';
+}
+
+/**
+ * CONTRACTS
+ */
+
+export type ContractType =
+  | FlatContractExpression
+  | Array<ContractType>
+  | EmptyContractExpression;
+
+export interface ContractExpression extends BaseExpression {
+  type: 'ContractExpression';
+  contract: Array<ContractType>;
+}
+
+export interface FlatContractExpression extends BaseExpression {
+  type: 'FlatContractExpression';
+  contract: Expression;
+}
+
+export interface EmptyContractExpression extends BaseExpression {
+  type: 'EmptyContractExpression';
 }

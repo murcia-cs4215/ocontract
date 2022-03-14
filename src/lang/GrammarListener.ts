@@ -41,6 +41,10 @@ import { FloatContext } from './GrammarParser';
 import { BooleanContext } from './GrammarParser';
 import { CharContext } from './GrammarParser';
 import { StringContext } from './GrammarParser';
+import { ContractSimpleExpressionContext } from './GrammarParser';
+import { ContractSetNotationContext } from './GrammarParser';
+import { ContractListContext } from './GrammarParser';
+import { ParenthesesContractContext } from './GrammarParser';
 import { TypeContext } from './GrammarParser';
 import { AtomContext } from './GrammarParser';
 import { StartContext } from './GrammarParser';
@@ -562,6 +566,58 @@ export interface GrammarListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	exitString?: (ctx: StringContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `ContractSimpleExpression`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	enterContractSimpleExpression?: (ctx: ContractSimpleExpressionContext) => void;
+	/**
+	 * Exit a parse tree produced by the `ContractSimpleExpression`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	exitContractSimpleExpression?: (ctx: ContractSimpleExpressionContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `ContractSetNotation`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	enterContractSetNotation?: (ctx: ContractSetNotationContext) => void;
+	/**
+	 * Exit a parse tree produced by the `ContractSetNotation`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	exitContractSetNotation?: (ctx: ContractSetNotationContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `ContractList`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	enterContractList?: (ctx: ContractListContext) => void;
+	/**
+	 * Exit a parse tree produced by the `ContractList`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	exitContractList?: (ctx: ContractListContext) => void;
+
+	/**
+	 * Enter a parse tree produced by the `ParenthesesContract`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	enterParenthesesContract?: (ctx: ParenthesesContractContext) => void;
+	/**
+	 * Exit a parse tree produced by the `ParenthesesContract`
+	 * labeled alternative in `GrammarParser.contractExpression`.
+	 * @param ctx the parse tree
+	 */
+	exitParenthesesContract?: (ctx: ParenthesesContractContext) => void;
 
 	/**
 	 * Enter a parse tree produced by `GrammarParser.type`.

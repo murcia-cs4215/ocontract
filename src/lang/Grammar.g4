@@ -94,7 +94,7 @@ statement
 // TODO: add support let parser trim leading and trailing whitespaces so that it does not return console error when parsing
 expression
    // : patternMatching # PatternMatchingExpression
-   // | arrowFunction   # ArrowFunctionExpression 
+   // | arrowFunction   # ArrowFunctionExpression
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
    : atom                                                            # AtomExpression
@@ -135,14 +135,14 @@ typeAnnotation
    ;
 
 contractExpression // need to write a helper method to properly form the correct contract
-   : expression
-   | '{' identifier PIPE expression '}'
-   | contractExpression (ARROW contractExpression)+
-   | '(' contractExpression ')'
+   : expression                                                      # ContractSimpleExpression
+   | '{' identifier PIPE expression '}'                              # ContractSetNotation
+   | contractExpression (ARROW contractExpression)+                  # ContractList
+   | '(' contractExpression ')'                                      # ParenthesesContract
    ;
 
 contractDeclaration
-   : CONTRACT identifier EQUALSTRUC contractExpression 
+   : CONTRACT identifier EQUALSTRUC contractExpression
    ;
 
 identifierWithContextParen // enforce having parenthesis to disambiguate
@@ -154,18 +154,18 @@ identifierWithContext
    ;
 
 condExp
-   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
+   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression
    ;
 
 parenthesesExpression
-   :  '('  inner=expression  ')'  
+   :  '('  inner=expression  ')'
    ;
 
 funcArgument
    :  atom
    |  identifier
    |  parenthesesExpression
-   ; 
+   ;
 
 identifier: IDENTIFIER;
 
@@ -187,7 +187,7 @@ funcApplication
    ;
 
 lambda
-   :  FUN  (params=identifierList) ARROW  body=expression 
+   :  FUN  (params=identifierList) ARROW  body=expression
    ;
 
 letGlobalBinding
@@ -211,5 +211,5 @@ letLocalBinding
 //    ;
 
 // patternBranch
-//    :  '|'  pattern=expression  ARROW  result=expression 
+//    :  '|'  pattern=expression  ARROW  result=expression
 //    ;
