@@ -80,7 +80,7 @@ export interface EmptyStatement extends BaseStatement {
  * PRIMITIVE LITERAL TYPES
  */
 
-interface BaseLiteral extends BaseNode {
+interface BaseLiteral extends BaseNode, BaseContractMonitor {
   type: 'Literal';
   valueType: string;
 }
@@ -142,7 +142,7 @@ export type BinaryOperator =
 
 export type LogicalOperator = '||' | '&&';
 
-export type BaseExpression = BaseNode;
+export type BaseExpression = BaseNode & BaseContractMonitor;
 
 export interface UnaryExpression extends BaseExpression {
   type: 'UnaryExpression';
@@ -221,21 +221,27 @@ export interface CallExpression extends BaseCallExpression {
  * CONTRACTS
  */
 
+interface BaseContractMonitor {
+  contract?: ContractType;
+  pos?: string;
+  neg?: string;
+}
+
 export type ContractType =
   | FlatContractExpression
   | Array<ContractType>
   | EmptyContractExpression;
 
-export interface ContractExpression extends BaseExpression {
+export interface ContractExpression extends BaseNode {
   type: 'ContractExpression';
   contract: Array<ContractType>;
 }
 
-export interface FlatContractExpression extends BaseExpression {
+export interface FlatContractExpression extends BaseNode {
   type: 'FlatContractExpression';
   contract: Expression;
 }
 
-export interface EmptyContractExpression extends BaseExpression {
+export interface EmptyContractExpression extends BaseNode {
   type: 'EmptyContractExpression';
 }

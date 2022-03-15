@@ -1,5 +1,6 @@
 import { typeCheck } from 'checkers/types/staticChecker';
 import { validate } from 'checkers/types/validator';
+import { wrapProgramInMonitor } from 'contracts/contractMonitor';
 import { start } from 'repl';
 import { inspect } from 'util';
 
@@ -23,6 +24,7 @@ export function run(code: string, context: Context): Result {
     typeCheck(program, context);
 
     prepareContextForRun(context);
+    wrapProgramInMonitor(program, context);
     const result = evaluate(program, context);
     cleanUpContextAfterRun(context);
 

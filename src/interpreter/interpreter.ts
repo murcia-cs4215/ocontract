@@ -5,8 +5,19 @@ import {
   LHS,
   RHS,
 } from 'checkers/types/runtimeChecker';
+import {
+  addContractToCurrentScope,
+  lookupContractInCurrentScope,
+} from 'contracts/environment';
 
-import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
+import {
+  CallExpression,
+  ContractType,
+  FlatContractExpression,
+  GlobalLetStatement,
+  LambdaExpression,
+  Node,
+} from 'parser/types';
 import { formatType } from 'utils/formatters';
 import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
@@ -143,6 +154,40 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         }
         return setVariable(context, identifier.name, closure);
       }
+      const contractForId = lookupContractInCurrentScope(
+        node.left.name,
+        context.contractEnvironment,
+      );
+      if (contractForId != undefined) {
+        // this contract should be flat
+        // enforce this contract
+        const contractExp = evaluate(
+          ((contractForId as Array<ContractType>)[0] as FlatContractExpression)
+            .contract,
+          context,
+        ).value;
+
+        if (!(contractExp instanceof Closure)) {
+          return handleRuntimeError(
+            context,
+            new InterpreterError(node, 'non-flat contract for value'),
+          );
+        } else {
+          const lambdaNode = contractExp.originalNode;
+          const callExpWrapper: CallExpression = {
+            type: 'CallExpression',
+            callee: lambdaNode,
+            arguments: [node.right],
+          };
+          const res = evaluate(callExpWrapper, context);
+          if (res.value === false) {
+            return handleRuntimeError(
+              context,
+              new InterpreterError(node, 'contract violation!'),
+            );
+          }
+        }
+      }
       return setVariable(context, identifier.name, value);
     }
   },
@@ -196,6 +241,21 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     return evaluate(node.expression, context);
   },
+  ContractDeclarationStatement: (
+    node: Node,
+    context: Context,
+  ): RuntimeResult => {
+    if (node.type !== 'ContractDeclarationStatement') {
+      return handleRuntimeError(context, new InterpreterError(node));
+    }
+    const id = node.id.name;
+    const contract = node.contract.contract;
+    addContractToCurrentScope(context.contractEnvironment, id, contract);
+    return {
+      value: undefined,
+      type: unitType,
+    };
+  },
   Program: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Program') {
       return handleRuntimeError(context, new InterpreterError(node));
@@ -248,14 +308,6 @@ function apply(
     context.runtime.environments = originalEnvironments;
     return result;
   }
-  /*
-  else if (originalNode.params.length < args.length) {
-    // probably a curried lambda function: 
-    // eg: let x = fun a -> fun b -> a + b in x 1 2;;
-    return 
-  }
-  */
-
   const curriedClosure = Closure.createFromLambdaExpression(
     {
       type: 'LambdaExpression',

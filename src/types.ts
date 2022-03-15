@@ -73,6 +73,7 @@ export type TypeEnvironment = {
 
 export type ContractEnvironment = {
   contractMap: Map<string, ContractType>;
+  currentScope: string; // used for assigning blame
 }[];
 
 export interface Context<T = any> {
