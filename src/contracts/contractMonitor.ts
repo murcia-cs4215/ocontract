@@ -72,24 +72,32 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
     }
     case 'GlobalLetStatement': {
       _wrapNodeInMonitor(node.right, context);
+      break;
     }
-    /*
     case 'UnaryExpression': {
-
+      _wrapNodeInMonitor(node.argument, context);
+      break;
     }
     case 'BinaryExpression': {
-
+      _wrapNodeInMonitor(node.left, context);
+      _wrapNodeInMonitor(node.right, context);
+      break;
     }
     case 'ConditionalExpression': {
-
+      _wrapNodeInMonitor(node.test, context);
+      _wrapNodeInMonitor(node.consequent, context);
+      _wrapNodeInMonitor(node.alternate, context);
+      break;
     }
     case 'LambdaExpression': {
-
+      _wrapNodeInMonitor(node.body, context);
+      break;
     }
     case 'LogicalExpression': {
-
+      _wrapNodeInMonitor(node.left, context);
+      _wrapNodeInMonitor(node.right, context);
+      break;
     }
-    */
   }
 }
 
