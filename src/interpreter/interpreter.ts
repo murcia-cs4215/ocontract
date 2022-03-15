@@ -5,13 +5,13 @@ import {
   LHS,
   RHS,
 } from 'checkers/types/runtimeChecker';
+import { propogateContract } from 'contracts/contractMonitor';
 import {
   addContractToCurrentScope,
-  lookupContractInCurrentScope,
+  lookupContracts,
 } from 'contracts/environment';
 
 import {
-  CallExpression,
   ContractType,
   FlatContractExpression,
   GlobalLetStatement,
@@ -50,6 +50,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Literal') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
+
     return {
       value: node.value,
       type: valueTypeToPrimitive[node.valueType],
@@ -59,7 +60,16 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Identifier') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    return getVariable(context, node.name);
+    const res = getVariable(context, node.name);
+    if (node.contract && node.pos && node.neg && res.value instanceof Closure) {
+      propogateContract(
+        node.contract,
+        node.pos,
+        node.neg,
+        res.value.originalNode,
+      );
+    }
+    return res;
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'UnaryExpression') {
@@ -154,39 +164,19 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         }
         return setVariable(context, identifier.name, closure);
       }
-      const contractForId = lookupContractInCurrentScope(
+      const contractForId = lookupContracts(
         node.left.name,
         context.contractEnvironment,
       );
       if (contractForId != undefined) {
         // this contract should be flat
         // enforce this contract
-        const contractExp = evaluate(
-          ((contractForId as Array<ContractType>)[0] as FlatContractExpression)
-            .contract,
+        checkPredContract(
+          node,
+          value,
+          (contractForId as Array<ContractType>)[0],
           context,
-        ).value;
-
-        if (!(contractExp instanceof Closure)) {
-          return handleRuntimeError(
-            context,
-            new InterpreterError(node, 'non-flat contract for value'),
-          );
-        } else {
-          const lambdaNode = contractExp.originalNode;
-          const callExpWrapper: CallExpression = {
-            type: 'CallExpression',
-            callee: lambdaNode,
-            arguments: [node.right],
-          };
-          const res = evaluate(callExpWrapper, context);
-          if (res.value === false) {
-            return handleRuntimeError(
-              context,
-              new InterpreterError(node, 'contract violation!'),
-            );
-          }
-        }
+        );
       }
       return setVariable(context, identifier.name, value);
     }
@@ -291,11 +281,33 @@ function apply(
   checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
   // TODO: Do typechecking of function call
 
+  /*
+  console.log('------------');
+  console.dir(closure, { depth: 5 });
+  console.log('------------');
+  */
+
+  // check preds for arguments
+  if (closure.originalNode.contract) {
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (isPrimitive(arg.value)) {
+        checkPredContract(
+          closure.originalNode,
+          arg,
+          (closure.originalNode.contract as Array<ContractType>)[i],
+          context,
+        );
+      }
+    }
+  }
+
   // Replace context environments with function environments
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
   const functionEnvironment = createFunctionEnvironment(closure, args);
+
   context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
 
@@ -304,15 +316,30 @@ function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === args.length) {
     const result = evaluate(originalNode.body, context);
+    if (closure.originalNode.contract && isPrimitive(result.value)) {
+      const contractList = closure.originalNode.contract as Array<ContractType>;
+      checkPredContract(
+        closure.originalNode,
+        result,
+        contractList[contractList.length - 1],
+        context,
+      );
+    }
     // Restore context environments
     context.runtime.environments = originalEnvironments;
     return result;
   }
+
   const curriedClosure = Closure.createFromLambdaExpression(
     {
       type: 'LambdaExpression',
       params: originalNode.params.slice(args.length),
       body: originalNode.body,
+      contract: closure.originalNode.contract
+        ? (closure.originalNode.contract as Array<ContractType>).slice(
+            args.length,
+          )
+        : undefined,
     },
     context,
   );
@@ -324,6 +351,37 @@ function apply(
 
 // HELPER FUNCTIONS
 
+function checkPredContract(
+  node: Node,
+  val: RuntimeResult,
+  contract: ContractType,
+  context: Context,
+): void {
+  const contractExp = evaluate(
+    (contract as FlatContractExpression).contract,
+    context,
+  ).value;
+
+  if (!(contractExp instanceof Closure)) {
+    return handleRuntimeError(
+      context,
+      new InterpreterError(node, 'expected flat contract for value'),
+    );
+  } else {
+    const check = apply(contractExp, [val], context);
+    if (check.value === false) {
+      return handleRuntimeError(
+        context,
+        new InterpreterError(node, 'contract violation!'),
+      );
+    }
+  }
+}
+
+function isPrimitive(test: any): boolean {
+  return test !== Object(test);
+}
+
 function convertGlobalLetFuncToLambda(
   node: GlobalLetStatement,
 ): LambdaExpression {
@@ -331,6 +389,11 @@ function convertGlobalLetFuncToLambda(
     type: 'LambdaExpression',
     params: node.params,
     body: node.right,
+    /*
+    contract: node.right.contract,
+    pos: node.right.pos,
+    neg: node.left.neg,
+    */
   };
 }
 

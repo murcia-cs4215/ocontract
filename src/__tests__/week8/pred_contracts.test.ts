@@ -50,3 +50,17 @@ test('no contract violation on complex expression if satisfy contract', () => {
     name: 'f',
   });
 });
+
+test('contract with complex expression', () => {
+  const res = runTest(`
+    let gt x = fun y -> y > x;;
+    contract f = (gt 0);;
+    let f = if true then 1 + 3 else (-1) - 100;;
+  `);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 4,
+    type: intType,
+    name: 'f',
+  });
+});

@@ -2,12 +2,14 @@ import { ContractEnvironment } from 'types';
 
 import { ContractType } from 'parser/types';
 
-export function lookupContractInCurrentScope(
+export function lookupContracts(
   name: string,
   env: ContractEnvironment,
 ): ContractType | undefined {
-  if (env[env.length - 1].contractMap.has(name)) {
-    return env[env.length - 1].contractMap.get(name);
+  for (let i = env.length - 1; i >= 0; i--) {
+    if (env[i].contractMap.has(name)) {
+      return env[i].contractMap.get(name);
+    }
   }
   return undefined;
 }

@@ -5,7 +5,7 @@ import { ContractType, Expression, Node, Program } from 'parser/types';
 import {
   addContractToCurrentScope,
   getCurrentContractScope,
-  lookupContractInCurrentScope,
+  lookupContracts,
 } from './environment';
 
 export function wrapProgramInMonitor(program: Program, context: Context): void {
@@ -13,17 +13,12 @@ export function wrapProgramInMonitor(program: Program, context: Context): void {
 }
 
 export function propogateContract(
-  fromNode: Expression,
+  contract: ContractType,
+  pos: string,
+  neg: string,
   toNode: Expression,
 ): void {
-  if (fromNode.contract && fromNode.pos && fromNode.neg) {
-    _wrapExpressionInMonitor(
-      toNode,
-      fromNode.contract,
-      fromNode.pos,
-      fromNode.neg,
-    );
-  }
+  _wrapExpressionInMonitor(toNode, contract, pos, neg);
 }
 
 function _wrapNodeInMonitor(node: Node, context: Context): void {
@@ -47,7 +42,7 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
       break;
     }
     case 'Identifier': {
-      const contractForIdentifier = lookupContractInCurrentScope(
+      const contractForIdentifier = lookupContracts(
         node.name,
         context.contractEnvironment,
       );
@@ -70,19 +65,41 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
       context.contractEnvironment.pop();
       break;
     }
+    case 'CallExpression': {
+      _wrapNodeInMonitor(node.callee, context);
+      node.arguments.forEach((arg) => _wrapNodeInMonitor(arg, context));
+      break;
+    }
+    case 'GlobalLetStatement': {
+      _wrapNodeInMonitor(node.right, context);
+    }
+    /*
+    case 'UnaryExpression': {
+
+    }
+    case 'BinaryExpression': {
+
+    }
+    case 'ConditionalExpression': {
+
+    }
+    case 'LambdaExpression': {
+
+    }
+    case 'LogicalExpression': {
+
+    }
+    */
   }
 }
 
 function _wrapExpressionInMonitor(
   exp: Expression,
-  contract: ContractType,
-  pos: string,
-  neg: string,
-): Expression {
-  return {
-    ...exp,
-    contract,
-    pos,
-    neg,
-  };
+  contract: ContractType | undefined,
+  pos: string | undefined,
+  neg: string | undefined,
+): void {
+  exp.contract = contract;
+  exp.pos = pos;
+  exp.neg = neg;
 }
