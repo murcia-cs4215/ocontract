@@ -105,3 +105,8 @@ export interface Context<T = any> {
   typeEnvironment: TypeEnvironment;
   contractEnvironment: ContractEnvironment;
 }
+
+// Interface that helps with class composition
+export interface Constructable {
+  new (...args: any[]): any;
+}
