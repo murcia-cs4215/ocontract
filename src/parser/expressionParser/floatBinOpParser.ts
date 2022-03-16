@@ -23,6 +23,7 @@ export const parseFloatBinOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitSubtractionFloat(ctx: SubtractionFloatContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -32,6 +33,7 @@ export const parseFloatBinOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitMultiplicationFloat(ctx: MultiplicationFloatContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -41,6 +43,7 @@ export const parseFloatBinOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitDivisionFloat(ctx: DivisionFloatContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -50,6 +53,7 @@ export const parseFloatBinOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitPower(ctx: PowerContext): Expression {
       return {
         type: 'BinaryExpression',

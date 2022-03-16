@@ -17,6 +17,7 @@ export const parseLogicalOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitOr(ctx: OrContext): Expression {
       return {
         type: 'LogicalExpression',

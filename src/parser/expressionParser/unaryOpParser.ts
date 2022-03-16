@@ -16,6 +16,7 @@ export const parseUnaryOp = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitNot(ctx: NotContext): Expression {
       return {
         type: 'UnaryExpression',

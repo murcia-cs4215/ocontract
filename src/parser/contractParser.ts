@@ -16,6 +16,7 @@ export class ContractParser
   implements GrammarVisitor<ContractExpression>
 {
   private expressionParser = new ExpressionParser();
+
   private wrapWithContractExpression(
     con: Array<ContractType>,
   ): ContractExpression {
@@ -24,6 +25,7 @@ export class ContractParser
       contract: con,
     };
   }
+
   protected defaultResult(): ContractExpression {
     return this.wrapWithContractExpression([
       {

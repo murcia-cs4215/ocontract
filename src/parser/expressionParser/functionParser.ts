@@ -21,6 +21,7 @@ export const parseFunction = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitLambda(ctx: LambdaContext): Expression {
       let params: any[] = [];
       if (ctx._params != undefined) {

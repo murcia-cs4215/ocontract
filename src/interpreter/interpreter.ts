@@ -365,14 +365,14 @@ function checkPredContract(
   if (!(contractExp instanceof Closure)) {
     return handleRuntimeError(
       context,
-      new InterpreterError(node, 'expected flat contract for value'),
+      new InterpreterError(node, 'Expected flat contract for value'),
     );
   } else {
     const check = apply(contractExp, [val], context);
     if (check.value === false) {
       return handleRuntimeError(
         context,
-        new InterpreterError(node, 'contract violation!'),
+        new InterpreterError(node, 'Contract Violation!'),
       );
     }
   }

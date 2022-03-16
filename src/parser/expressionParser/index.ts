@@ -30,9 +30,11 @@ class BaseParser
       type: 'EmptyExpression',
     };
   }
+
   visitParenthesesExpression(ctx: ParenthesesExpressionContext): Expression {
     return this.visit(ctx._inner);
   }
+
   visitCondExp(ctx: CondExpContext): Expression {
     return {
       type: 'ConditionalExpression',
@@ -42,6 +44,7 @@ class BaseParser
       loc: contextToLocation(ctx),
     };
   }
+
   visitErrorNode(node: ErrorNode): Expression {
     throw new FatalSyntaxError(nodeToErrorLocation(node), 'Syntax error');
   }

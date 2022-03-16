@@ -27,11 +27,13 @@ export class StatementParser
 {
   private expressionParser = new ExpressionParser();
   private contractParser = new ContractParser();
+
   protected defaultResult(): Statement {
     return {
       type: 'EmptyStatement',
     };
   }
+
   private wrapAsExpressionStatement(e: Expression): ExpressionStatement {
     return {
       type: 'ExpressionStatement',
@@ -55,15 +57,12 @@ export class StatementParser
   }
 
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): GlobalLetStatement {
-    let params: any[] = [];
-    if (ctx._params != undefined) {
+    let params: Identifier[] = [];
+    if (ctx._params != null) {
       for (let i = 0; i < ctx._params.childCount; i++) {
         const exp = ctx._params
           .getChild(i)
-          .accept(this.expressionParser) as Expression;
-        if (exp.type === 'EmptyExpression') {
-          continue;
-        }
+          .accept(this.expressionParser) as Identifier;
         params = [...params, exp];
       }
     }

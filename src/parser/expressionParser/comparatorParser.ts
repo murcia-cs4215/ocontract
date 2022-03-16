@@ -26,6 +26,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitLessThanOrEqual(ctx: LessThanOrEqualContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -35,6 +36,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitGreaterThan(ctx: GreaterThanContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -44,6 +46,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitGreaterThanOrEqual(ctx: GreaterThanOrEqualContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -53,6 +56,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitEqualStructural(ctx: EqualStructuralContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -62,6 +66,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitNotEqualStructural(ctx: NotEqualStructuralContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -71,6 +76,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitEqualPhysical(ctx: EqualPhysicalContext): Expression {
       return {
         type: 'BinaryExpression',
@@ -80,6 +86,7 @@ export const parseComparator = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitNotEqualPhysical(ctx: NotEqualPhysicalContext): Expression {
       return {
         type: 'BinaryExpression',

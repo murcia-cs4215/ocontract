@@ -23,6 +23,7 @@ export const parsePrimitive = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitFloat(ctx: FloatContext): Expression {
       return {
         type: 'Literal',
@@ -31,6 +32,7 @@ export const parsePrimitive = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitBoolean(ctx: BooleanContext): Expression {
       return {
         type: 'Literal',
@@ -39,6 +41,7 @@ export const parsePrimitive = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitChar(ctx: CharContext): Expression {
       return {
         type: 'Literal',
@@ -47,6 +50,7 @@ export const parsePrimitive = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitString(ctx: StringContext): Expression {
       const value = ctx.text.trim();
       const wrappedValue = new StringWrapper(

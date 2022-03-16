@@ -20,6 +20,7 @@ export const parseBinding = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitIdentifierWithContextParen(
       ctx: IdentifierWithContextParenContext,
     ): Expression {
@@ -29,6 +30,7 @@ export const parseBinding = <T extends Constructable>(
         loc: contextToLocation(ctx),
       };
     }
+
     visitLetLocalBinding(ctx: LetLocalBindingContext): Expression {
       return {
         type: 'LocalLetExpression',
