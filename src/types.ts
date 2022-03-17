@@ -1,6 +1,6 @@
 import { SourceError } from 'errors/types';
 
-import { Node } from 'parser/types';
+import { ContractType, Node } from 'parser/types';
 
 /**
  * TYPES FOR TYPE CHECKING
@@ -60,7 +60,7 @@ export interface Frame {
 
 export interface Environment {
   id: string;
-  name: string;
+  name?: string;
   tail: Environment | null;
   // callExpression?: es.CallExpression;
   head: Frame;
@@ -69,6 +69,11 @@ export interface Environment {
 
 export type TypeEnvironment = {
   typeMap: Map<string, Type | Type[]>;
+}[];
+
+export type ContractEnvironment = {
+  contractMap: Map<string, ContractType>;
+  currentScope: string; // used for assigning blame
 }[];
 
 export interface Context<T = any> {
@@ -98,4 +103,5 @@ export interface Context<T = any> {
   externalContext?: T;
 
   typeEnvironment: TypeEnvironment;
+  contractEnvironment: ContractEnvironment;
 }

@@ -22,28 +22,30 @@ interface BaseNode {
   loc?: SourceLocation;
 }
 
-export type Statement = ExpressionStatement;
-
-export type Expression =
-  | Literal
-  | UnaryExpression
-  | BinaryExpression
-  | LogicalExpression
-  | SequenceExpression
-  | ConditionalExpression
-  | GlobalLetExpression
-  | LocalLetExpression
-  | Identifier
-  | FunctionExpression
-  | CallExpression
-  | EmptyExpression;
-
 export interface Program extends BaseNode {
   type: 'Program';
   body: Array<Statement>;
 }
 
-export type Node = Program | Statement | Expression | Literal | Identifier;
+export type Statement =
+  | ExpressionStatement
+  | GlobalLetStatement
+  | ContractDeclarationStatement
+  | EmptyStatement;
+
+export type Expression =
+  | Literal
+  | Identifier
+  | UnaryExpression
+  | BinaryExpression
+  | LogicalExpression
+  | ConditionalExpression
+  | LocalLetExpression
+  | LambdaExpression
+  | CallExpression
+  | EmptyExpression;
+
+export type Node = Program | Statement | Expression | ContractExpression;
 
 /**
  * STATEMENT TYPES
@@ -56,11 +58,29 @@ export interface ExpressionStatement extends BaseStatement {
   expression: Expression;
 }
 
+export interface GlobalLetStatement extends BaseStatement {
+  type: 'GlobalLetStatement';
+  recursive: boolean;
+  left: Identifier;
+  params: Array<Identifier>;
+  right: Expression;
+}
+
+export interface ContractDeclarationStatement extends BaseStatement {
+  type: 'ContractDeclarationStatement';
+  id: Identifier;
+  contract: ContractExpression;
+}
+
+export interface EmptyStatement extends BaseStatement {
+  type: 'EmptyStatement';
+}
+
 /**
  * PRIMITIVE LITERAL TYPES
  */
 
-interface BaseLiteral extends BaseNode {
+interface BaseLiteral extends BaseNode, BaseContractMonitor {
   type: 'Literal';
   valueType: string;
 }
@@ -122,7 +142,7 @@ export type BinaryOperator =
 
 export type LogicalOperator = '||' | '&&';
 
-export type BaseExpression = BaseNode;
+export type BaseExpression = BaseNode & BaseContractMonitor;
 
 export interface UnaryExpression extends BaseExpression {
   type: 'UnaryExpression';
@@ -148,16 +168,9 @@ export interface LogicalExpression extends BaseExpression {
  * BINDINGS
  */
 
-export interface GlobalLetExpression extends BaseExpression {
-  type: 'GlobalLetExpression';
-  recursive: boolean;
-  left: Identifier;
-  right: Expression;
-}
-
 export interface LocalLetExpression extends BaseExpression {
   type: 'LocalLetExpression';
-  left: GlobalLetExpression | FunctionExpression;
+  left: GlobalLetStatement;
   right: Expression;
 }
 
@@ -165,10 +178,6 @@ export interface LocalLetExpression extends BaseExpression {
  * OTHER EXPRESSIONS
  */
 
-export interface SequenceExpression extends BaseExpression {
-  type: 'SequenceExpression';
-  expressions: Array<Expression>;
-}
 export interface ConditionalExpression extends BaseExpression {
   type: 'ConditionalExpression';
   test: Expression;
@@ -181,7 +190,7 @@ export interface EmptyExpression extends BaseExpression {
 }
 
 // Identifier is also a node in itself
-export interface Identifier extends BaseNode, BaseExpression {
+export interface Identifier extends BaseExpression {
   type: 'Identifier';
   name: string;
 }
@@ -195,11 +204,8 @@ interface BaseFunction extends BaseNode {
   body: Expression;
 }
 
-// AKA function declaration
-export interface FunctionExpression extends BaseFunction, BaseExpression {
-  type: 'FunctionExpression';
-  id: Identifier;
-  recursive: boolean;
+export interface LambdaExpression extends BaseFunction, BaseExpression {
+  type: 'LambdaExpression';
 }
 
 interface BaseCallExpression extends BaseExpression {
@@ -209,4 +215,33 @@ interface BaseCallExpression extends BaseExpression {
 
 export interface CallExpression extends BaseCallExpression {
   type: 'CallExpression';
+}
+
+/**
+ * CONTRACTS
+ */
+
+interface BaseContractMonitor {
+  contract?: ContractType;
+  pos?: string;
+  neg?: string;
+}
+
+export type ContractType =
+  | FlatContractExpression
+  | Array<ContractType>
+  | EmptyContractExpression;
+
+export interface ContractExpression extends BaseNode {
+  type: 'ContractExpression';
+  contract: Array<ContractType>;
+}
+
+export interface FlatContractExpression extends BaseNode {
+  type: 'FlatContractExpression';
+  contract: Expression;
+}
+
+export interface EmptyContractExpression extends BaseNode {
+  type: 'EmptyContractExpression';
 }

@@ -129,14 +129,6 @@ function _typeCheck(node: Node, context: Context): Type {
         );
       }
       return logicalLeft;
-
-    case 'SequenceExpression':
-      let sequenceType: Type = unitType;
-      for (const expression of node.expressions) {
-        sequenceType = _typeCheck(expression, context);
-      }
-      return sequenceType;
-
     case 'ConditionalExpression':
       const test = _typeCheck(node.test, context);
       if (!isBool(test)) {
@@ -157,11 +149,14 @@ function _typeCheck(node: Node, context: Context): Type {
       }
       return consequent;
 
-    case 'GlobalLetExpression':
-      const type = _typeCheck(node.right, context);
-      const name = node.left.name;
-      context.typeEnvironment[0].typeMap.set(name, type);
-      return type;
+    case 'GlobalLetStatement':
+      if (node.params.length === 0) {
+        const type = _typeCheck(node.right, context);
+        const name = node.left.name;
+        context.typeEnvironment[0].typeMap.set(name, type);
+        return type;
+      }
+      return unitType; // update this for functions
 
     case 'EmptyExpression':
     default:

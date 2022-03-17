@@ -1,6 +1,6 @@
 import structuredClone from '@ungap/structured-clone';
 
-import { FunctionExpression } from 'parser/types';
+import { LambdaExpression } from 'parser/types';
 import { formatType } from 'utils/formatters';
 import { primitiveTypes, unitType } from 'utils/typing';
 
@@ -38,18 +38,16 @@ function structuredCloneWithTypes<T>(item: T): T {
 }
 
 export class Closure {
-  name: string;
-  originalNode: FunctionExpression;
+  originalNode: LambdaExpression;
   clonedEnvironments: Environment[];
 
-  private constructor(node: FunctionExpression, environments: Environment[]) {
-    this.name = node.id.name;
+  private constructor(node: LambdaExpression, environments: Environment[]) {
     this.originalNode = node;
     this.clonedEnvironments = environments;
   }
 
-  static createFromFunctionExpression(
-    node: FunctionExpression,
+  static createFromLambdaExpression(
+    node: LambdaExpression,
     context: Context,
   ): Closure {
     return new Closure(

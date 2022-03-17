@@ -5,8 +5,19 @@ import {
   LHS,
   RHS,
 } from 'checkers/types/runtimeChecker';
+import { propogateContract } from 'contracts/contractMonitor';
+import {
+  addContractToCurrentScope,
+  lookupContracts,
+} from 'contracts/environment';
 
-import { Node } from 'parser/types';
+import {
+  ContractType,
+  FlatContractExpression,
+  GlobalLetStatement,
+  LambdaExpression,
+  Node,
+} from 'parser/types';
 import { formatType } from 'utils/formatters';
 import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
@@ -39,6 +50,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Literal') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
+
     return {
       value: node.value,
       type: valueTypeToPrimitive[node.valueType],
@@ -48,7 +60,16 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Identifier') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    return getVariable(context, node.name);
+    const res = getVariable(context, node.name);
+    if (node.contract && node.pos && node.neg && res.value instanceof Closure) {
+      propogateContract(
+        node.contract,
+        node.pos,
+        node.neg,
+        res.value.originalNode,
+      );
+    }
+    return res;
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'UnaryExpression') {
@@ -108,14 +129,57 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
   },
-  GlobalLetExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'GlobalLetExpression') {
+  GlobalLetStatement: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'GlobalLetStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
-    const value = evaluate(node.right, context);
-    return setVariable(context, identifier.name, value);
+    if (node.params.length > 0) {
+      // is function declaration
+      const closure = Closure.createFromLambdaExpression(
+        convertGlobalLetFuncToLambda(node),
+        context,
+      );
+      // Define self in the closure's cloned environment only if recursive
+      if (node.recursive) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        closure.clonedEnvironments[0]!.head[identifier.name] = {
+          value: closure,
+          type: closure.getType(),
+        };
+      }
+      return setVariable(context, identifier.name, closure);
+    } else {
+      const value = evaluate(node.right, context);
+      if (value.value instanceof Closure) {
+        // is function declaration
+        const closure = value.value;
+        if (node.recursive) {
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          closure.clonedEnvironments[0]!.head[identifier.name] = {
+            value: closure,
+            type: closure.getType(),
+          };
+        }
+        return setVariable(context, identifier.name, closure);
+      }
+      const contractForId = lookupContracts(
+        node.left.name,
+        context.contractEnvironment,
+      );
+      if (contractForId != undefined) {
+        // this contract should be flat
+        // enforce this contract
+        checkPredContract(
+          node,
+          value,
+          (contractForId as Array<ContractType>)[0],
+          context,
+        );
+      }
+      return setVariable(context, identifier.name, value);
+    }
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LocalLetExpression') {
@@ -128,30 +192,38 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     popEnvironment(context);
     return result;
   },
-  FunctionExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'FunctionExpression') {
+  LambdaExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'LambdaExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    const identifier = node.id;
-    const closure = Closure.createFromFunctionExpression(node, context);
-
-    // Define self in the closure's cloned environment only if recursive
-    if (node.recursive) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      closure.clonedEnvironments[0]!.head[identifier.name] = {
-        value: closure,
-        type: closure.getType(),
-      };
-    }
-    return setVariable(context, identifier.name, closure);
+    const closure = Closure.createFromLambdaExpression(node, context);
+    return {
+      value: closure,
+      type: unitType, // TODO: update this?
+    };
   },
   CallExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'CallExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    const func = evaluate(node.callee, context);
+    let result = evaluate(node.callee, context);
+    let closure = result.value;
+
     const args = node.arguments.map((arg) => evaluate(arg, context));
-    return apply(func, args, context);
+    for (let i = 0; i < args.length; i++) {
+      if (!(closure instanceof Closure)) {
+        return handleRuntimeError(
+          context,
+          new NotAFunctionError(
+            formatType(result.type),
+            context.runtime.nodes[0],
+          ),
+        );
+      }
+      result = apply(closure, [args[i]], context);
+      closure = result.value;
+    }
+    return result;
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
@@ -159,15 +231,20 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     return evaluate(node.expression, context);
   },
-  SequenceStatement: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'SequenceExpression') {
+  ContractDeclarationStatement: (
+    node: Node,
+    context: Context,
+  ): RuntimeResult => {
+    if (node.type !== 'ContractDeclarationStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    let value = { value: undefined, type: unitType } as RuntimeResult;
-    for (const expression of node.expressions) {
-      value = evaluate(expression, context);
-    }
-    return value;
+    const id = node.id.name;
+    const contract = node.contract.contract;
+    addContractToCurrentScope(context.contractEnvironment, id, contract);
+    return {
+      value: undefined,
+      type: unitType,
+    };
   },
   Program: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Program') {
@@ -197,25 +274,40 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
 }
 
 function apply(
-  func: RuntimeResult,
+  closure: Closure,
   args: RuntimeResult[],
   context: Context,
 ): RuntimeResult {
-  if (!(func.value instanceof Closure)) {
-    return handleRuntimeError(
-      context,
-      new NotAFunctionError(formatType(func.type), context.runtime.nodes[0]),
-    );
-  }
-  const closure = func.value;
   checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
   // TODO: Do typechecking of function call
+
+  /*
+  console.log('------------');
+  console.dir(closure, { depth: 5 });
+  console.log('------------');
+  */
+
+  // check preds for arguments
+  if (closure.originalNode.contract) {
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      if (isPrimitive(arg.value)) {
+        checkPredContract(
+          closure.originalNode,
+          arg,
+          (closure.originalNode.contract as Array<ContractType>)[i],
+          context,
+        );
+      }
+    }
+  }
 
   // Replace context environments with function environments
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
   const functionEnvironment = createFunctionEnvironment(closure, args);
+
   context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
 
@@ -224,18 +316,30 @@ function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === args.length) {
     const result = evaluate(originalNode.body, context);
+    if (closure.originalNode.contract && isPrimitive(result.value)) {
+      const contractList = closure.originalNode.contract as Array<ContractType>;
+      checkPredContract(
+        closure.originalNode,
+        result,
+        contractList[contractList.length - 1],
+        context,
+      );
+    }
     // Restore context environments
     context.runtime.environments = originalEnvironments;
     return result;
   }
 
-  const curriedClosure = Closure.createFromFunctionExpression(
+  const curriedClosure = Closure.createFromLambdaExpression(
     {
-      type: 'FunctionExpression',
-      id: { type: 'Identifier', name: 'curried' },
-      recursive: false,
+      type: 'LambdaExpression',
       params: originalNode.params.slice(args.length),
       body: originalNode.body,
+      contract: closure.originalNode.contract
+        ? (closure.originalNode.contract as Array<ContractType>).slice(
+            args.length,
+          )
+        : undefined,
     },
     context,
   );
@@ -246,6 +350,52 @@ function apply(
 }
 
 // HELPER FUNCTIONS
+
+function checkPredContract(
+  node: Node,
+  val: RuntimeResult,
+  contract: ContractType,
+  context: Context,
+): void {
+  const contractExp = evaluate(
+    (contract as FlatContractExpression).contract,
+    context,
+  ).value;
+
+  if (!(contractExp instanceof Closure)) {
+    return handleRuntimeError(
+      context,
+      new InterpreterError(node, 'expected flat contract for value'),
+    );
+  } else {
+    const check = apply(contractExp, [val], context);
+    if (check.value === false) {
+      return handleRuntimeError(
+        context,
+        new InterpreterError(node, 'contract violation!'),
+      );
+    }
+  }
+}
+
+function isPrimitive(test: any): boolean {
+  return test !== Object(test);
+}
+
+function convertGlobalLetFuncToLambda(
+  node: GlobalLetStatement,
+): LambdaExpression {
+  return {
+    type: 'LambdaExpression',
+    params: node.params,
+    body: node.right,
+    /*
+    contract: node.right.contract,
+    pos: node.right.pos,
+    neg: node.left.neg,
+    */
+  };
+}
 
 function visitNode(context: Context, node: Node): void {
   context.runtime.nodes.unshift(node);

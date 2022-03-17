@@ -88,7 +88,6 @@ export function createFunctionEnvironment(
   args: RuntimeResult[],
 ): Environment {
   const environment = {
-    name: closure.name,
     tail: closure.clonedEnvironments[0],
     head: {} as Frame,
     id: uniqueId(),

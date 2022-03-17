@@ -36,25 +36,33 @@ BOOLEAN: 'true' | 'false';
 IF: 'if';
 THEN: 'then';
 ELSE: 'else';
-// FUN: 'fun';
-// ARROW: '->';
-// PIPE: '|>';
+FUN: 'fun';
+ARROW: '->';
+PIPE: '|';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
+COLON: ':';
+CONTRACT: 'contract';
 
 // LISTSTART: '[';
 // LISTEND: ']';
 DOUBLESEMICOLON: ';;';
 
-TYPE
-  : 'int'
-  | 'float'
-  | 'char'
-  | 'string'
-  | 'bool'
-  | 'unit'
-  ;
+PRIMITIVETYPE
+   : 'int'
+   | 'float'
+   | 'char'
+   | 'string'
+   | 'bool'
+   | 'unit'
+   ;
+
+type
+   : PRIMITIVETYPE                                                   # PrimType
+   | '(' type ')'                                                    # ParenType
+   | type (ARROW type)+                                              # FunType
+   ;
 
 // pattern matching related tokens
 // MATCH: 'match';
@@ -78,7 +86,7 @@ start : (statement DOUBLESEMICOLON)* EOF;
 statement
    : expression
    | letGlobalBinding
-   | funcDeclaration
+   | contractDeclaration
    ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
@@ -86,7 +94,7 @@ statement
 // TODO: add support let parser trim leading and trailing whitespaces so that it does not return console error when parsing
 expression
    // : patternMatching # PatternMatchingExpression
-   // | arrowFunction   # ArrowFunctionExpression 
+   // | arrowFunction   # ArrowFunctionExpression
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
    : atom                                                            # AtomExpression
@@ -117,32 +125,56 @@ expression
    | left=expression  operator=OR  right=expression                  # Or
    | condExp                                                         # ConditionalExpression
    | letLocalBinding                                                 # LetLocalBindingExpression
+   | lambda                                                          # LambdaExpression
    | funcApplication                                                 # CallFunction
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
+typeAnnotation
+   : COLON type
+   ;
+
+contractExpression // need to write a helper method to properly form the correct contract
+   : expression                                                      # ContractSimpleExpression
+   | '{' identifier PIPE expression '}'                              # ContractSetNotation
+   | contractExpression (ARROW contractExpression)+                  # ContractList
+   | '(' contractExpression ')'                                      # ParenthesesContract
+   ;
+
+contractDeclaration
+   : CONTRACT identifier EQUALSTRUC contractExpression
+   ;
+
+identifierWithContextParen // enforce having parenthesis to disambiguate
+   :  '(' identifierWithContext ')'
+   ;
+
+identifierWithContext
+   : identifier (typeAnnotation?)
+   ;
+
 condExp
-   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
+   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression
    ;
 
 parenthesesExpression
-   :  '('  inner=expression  ')'  
+   :  '('  inner=expression  ')'
    ;
 
 funcArgument
    :  atom
    |  identifier
    |  parenthesesExpression
-   ; 
+   ;
 
 identifier: IDENTIFIER;
 
-identifierList
- 	:  identifier ( identifier)*
+identifierListWithContext
+ 	:  ( identifier | identifierWithContextParen)+
    ;
 
-funcDeclaration
-   : LET  (REC?)  ids=identifierList '=' body=expression
+identifierList
+   :  ( identifier)+
    ;
 
 funcApplyArgumentList
@@ -151,26 +183,19 @@ funcApplyArgumentList
 
 funcApplication
    : func=identifier  args=funcApplyArgumentList
+   | '(' lambdaFunc=lambda ')'  args=funcApplyArgumentList
    ;
 
-// arrowFunctionBody // need arrowFunctionBody be a child node of ArrowFunctionExpression
-//    : expression
-//    ;
-
-
-// arrowFunction
-//    :  FUN  param=identifier  ARROW  body=arrowFunctionBody 
-//    ;
-
-// We will enforce the presence of an alternate for now, although it's optional in OCaml.
-
+lambda
+   :  FUN  (params=identifierList) ARROW  body=expression
+   ;
 
 letGlobalBinding
-	: LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	: LET (REC?) id=identifier (params=identifierListWithContext?) (idType=typeAnnotation?) EQUALSTRUC  init=expression
    ;
 
 letLocalBinding
-   : (letGlobalBinding | funcDeclaration)  IN  exp2=expression
+   : letGlobalBinding IN  exp2=expression
    ;
 
 // listElement
@@ -186,5 +211,5 @@ letLocalBinding
 //    ;
 
 // patternBranch
-//    :  '|'  pattern=expression  ARROW  result=expression 
+//    :  '|'  pattern=expression  ARROW  result=expression
 //    ;
