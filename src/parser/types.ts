@@ -64,6 +64,7 @@ export interface GlobalLetStatement extends BaseStatement {
   left: Identifier;
   params: Array<Identifier>;
   right: Expression;
+  typeDeclaration: Type;
 }
 
 export interface ContractDeclarationStatement extends BaseStatement {
@@ -193,6 +194,7 @@ export interface EmptyExpression extends BaseExpression {
 export interface Identifier extends BaseExpression {
   type: 'Identifier';
   name: string;
+  typeDeclaration?: Type;
 }
 
 /**
@@ -206,6 +208,7 @@ interface BaseFunction extends BaseNode {
 
 export interface LambdaExpression extends BaseFunction, BaseExpression {
   type: 'LambdaExpression';
+  typeDeclaration: FunctionType;
 }
 
 interface BaseCallExpression extends BaseExpression {
@@ -244,4 +247,29 @@ export interface FlatContractExpression extends BaseNode {
 
 export interface EmptyContractExpression extends BaseNode {
   type: 'EmptyContractExpression';
+}
+
+/**
+ * TYPES
+ */
+
+export type Type = PrimitiveType | FunctionType;
+
+export type PrimitiveValueType =
+  | 'int'
+  | 'float'
+  | 'string'
+  | 'char'
+  | 'bool'
+  | 'unit';
+
+export interface PrimitiveType {
+  type: 'PrimitiveType';
+  valueType: PrimitiveValueType;
+}
+
+export interface FunctionType {
+  type: 'FunctionType';
+  parameterType: Type; // If multiple params, it's curried in types as well
+  returnType: Type;
 }

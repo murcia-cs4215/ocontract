@@ -12,7 +12,7 @@ export function wrapProgramInMonitor(program: Program, context: Context): void {
   _wrapNodeInMonitor(program, context);
 }
 
-export function propogateContract(
+export function propagateContract(
   contract: ContractType,
   pos: string,
   neg: string,

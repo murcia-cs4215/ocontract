@@ -1,7 +1,11 @@
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
-
+import { Closure } from 'interpreter/closure';
 import { BinaryOperator, Node, UnaryOperator } from 'parser/types';
 import { formatType } from 'utils/formatters';
+
+import { RuntimeResult } from '../../types';
+
+import { RuntimeTypeError } from './errors';
 import {
   boolType,
   floatType,
@@ -10,13 +14,10 @@ import {
   isChar,
   isFloat,
   isInt,
+  isSameType,
   isString,
   stringType,
-} from 'utils/typing';
-
-import { RuntimeResult } from '../../types';
-
-import { RuntimeTypeError } from './errors';
+} from './utils';
 
 export const LHS = ' on left hand side of operation';
 export const RHS = ' on right hand side of operation';
@@ -159,6 +160,22 @@ export const checkBoolean = (
       side,
       formatType(boolType),
       formatType(value.type),
+    );
+  }
+};
+
+export const checkTypeOfArgument = (
+  node: Node,
+  closure: Closure,
+  arg: RuntimeResult,
+): RuntimeSourceError | undefined => {
+  const expectedType = closure.getType().parameterType;
+  if (!isSameType(expectedType, arg.type)) {
+    return new RuntimeTypeError(
+      node,
+      '',
+      formatType(expectedType),
+      formatType(arg.type),
     );
   }
 };

@@ -85,7 +85,7 @@ export function createLocalEnvironment(
 // Assumption: number of arguments <= number of parameters
 export function createFunctionEnvironment(
   closure: Closure,
-  args: RuntimeResult[],
+  arg: RuntimeResult,
 ): Environment {
   const environment = {
     tail: closure.clonedEnvironments[0],
@@ -93,14 +93,7 @@ export function createFunctionEnvironment(
     id: uniqueId(),
   };
 
-  // We bound the number of iterations by the number of arguments
-  args.forEach((arg, index) => {
-    if (!environment.head) {
-      return;
-    }
-    const param = closure.originalNode.params[index];
-    environment.head[param.name] = arg;
-  });
-
+  const param = closure.originalNode.params[0];
+  environment.head[param.name] = arg;
   return environment;
 }

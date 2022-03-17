@@ -200,7 +200,7 @@ module.exports = {
           // Packages packages come first.
           ['^@?\\w'],
           // Internal packages.
-          ['^(parser|interpreter|lang|utils)(/.*|$)'],
+          ['^(checkers|errors|interpreter|lang|parser|utils)(/.*|$)'],
           // Side effect imports.
           ['^\\u0000'],
           // Parent imports. Put `..` last.

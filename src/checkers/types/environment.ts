@@ -1,3 +1,7 @@
+import { Type } from 'parser/types';
+
+import { Context, TypeEnvironment } from '../../types';
+
 import {
   boolType,
   floatType,
@@ -5,9 +9,7 @@ import {
   makeFunctionType,
   primitiveTypes,
   stringType,
-} from 'utils/typing';
-
-import { Type, TypeEnvironment } from '../../types';
+} from './utils';
 
 const predeclaredNames: [string, Type | Type[]][] = [];
 
@@ -51,12 +53,47 @@ const primitiveFuncs: [string, Type | Type[]][] = [
   ['^', makeFunctionType(stringType, stringType, stringType)],
 ];
 
-export function createTypeEnvironment(): TypeEnvironment {
+export function createInitialTypeEnvironments(): TypeEnvironment[] {
   const initialTypeMappings = [...predeclaredNames, ...primitiveFuncs];
 
-  return [
-    {
-      typeMap: new Map(initialTypeMappings),
-    },
-  ];
+  return [new Map(initialTypeMappings)];
+}
+
+// ENVIRONMENT HELPERS
+
+export function pushTypeEnvironment(
+  context: Context,
+  typeMap: TypeEnvironment,
+): void {
+  context.typeEnvironments.unshift(typeMap);
+}
+
+export function popTypeEnvironment(context: Context): TypeEnvironment | null {
+  return context.typeEnvironments.shift() ?? null;
+}
+
+// TYPE HELPERS
+
+export function getType(context: Context, name: string): Type | Type[] | null {
+  for (let i = 0; i < context.typeEnvironments.length; i++) {
+    if (context.typeEnvironments[i].has(name)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return context.typeEnvironments[i].get(name)!;
+    }
+  }
+  return null;
+}
+
+export function setType(
+  context: Context,
+  name: string,
+  type: Type | Type[],
+): void {
+  context.typeEnvironments[0].set(name, type);
+}
+
+// LOCAL ENVIRONMENT
+
+export function createLocalTypeEnvironment(): TypeEnvironment {
+  return new Map();
 }

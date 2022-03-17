@@ -1,5 +1,4 @@
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
-
 import { Node, SourceLocation } from 'parser/types';
 
 import { UNKNOWN_LOCATION } from '../../constants';

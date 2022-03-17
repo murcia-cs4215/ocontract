@@ -1,9 +1,9 @@
-import { typeCheck } from 'checkers/types/staticChecker';
-import { validate } from 'checkers/types/validator';
-import { wrapProgramInMonitor } from 'contracts/contractMonitor';
 import { start } from 'repl';
 import { inspect } from 'util';
 
+import { wrapProgramInMonitor } from 'checkers/contracts/contractMonitor';
+import { typeCheck } from 'checkers/types/staticChecker';
+import { validate } from 'checkers/types/validator';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';

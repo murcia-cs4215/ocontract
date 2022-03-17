@@ -1,5 +1,4 @@
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
-
 import { Node } from 'parser/types';
 
 import { ErrorSeverity, ErrorType } from '../errors/types';

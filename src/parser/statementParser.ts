@@ -12,14 +12,16 @@ import { GrammarVisitor } from 'lang/GrammarVisitor';
 import { ContractParser } from './contractParser';
 import { FatalSyntaxError } from './errors';
 import { ExpressionParser } from './expressionParser';
+import { TypeParser } from './typeParser';
 import {
   Expression,
   ExpressionStatement,
   GlobalLetStatement,
   Identifier,
   Statement,
+  Type,
 } from './types';
-import { nodeToErrorLocation } from './utils';
+import { curryParamTypes, nodeToErrorLocation } from './utils';
 
 export class StatementParser
   extends AbstractParseTreeVisitor<Statement>
@@ -27,6 +29,7 @@ export class StatementParser
 {
   private expressionParser = new ExpressionParser();
   private contractParser = new ContractParser();
+  private typeParser = new TypeParser();
 
   protected defaultResult(): Statement {
     return {
@@ -58,6 +61,8 @@ export class StatementParser
 
   visitLetGlobalBinding(ctx: LetGlobalBindingContext): GlobalLetStatement {
     let params: Identifier[] = [];
+    let type: Type;
+
     if (ctx._params != null) {
       for (let i = 0; i < ctx._params.childCount; i++) {
         const exp = ctx._params
@@ -65,13 +70,22 @@ export class StatementParser
           .accept(this.expressionParser) as Identifier;
         params = [...params, exp];
       }
+      type = curryParamTypes(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        params.map((p) => p.typeDeclaration!),
+        this.typeParser.visit(ctx._idType),
+      );
+    } else {
+      type = this.typeParser.visit(ctx._idType);
     }
+
     return {
       type: 'GlobalLetStatement',
       recursive: ctx.REC() != null,
       left: this.expressionParser.visit(ctx._id) as Identifier,
-      params: params as Identifier[],
+      params: params,
       right: this.expressionParser.visit(ctx._init),
+      typeDeclaration: type,
     };
   }
 

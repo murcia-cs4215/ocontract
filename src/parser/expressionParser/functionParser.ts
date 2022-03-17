@@ -2,8 +2,9 @@ import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor
 import { Constructable } from 'types';
 
 import { FuncApplicationContext, LambdaContext } from 'lang/GrammarParser';
-import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { TypeParser } from 'parser/typeParser';
+import { Expression, Identifier } from 'parser/types';
+import { contextToLocation, curryParamTypes } from 'parser/utils';
 
 export const parseFunction = <T extends Constructable>(
   BaseClass: T,
@@ -23,23 +24,30 @@ export const parseFunction = <T extends Constructable>(
     }
 
     visitLambda(ctx: LambdaContext): Expression {
-      let params: any[] = [];
+      let params: Identifier[] = [];
       if (ctx._params != undefined) {
         for (let i = 0; i < ctx._params.childCount; i++) {
           const exp = ctx._params
             .getChild(i)
-            .accept(this as unknown as AbstractParseTreeVisitor<Expression>);
-          if (exp.type === 'EmptyExpression') {
-            continue;
-          }
+            .accept(
+              this as unknown as AbstractParseTreeVisitor<Expression>,
+            ) as Identifier;
           params = [...params, exp];
         }
       }
+      const returnType = new TypeParser().visit(ctx._returnType);
+
+      const type = curryParamTypes(
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        params.map((p) => p.typeDeclaration!),
+        returnType,
+      );
       return {
         type: 'LambdaExpression',
         params: params,
         body: this.visit(ctx._body),
         loc: contextToLocation(ctx),
+        typeDeclaration: type,
       };
     }
   };

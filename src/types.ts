@@ -1,32 +1,5 @@
 import { SourceError } from 'errors/types';
-
-import { ContractType, Node } from 'parser/types';
-
-/**
- * TYPES FOR TYPE CHECKING
- */
-
-export type PrimitiveType =
-  | 'int'
-  | 'float'
-  | 'bool'
-  | 'string'
-  | 'char'
-  | 'unit';
-
-export interface Primitive {
-  kind: 'primitive';
-  type: PrimitiveType;
-}
-
-// cannot name Function, conflicts with TS
-export interface FunctionType {
-  kind: 'function';
-  parameterTypes: Type[];
-  returnType: Type;
-}
-
-export type Type = Primitive | FunctionType;
+import { ContractType, Node, Type } from 'parser/types';
 
 /**
  * TYPES FOR OUTPUT
@@ -67,9 +40,7 @@ export interface Environment {
   thisContext?: Value;
 }
 
-export type TypeEnvironment = {
-  typeMap: Map<string, Type | Type[]>;
-}[];
+export type TypeEnvironment = Map<string, Type | Type[]>;
 
 export type ContractEnvironment = {
   contractMap: Map<string, ContractType>;
@@ -102,7 +73,7 @@ export interface Context<T = any> {
    */
   externalContext?: T;
 
-  typeEnvironment: TypeEnvironment;
+  typeEnvironments: TypeEnvironment[];
   contractEnvironment: ContractEnvironment;
 }
 

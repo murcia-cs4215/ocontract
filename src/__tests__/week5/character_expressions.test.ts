@@ -1,5 +1,5 @@
+import { boolType, charType } from 'checkers/types/utils';
 import { runTest } from 'utils/tests';
-import { boolType, charType } from 'utils/typing';
 
 test('character', () => {
   const res = runTest("'a';;");

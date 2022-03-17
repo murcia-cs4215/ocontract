@@ -1,5 +1,5 @@
+import { boolType, floatType } from 'checkers/types/utils';
 import { runTest } from 'utils/tests';
-import { boolType, floatType } from 'utils/typing';
 
 test('float', () => {
   const res = runTest('1.;;');

@@ -48,13 +48,23 @@ export class ContractParser
   visitContractSetNotation(
     ctx: ContractSetNotationContext,
   ): ContractExpression {
+    const param = this.expressionParser.visit(ctx.identifier()) as Identifier;
     return this.wrapWithContractExpression([
       {
         type: 'FlatContractExpression',
         contract: {
           type: 'LambdaExpression',
           body: this.expressionParser.visit(ctx.expression()),
-          params: [this.expressionParser.visit(ctx.identifier()) as Identifier],
+          params: [param],
+          typeDeclaration: {
+            type: 'FunctionType',
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            parameterType: param.typeDeclaration!,
+            returnType: {
+              type: 'PrimitiveType',
+              valueType: 'bool',
+            },
+          },
         },
       },
     ]);

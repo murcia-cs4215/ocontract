@@ -1,6 +1,6 @@
+import { boolType } from 'checkers/types/utils';
 import { BinaryOperator, LogicalOperator, UnaryOperator } from 'parser/types';
 import { StringWrapper } from 'parser/wrappers';
-import { boolType } from 'utils/typing';
 
 import { RuntimeResult } from '../types';
 

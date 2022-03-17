@@ -1,6 +1,8 @@
+import { Type } from 'parser/types';
+
 import { createContext } from '../context';
 import { run } from '../index';
-import { Result, Type } from '../types';
+import { Result } from '../types';
 
 import { formatType } from './formatters';
 

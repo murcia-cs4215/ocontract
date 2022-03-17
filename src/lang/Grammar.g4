@@ -100,29 +100,29 @@ expression
    : atom                                                            # AtomExpression
    | identifier                                                      # IdentifierExpression
    | parenthesesExpression                                           # Parentheses
-   | <assoc=right> left=expression  operator=POW  right=expression   # Power
-   | left=expression  operator=MUL  right=expression                 # Multiplication
-   | left=expression  operator=DIV  right=expression                 # Division
-   | left=expression  operator=MULFLOAT  right=expression            # MultiplicationFloat
-   | left=expression  operator=DIVFLOAT  right=expression            # DivisionFloat
-   | left=expression  operator=MOD right=expression                  # Modulus
-   | left=expression  operator=ADD  right=expression                 # Addition
-   | left=expression  operator=SUB  right=expression                 # Subtraction
-   | left=expression  operator=ADDFLOAT  right=expression            # AdditionFloat
-   | left=expression  operator=SUBFLOAT  right=expression            # SubtractionFloat
-   | left=expression  operator=LESSTHAN  right=expression            # LessThan
-   | left=expression  operator=LESSTHANOREQUAL  right=expression     # LessThanOrEqual
-   | left=expression  operator=GREATERTHAN  right=expression         # GreaterThan
-   | left=expression  operator=GREATERTHANOREQUAL  right=expression  # GreaterThanOrEqual
-   | left=expression  operator=EQUALSTRUC  right=expression          # EqualStructural
-   | left=expression  operator=NOTEQUALSTRUC  right=expression       # NotEqualStructural
-   | left=expression  operator=EQUALPHYS  right=expression           # EqualPhysical
-   | left=expression  operator=NOTEQUALPHYS  right=expression        # NotEqualPhysical
-   | left=expression  operator=CONCAT  right=expression              # Concatenation
-   | operator=SUB  argument=expression                               # Negative
-   | operator=NOT  argument=expression                               # Not
-   | left=expression  operator=AND  right=expression                 # And
-   | left=expression  operator=OR  right=expression                  # Or
+   | <assoc=right> left=expression operator=POW right=expression     # Power
+   | left=expression operator=MUL right=expression                   # Multiplication
+   | left=expression operator=DIV right=expression                   # Division
+   | left=expression operator=MULFLOAT right=expression              # MultiplicationFloat
+   | left=expression operator=DIVFLOAT right=expression              # DivisionFloat
+   | left=expression operator=MOD right=expression                   # Modulus
+   | left=expression operator=ADD right=expression                   # Addition
+   | left=expression operator=SUB right=expression                   # Subtraction
+   | left=expression operator=ADDFLOAT right=expression              # AdditionFloat
+   | left=expression operator=SUBFLOAT right=expression              # SubtractionFloat
+   | left=expression operator=LESSTHAN right=expression              # LessThan
+   | left=expression operator=LESSTHANOREQUAL right=expression       # LessThanOrEqual
+   | left=expression operator=GREATERTHAN right=expression           # GreaterThan
+   | left=expression operator=GREATERTHANOREQUAL right=expression    # GreaterThanOrEqual
+   | left=expression operator=EQUALSTRUC right=expression            # EqualStructural
+   | left=expression operator=NOTEQUALSTRUC right=expression         # NotEqualStructural
+   | left=expression operator=EQUALPHYS right=expression             # EqualPhysical
+   | left=expression operator=NOTEQUALPHYS right=expression          # NotEqualPhysical
+   | left=expression operator=CONCAT right=expression                # Concatenation
+   | operator=SUB argument=expression                                # Negative
+   | operator=NOT argument=expression                                # Not
+   | left=expression operator=AND right=expression                   # And
+   | left=expression operator=OR right=expression                    # Or
    | condExp                                                         # ConditionalExpression
    | letLocalBinding                                                 # LetLocalBindingExpression
    | lambda                                                          # LambdaExpression
@@ -145,36 +145,32 @@ contractDeclaration
    : CONTRACT identifier EQUALSTRUC contractExpression
    ;
 
-identifierWithContextParen // enforce having parenthesis to disambiguate
-   :  '(' identifierWithContext ')'
+identifierWithTypeParen // enforce having parenthesis to disambiguate
+   : '(' identifierWithType ')'
    ;
 
-identifierWithContext
-   : identifier (typeAnnotation?)
+identifierWithType
+   : id=identifier idType=typeAnnotation
    ;
 
 condExp
-   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression
+   : IF test=expression THEN consequent=expression ELSE alternate=expression
    ;
 
 parenthesesExpression
-   :  '('  inner=expression  ')'
+   : '('  inner=expression  ')'
    ;
 
 funcArgument
-   :  atom
-   |  identifier
-   |  parenthesesExpression
+   : atom
+   | identifier
+   | parenthesesExpression
    ;
 
 identifier: IDENTIFIER;
 
-identifierListWithContext
- 	:  ( identifier | identifierWithContextParen)+
-   ;
-
-identifierList
-   :  ( identifier)+
+identifierListWithType
+ 	: (identifierWithTypeParen)+
    ;
 
 funcApplyArgumentList
@@ -182,20 +178,20 @@ funcApplyArgumentList
    ;
 
 funcApplication
-   : func=identifier  args=funcApplyArgumentList
-   | '(' lambdaFunc=lambda ')'  args=funcApplyArgumentList
+   : func=identifier args=funcApplyArgumentList
+   | '(' lambdaFunc=lambda ')' args=funcApplyArgumentList
    ;
 
 lambda
-   :  FUN  (params=identifierList) ARROW  body=expression
+   : FUN (params=identifierListWithType) returnType=typeAnnotation ARROW body=expression
    ;
 
 letGlobalBinding
-	: LET (REC?) id=identifier (params=identifierListWithContext?) (idType=typeAnnotation?) EQUALSTRUC  init=expression
+	: LET (REC?) id=identifier (params=identifierListWithType?) idType=typeAnnotation EQUALSTRUC init=expression
    ;
 
 letLocalBinding
-   : letGlobalBinding IN  exp2=expression
+   : letGlobalBinding IN exp2=expression
    ;
 
 // listElement

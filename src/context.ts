@@ -1,5 +1,5 @@
-import { createTypeEnvironment } from 'checkers/types/environment';
-import { createContractEnvironment } from 'contracts/environment';
+import { createInitialContractEnvironment } from 'checkers/contracts/environment';
+import { createInitialTypeEnvironments } from 'checkers/types/environment';
 
 import { GLOBAL } from './constants';
 import { Context, Environment, Value } from './types';
@@ -22,8 +22,8 @@ const createEmptyContext = <T>(
     runtime: createEmptyRuntime(),
     numberOfOuterEnvironments: 1,
     prelude: null,
-    typeEnvironment: createTypeEnvironment(),
-    contractEnvironment: createContractEnvironment(),
+    typeEnvironments: createInitialTypeEnvironments(),
+    contractEnvironment: createInitialContractEnvironment(),
   };
 };
 

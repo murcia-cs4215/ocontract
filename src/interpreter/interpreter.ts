@@ -1,29 +1,30 @@
+import { propagateContract } from 'checkers/contracts/contractMonitor';
+import {
+  addContractToCurrentScope,
+  lookupContracts,
+} from 'checkers/contracts/environment';
 import {
   checkBinaryExpression,
   checkBoolean,
+  checkTypeOfArgument,
   checkUnaryExpression,
   LHS,
   RHS,
 } from 'checkers/types/runtimeChecker';
-import { propogateContract } from 'contracts/contractMonitor';
-import {
-  addContractToCurrentScope,
-  lookupContracts,
-} from 'contracts/environment';
-
+import { unitType, valueTypeToPrimitive } from 'checkers/types/utils';
 import {
   ContractType,
   FlatContractExpression,
+  FunctionType,
   GlobalLetStatement,
   LambdaExpression,
   Node,
 } from 'parser/types';
 import { formatType } from 'utils/formatters';
-import { unitType, valueTypeToPrimitive } from 'utils/typing';
 
 import { Context, RuntimeResult } from '../types';
 
-import { checkNumberOfArguments, Closure } from './closure';
+import { Closure } from './closure';
 import {
   createFunctionEnvironment,
   createLocalEnvironment,
@@ -62,7 +63,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const res = getVariable(context, node.name);
     if (node.contract && node.pos && node.neg && res.value instanceof Closure) {
-      propogateContract(
+      propagateContract(
         node.contract,
         node.pos,
         node.neg,
@@ -150,36 +151,35 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         };
       }
       return setVariable(context, identifier.name, closure);
-    } else {
-      const value = evaluate(node.right, context);
-      if (value.value instanceof Closure) {
-        // is function declaration
-        const closure = value.value;
-        if (node.recursive) {
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          closure.clonedEnvironments[0]!.head[identifier.name] = {
-            value: closure,
-            type: closure.getType(),
-          };
-        }
-        return setVariable(context, identifier.name, closure);
-      }
-      const contractForId = lookupContracts(
-        node.left.name,
-        context.contractEnvironment,
-      );
-      if (contractForId != undefined) {
-        // this contract should be flat
-        // enforce this contract
-        checkPredContract(
-          node,
-          value,
-          (contractForId as Array<ContractType>)[0],
-          context,
-        );
-      }
-      return setVariable(context, identifier.name, value);
     }
+    const value = evaluate(node.right, context);
+    if (value.value instanceof Closure) {
+      // is function declaration
+      const closure = value.value;
+      if (node.recursive) {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        closure.clonedEnvironments[0]!.head[identifier.name] = {
+          value: closure,
+          type: closure.getType(),
+        };
+      }
+      return setVariable(context, identifier.name, closure);
+    }
+    const contractForId = lookupContracts(
+      node.left.name,
+      context.contractEnvironment,
+    );
+    if (contractForId != undefined) {
+      // this contract should be flat
+      // enforce this contract
+      checkPredContract(
+        node,
+        value,
+        (contractForId as Array<ContractType>)[0],
+        context,
+      );
+    }
+    return setVariable(context, identifier.name, value);
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'LocalLetExpression') {
@@ -199,7 +199,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const closure = Closure.createFromLambdaExpression(node, context);
     return {
       value: closure,
-      type: unitType, // TODO: update this?
+      type: closure.getType(),
     };
   },
   CallExpression: (node: Node, context: Context): RuntimeResult => {
@@ -208,8 +208,8 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     let result = evaluate(node.callee, context);
     let closure = result.value;
-
     const args = node.arguments.map((arg) => evaluate(arg, context));
+
     for (let i = 0; i < args.length; i++) {
       if (!(closure instanceof Closure)) {
         return handleRuntimeError(
@@ -220,7 +220,11 @@ const evaluators: { [nodeType: string]: Evaluator } = {
           ),
         );
       }
-      result = apply(closure, [args[i]], context);
+      const error = checkTypeOfArgument(node, closure, args[i]);
+      if (error) {
+        return handleRuntimeError(context, error);
+      }
+      result = apply(closure, args[i], context);
       closure = result.value;
     }
     return result;
@@ -275,30 +279,18 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
 
 function apply(
   closure: Closure,
-  args: RuntimeResult[],
+  arg: RuntimeResult,
   context: Context,
 ): RuntimeResult {
-  checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
-  // TODO: Do typechecking of function call
-
-  /*
-  console.log('------------');
-  console.dir(closure, { depth: 5 });
-  console.log('------------');
-  */
-
   // check preds for arguments
   if (closure.originalNode.contract) {
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      if (isPrimitive(arg.value)) {
-        checkPredContract(
-          closure.originalNode,
-          arg,
-          (closure.originalNode.contract as Array<ContractType>)[i],
-          context,
-        );
-      }
+    if (isPrimitive(arg.value)) {
+      checkPredContract(
+        closure.originalNode,
+        arg,
+        (closure.originalNode.contract as Array<ContractType>)[0],
+        context,
+      );
     }
   }
 
@@ -306,7 +298,7 @@ function apply(
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
-  const functionEnvironment = createFunctionEnvironment(closure, args);
+  const functionEnvironment = createFunctionEnvironment(closure, arg);
 
   context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
@@ -314,7 +306,7 @@ function apply(
   const originalNode = closure.originalNode;
 
   // Means fully evaluated, no currying occurring here
-  if (originalNode.params.length === args.length) {
+  if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
     if (closure.originalNode.contract && isPrimitive(result.value)) {
       const contractList = closure.originalNode.contract as Array<ContractType>;
@@ -333,13 +325,12 @@ function apply(
   const curriedClosure = Closure.createFromLambdaExpression(
     {
       type: 'LambdaExpression',
-      params: originalNode.params.slice(args.length),
+      params: originalNode.params.slice(1),
       body: originalNode.body,
       contract: closure.originalNode.contract
-        ? (closure.originalNode.contract as Array<ContractType>).slice(
-            args.length,
-          )
+        ? (closure.originalNode.contract as Array<ContractType>).slice(1)
         : undefined,
+      typeDeclaration: closure.getType().returnType as FunctionType,
     },
     context,
   );
@@ -368,7 +359,7 @@ function checkPredContract(
       new InterpreterError(node, 'Expected flat contract for value'),
     );
   } else {
-    const check = apply(contractExp, [val], context);
+    const check = apply(contractExp, val, context);
     if (check.value === false) {
       return handleRuntimeError(
         context,
@@ -389,11 +380,7 @@ function convertGlobalLetFuncToLambda(
     type: 'LambdaExpression',
     params: node.params,
     body: node.right,
-    /*
-    contract: node.right.contract,
-    pos: node.right.pos,
-    neg: node.left.neg,
-    */
+    typeDeclaration: node.typeDeclaration as FunctionType,
   };
 }
 

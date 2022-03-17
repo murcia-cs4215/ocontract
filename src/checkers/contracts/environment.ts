@@ -26,7 +26,7 @@ export function addContractToCurrentScope(
   env[env.length - 1].contractMap.set(name, contract);
 }
 
-export function createContractEnvironment(): ContractEnvironment {
+export function createInitialContractEnvironment(): ContractEnvironment {
   return [
     {
       contractMap: new Map<string, ContractType>(),

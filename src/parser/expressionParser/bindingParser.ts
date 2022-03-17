@@ -2,10 +2,13 @@ import { Constructable } from 'types';
 
 import {
   IdentifierContext,
-  IdentifierWithContextParenContext,
+  IdentifierExpressionContext,
+  IdentifierWithTypeContext,
+  IdentifierWithTypeParenContext,
   LetLocalBindingContext,
 } from 'lang/GrammarParser';
 import { StatementParser } from 'parser/statementParser';
+import { TypeParser } from 'parser/typeParser';
 import { Expression } from 'parser/types';
 import { contextToLocation } from 'parser/utils';
 
@@ -13,6 +16,10 @@ export const parseBinding = <T extends Constructable>(
   BaseClass: T,
 ): typeof DerivedClass => {
   const DerivedClass = class extends BaseClass {
+    visitIdentifierExpression(ctx: IdentifierExpressionContext): Expression {
+      return this.visitIdentifier(ctx.identifier());
+    }
+
     visitIdentifier(ctx: IdentifierContext): Expression {
       return {
         type: 'Identifier',
@@ -21,12 +28,17 @@ export const parseBinding = <T extends Constructable>(
       };
     }
 
-    visitIdentifierWithContextParen(
-      ctx: IdentifierWithContextParenContext,
+    visitIdentifierWithTypeParen(
+      ctx: IdentifierWithTypeParenContext,
     ): Expression {
+      return this.visit(ctx.identifierWithType());
+    }
+
+    visitIdentifierWithType(ctx: IdentifierWithTypeContext): Expression {
       return {
         type: 'Identifier',
-        name: ctx.identifierWithContext().identifier().IDENTIFIER().text,
+        name: ctx.identifier().IDENTIFIER().text,
+        typeDeclaration: new TypeParser().visit(ctx._idType),
         loc: contextToLocation(ctx),
       };
     }
