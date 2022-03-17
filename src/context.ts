@@ -1,8 +1,8 @@
-import { createInitialContractEnvironment } from 'checkers/contracts/environment';
-import { createInitialTypeEnvironments } from 'checkers/types/environment';
+import { createInitialContractEnvironment } from 'contracts/environment';
+import { createInitialTypeEnvironments } from 'types/environment';
 
 import { GLOBAL } from './constants';
-import { Context, Environment, Value } from './types';
+import { Context, Environment, Value } from './runtimeTypes';
 
 const createEmptyRuntime = (): Context['runtime'] => ({
   isRunning: false,

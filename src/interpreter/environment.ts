@@ -1,13 +1,9 @@
 import uniqueId from 'lodash.uniqueid';
 
-import { Context, Environment, Frame, RuntimeResult } from '../types';
+import { Context, Environment, Frame, RuntimeResult } from '../runtimeTypes';
 
 import { Closure } from './closure';
-import {
-  handleRuntimeError,
-  InterpreterError,
-  UnboundValueError,
-} from './errors';
+import { handleRuntimeError, InterpreterError } from './errors';
 
 // ENVIRONMENT HELPERS
 
@@ -41,7 +37,10 @@ export function getVariable(context: Context, name: string): RuntimeResult {
   }
   return handleRuntimeError(
     context,
-    new UnboundValueError(name, context.runtime.nodes[0]),
+    new InterpreterError(
+      context.runtime.nodes[0],
+      'Variable referenced before being initialised, which should have been caught by the type checker.',
+    ),
   );
 }
 

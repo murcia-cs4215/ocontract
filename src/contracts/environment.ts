@@ -1,6 +1,6 @@
-import { ContractEnvironment } from 'types';
-
 import { ContractType } from 'parser/types';
+
+import { ContractEnvironment } from '../runtimeTypes';
 
 export function lookupContracts(
   name: string,

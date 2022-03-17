@@ -1,6 +1,6 @@
-import { Context } from 'types';
-
 import { ContractType, Expression, Node, Program } from 'parser/types';
+
+import { Context } from '../runtimeTypes';
 
 import {
   addContractToCurrentScope,

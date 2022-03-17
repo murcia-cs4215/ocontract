@@ -1,12 +1,6 @@
 import isEqual from 'lodash.isequal';
 
-import {
-  FunctionType,
-  PrimitiveType,
-  PrimitiveValueType,
-  Type,
-} from 'parser/types';
-import { curryParamTypes } from 'parser/utils';
+import { FunctionType, PrimitiveType, PrimitiveValueType, Type } from './types';
 
 export function makePrimitive(type: PrimitiveValueType): PrimitiveType {
   return {
@@ -75,4 +69,23 @@ export function isChar(type: Type): boolean {
 
 export function isSameType(type1: Type, type2: Type): boolean {
   return isEqual(type1, type2);
+}
+
+/**
+ * Curries a function with type of format x -> x -> x -> x
+ * to a type with format x -> (x -> (x -> x)).
+ */
+export function curryParamTypes(
+  paramTypes: Type[],
+  returnType: Type,
+): FunctionType {
+  let finalType = returnType;
+  for (let i = paramTypes.length - 1; i >= 0; i--) {
+    finalType = {
+      type: 'FunctionType',
+      parameterType: paramTypes[i],
+      returnType: finalType,
+    };
+  }
+  return finalType as FunctionType;
 }

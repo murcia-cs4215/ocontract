@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { intType, valueTypeToPrimitive } from 'checkers/types/utils';
+import { intType, valueTypeToPrimitive } from 'types/utils';
 import { getStaticTypeErrorMessage } from 'utils/tests';
 
 import { createContext } from '../../context';

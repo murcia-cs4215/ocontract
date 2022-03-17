@@ -8,6 +8,8 @@ import {
   StatementContext,
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
+import { Type } from 'types/types';
+import { curryParamTypes } from 'types/utils';
 
 import { ContractParser } from './contractParser';
 import { FatalSyntaxError } from './errors';
@@ -19,9 +21,8 @@ import {
   GlobalLetStatement,
   Identifier,
   Statement,
-  Type,
 } from './types';
-import { curryParamTypes, nodeToErrorLocation } from './utils';
+import { nodeToErrorLocation } from './utils';
 
 export class StatementParser
   extends AbstractParseTreeVisitor<Statement>

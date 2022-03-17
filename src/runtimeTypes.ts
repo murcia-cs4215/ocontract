@@ -1,5 +1,6 @@
 import { SourceError } from 'errors/types';
-import { ContractType, Node, Type } from 'parser/types';
+import { ContractType, Node } from 'parser/types';
+import { Type } from 'types/types';
 
 /**
  * TYPES FOR OUTPUT
@@ -75,9 +76,4 @@ export interface Context<T = any> {
 
   typeEnvironments: TypeEnvironment[];
   contractEnvironment: ContractEnvironment;
-}
-
-// Interface that helps with class composition
-export interface Constructable {
-  new (...args: any[]): any;
 }

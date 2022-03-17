@@ -1,59 +1,20 @@
-import { RuntimeSourceError } from 'errors/runtimeSourceError';
-import { Closure } from 'interpreter/closure';
-import { BinaryOperator, Node, UnaryOperator } from 'parser/types';
-import { formatType } from 'utils/formatters';
+import { RuntimeResult } from 'runtimeTypes';
 
-import { RuntimeResult } from '../../types';
+import { RuntimeSourceError } from 'errors/runtimeSourceError';
+import { BinaryOperator, Node } from 'parser/types';
+import { floatType, intType, stringType } from 'types/utils';
+import { formatType } from 'utils/formatters';
 
 import { RuntimeTypeError } from './errors';
 import {
-  boolType,
-  floatType,
-  intType,
-  isBool,
-  isChar,
-  isFloat,
-  isInt,
-  isSameType,
-  isString,
-  stringType,
+  isBoolResult,
+  isCharResult,
+  isFloatResult,
+  isIntResult,
+  isStringResult,
+  LHS,
+  RHS,
 } from './utils';
-
-export const LHS = ' on left hand side of operation';
-export const RHS = ' on right hand side of operation';
-
-const isIntResult = (v: RuntimeResult): boolean =>
-  isInt(v.type) && typeof v.value === 'number';
-const isFloatResult = (v: RuntimeResult): boolean =>
-  isFloat(v.type) && typeof v.value === 'number';
-const isBoolResult = (v: RuntimeResult): boolean =>
-  isBool(v.type) && typeof v.value === 'boolean';
-const isStringResult = (v: RuntimeResult): boolean =>
-  isString(v.type) && typeof v.value.value === 'string';
-const isCharResult = (v: RuntimeResult): boolean =>
-  isChar(v.type) && typeof v.value === 'string' && v.value.length === 1;
-
-export const checkUnaryExpression = (
-  node: Node,
-  operator: UnaryOperator,
-  value: RuntimeResult,
-): RuntimeSourceError | undefined => {
-  if (operator === '-' && !isIntResult(value) && !isFloatResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      '',
-      formatType([intType, floatType]),
-      formatType(value.type),
-    );
-  } else if (operator === 'not' && !isBoolResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      '',
-      formatType(boolType),
-      formatType(value.type),
-    );
-  }
-};
 
 export const checkBinaryExpression = (
   node: Node,
@@ -146,36 +107,5 @@ export const checkBinaryExpression = (
       return;
     default:
       return;
-  }
-};
-
-export const checkBoolean = (
-  node: Node,
-  value: RuntimeResult,
-  side = '',
-): RuntimeSourceError | undefined => {
-  if (!isBoolResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      side,
-      formatType(boolType),
-      formatType(value.type),
-    );
-  }
-};
-
-export const checkTypeOfArgument = (
-  node: Node,
-  closure: Closure,
-  arg: RuntimeResult,
-): RuntimeSourceError | undefined => {
-  const expectedType = closure.getType().parameterType;
-  if (!isSameType(expectedType, arg.type)) {
-    return new RuntimeTypeError(
-      node,
-      '',
-      formatType(expectedType),
-      formatType(arg.type),
-    );
   }
 };

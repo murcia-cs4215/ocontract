@@ -1,4 +1,4 @@
-import { intType } from 'checkers/types/utils';
+import { intType } from 'types/utils';
 import { runTest } from 'utils/tests';
 
 test('conditional expression', () => {

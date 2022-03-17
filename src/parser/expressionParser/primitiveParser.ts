@@ -1,5 +1,3 @@
-import { Constructable } from 'types';
-
 import {
   BooleanContext,
   CharContext,
@@ -8,7 +6,7 @@ import {
   StringContext,
 } from 'lang/GrammarParser';
 import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
 import { StringWrapper } from 'parser/wrappers';
 
 export const parsePrimitive = <T extends Constructable>(

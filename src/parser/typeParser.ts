@@ -7,9 +7,8 @@ import {
   TypeAnnotationContext,
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
-
-import { PrimitiveValueType, Type } from './types';
-import { curryParamTypes } from './utils';
+import { PrimitiveValueType, Type } from 'types/types';
+import { curryParamTypes } from 'types/utils';
 
 export class TypeParser
   extends AbstractParseTreeVisitor<Type>

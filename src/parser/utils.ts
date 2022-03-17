@@ -2,7 +2,7 @@ import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
 
 import { ExpressionContext } from 'lang/GrammarParser';
 
-import { FunctionType, SourceLocation, Type } from './types';
+import { SourceLocation } from './types';
 
 export function contextToLocation(ctx: ExpressionContext): SourceLocation {
   return {
@@ -32,17 +32,7 @@ export function nodeToErrorLocation(node: ErrorNode): SourceLocation {
   };
 }
 
-export function curryParamTypes(
-  paramTypes: Type[],
-  returnType: Type,
-): FunctionType {
-  let finalType = returnType;
-  for (let i = paramTypes.length - 1; i >= 0; i--) {
-    finalType = {
-      type: 'FunctionType',
-      parameterType: paramTypes[i],
-      returnType: finalType,
-    };
-  }
-  return finalType as FunctionType;
+// Interface that helps with class composition
+export interface Constructable {
+  new (...args: any[]): any;
 }

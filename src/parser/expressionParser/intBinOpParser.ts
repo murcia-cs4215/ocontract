@@ -1,5 +1,3 @@
-import { Constructable } from 'types';
-
 import {
   AdditionContext,
   DivisionContext,
@@ -8,7 +6,7 @@ import {
   SubtractionContext,
 } from 'lang/GrammarParser';
 import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
 
 export const parseIntBinOp = <T extends Constructable>(
   BaseClass: T,

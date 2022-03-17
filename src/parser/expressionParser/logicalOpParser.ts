@@ -1,8 +1,6 @@
-import { Constructable } from 'types';
-
 import { AndContext, OrContext } from 'lang/GrammarParser';
 import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
 
 export const parseLogicalOp = <T extends Constructable>(
   BaseClass: T,

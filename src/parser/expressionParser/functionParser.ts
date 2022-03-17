@@ -1,10 +1,10 @@
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
-import { Constructable } from 'types';
 
 import { FuncApplicationContext, LambdaContext } from 'lang/GrammarParser';
 import { TypeParser } from 'parser/typeParser';
 import { Expression, Identifier } from 'parser/types';
-import { contextToLocation, curryParamTypes } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
+import { curryParamTypes } from 'types/utils';
 
 export const parseFunction = <T extends Constructable>(
   BaseClass: T,

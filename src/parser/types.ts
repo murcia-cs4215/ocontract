@@ -2,6 +2,8 @@
  * GENERAL TYPES
  */
 
+import { FunctionType, Type } from 'types/types';
+
 import { StringWrapper } from './wrappers';
 
 export interface Position {
@@ -247,29 +249,4 @@ export interface FlatContractExpression extends BaseNode {
 
 export interface EmptyContractExpression extends BaseNode {
   type: 'EmptyContractExpression';
-}
-
-/**
- * TYPES
- */
-
-export type Type = PrimitiveType | FunctionType;
-
-export type PrimitiveValueType =
-  | 'int'
-  | 'float'
-  | 'string'
-  | 'char'
-  | 'bool'
-  | 'unit';
-
-export interface PrimitiveType {
-  type: 'PrimitiveType';
-  valueType: PrimitiveValueType;
-}
-
-export interface FunctionType {
-  type: 'FunctionType';
-  parameterType: Type; // If multiple params, it's curried in types as well
-  returnType: Type;
 }

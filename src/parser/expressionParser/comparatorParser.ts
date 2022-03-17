@@ -1,5 +1,3 @@
-import { Constructable } from 'types';
-
 import {
   EqualPhysicalContext,
   EqualStructuralContext,
@@ -11,7 +9,7 @@ import {
   NotEqualStructuralContext,
 } from 'lang/GrammarParser';
 import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
 
 export const parseComparator = <T extends Constructable>(
   BaseClass: T,

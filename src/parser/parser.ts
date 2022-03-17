@@ -15,7 +15,7 @@ import { GrammarParser } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
 
 import { ErrorSeverity } from '../errors/types';
-import { Context } from '../types';
+import { Context } from '../runtimeTypes';
 
 import { FatalSyntaxError } from './errors';
 import { StatementParser } from './statementParser';

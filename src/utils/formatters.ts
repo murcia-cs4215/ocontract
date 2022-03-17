@@ -1,7 +1,7 @@
 import { SourceError } from 'errors/types';
-import { Type } from 'parser/types';
+import { Type } from 'types/types';
 
-import { Finished } from '../types';
+import { Finished } from '../runtimeTypes';
 
 const verboseErrors = false;
 

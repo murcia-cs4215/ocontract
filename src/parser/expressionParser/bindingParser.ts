@@ -1,5 +1,3 @@
-import { Constructable } from 'types';
-
 import {
   IdentifierContext,
   IdentifierExpressionContext,
@@ -10,7 +8,7 @@ import {
 import { StatementParser } from 'parser/statementParser';
 import { TypeParser } from 'parser/typeParser';
 import { Expression } from 'parser/types';
-import { contextToLocation } from 'parser/utils';
+import { Constructable, contextToLocation } from 'parser/utils';
 
 export const parseBinding = <T extends Constructable>(
   BaseClass: T,

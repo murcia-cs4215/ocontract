@@ -1,6 +1,6 @@
 import assert from 'assert';
 
-import { intType, makeFunctionType } from 'checkers/types/utils';
+import { intType, makeFunctionType } from 'types/utils';
 import { runTest } from 'utils/tests';
 
 import { createContext } from '../../context';

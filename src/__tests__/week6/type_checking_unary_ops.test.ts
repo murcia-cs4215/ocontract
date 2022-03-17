@@ -3,7 +3,7 @@ import {
   floatType,
   intType,
   valueTypeToPrimitive,
-} from 'checkers/types/utils';
+} from 'types/utils';
 import { getStaticTypeErrorMessage } from 'utils/tests';
 
 import { createContext } from '../../context';

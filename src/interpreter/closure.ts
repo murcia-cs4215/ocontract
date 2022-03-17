@@ -1,11 +1,9 @@
 import structuredClone from '@ungap/structured-clone';
 
-import { FunctionType, LambdaExpression } from 'parser/types';
-import { formatType } from 'utils/formatters';
+import { LambdaExpression } from 'parser/types';
+import { FunctionType } from 'types/types';
 
-import { Context, Environment, RuntimeResult } from '../types';
-
-import { handleRuntimeError, TooManyArgumentsError } from './errors';
+import { Context, Environment } from '../runtimeTypes';
 
 function structuredCloneWithClosure<T>(item: T): T {
   if (Array.isArray(item)) {
@@ -52,22 +50,5 @@ export class Closure {
 
   getType(): FunctionType {
     return this.originalNode.typeDeclaration;
-  }
-}
-
-export function checkNumberOfArguments(
-  closure: Closure,
-  args: RuntimeResult[],
-  context: Context,
-): void {
-  const params = closure.originalNode.params;
-  if (params.length < args.length) {
-    return handleRuntimeError(
-      context,
-      new TooManyArgumentsError(
-        formatType(closure.getType()),
-        context.runtime.nodes[0],
-      ),
-    );
   }
 }

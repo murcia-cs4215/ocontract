@@ -1,28 +1,29 @@
-import { propagateContract } from 'checkers/contracts/contractMonitor';
+import assert from 'assert';
+
+import { propagateContract } from 'contracts/contractMonitor';
 import {
   addContractToCurrentScope,
   lookupContracts,
-} from 'checkers/contracts/environment';
-import {
-  checkBinaryExpression,
-  checkBoolean,
-  checkTypeOfArgument,
-  checkUnaryExpression,
-  LHS,
-  RHS,
-} from 'checkers/types/runtimeChecker';
-import { unitType, valueTypeToPrimitive } from 'checkers/types/utils';
+} from 'contracts/environment';
+import { checkPredContract } from 'contracts/runtime';
 import {
   ContractType,
-  FlatContractExpression,
-  FunctionType,
   GlobalLetStatement,
   LambdaExpression,
   Node,
 } from 'parser/types';
-import { formatType } from 'utils/formatters';
+import {
+  checkArgument,
+  checkBinaryExpression,
+  checkBoolean,
+  checkUnaryExpression,
+  LHS,
+  RHS,
+} from 'types/runtime';
+import { FunctionType } from 'types/types';
+import { isPrimitiveType, unitType, valueTypeToPrimitive } from 'types/utils';
 
-import { Context, RuntimeResult } from '../types';
+import { Context, RuntimeResult } from '../runtimeTypes';
 
 import { Closure } from './closure';
 import {
@@ -33,11 +34,7 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import {
-  handleRuntimeError,
-  InterpreterError,
-  NotAFunctionError,
-} from './errors';
+import { handleRuntimeError, InterpreterError } from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -136,35 +133,33 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
+    let closure, value;
     if (node.params.length > 0) {
-      // is function declaration
-      const closure = Closure.createFromLambdaExpression(
+      closure = Closure.createFromLambdaExpression(
         convertGlobalLetFuncToLambda(node),
         context,
       );
-      // Define self in the closure's cloned environment only if recursive
-      if (node.recursive) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        closure.clonedEnvironments[0]!.head[identifier.name] = {
-          value: closure,
-          type: closure.getType(),
-        };
+    } else {
+      value = evaluate(node.right, context);
+      if (value.value instanceof Closure) {
+        closure = value.value;
       }
+    }
+
+    // Define self in the closure's cloned environment only if recursive
+    if (closure && node.recursive) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      closure.clonedEnvironments[0]!.head[identifier.name] = {
+        value: closure,
+        type: closure.getType(),
+      };
+    }
+    if (closure) {
       return setVariable(context, identifier.name, closure);
     }
-    const value = evaluate(node.right, context);
-    if (value.value instanceof Closure) {
-      // is function declaration
-      const closure = value.value;
-      if (node.recursive) {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        closure.clonedEnvironments[0]!.head[identifier.name] = {
-          value: closure,
-          type: closure.getType(),
-        };
-      }
-      return setVariable(context, identifier.name, closure);
-    }
+
+    assert(value != null); // Functions have been handled above
+
     const contractForId = lookupContracts(
       node.left.name,
       context.contractEnvironment,
@@ -214,13 +209,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       if (!(closure instanceof Closure)) {
         return handleRuntimeError(
           context,
-          new NotAFunctionError(
-            formatType(result.type),
-            context.runtime.nodes[0],
+          new InterpreterError(
+            node,
+            'A non-function was called, which should have been caught by the type checker',
           ),
         );
       }
-      const error = checkTypeOfArgument(node, closure, args[i]);
+      const error = checkArgument(node, closure, args[i]);
       if (error) {
         return handleRuntimeError(context, error);
       }
@@ -277,14 +272,14 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
   return result;
 }
 
-function apply(
+export function apply(
   closure: Closure,
   arg: RuntimeResult,
   context: Context,
 ): RuntimeResult {
   // check preds for arguments
   if (closure.originalNode.contract) {
-    if (isPrimitive(arg.value)) {
+    if (isPrimitiveType(arg.type)) {
       checkPredContract(
         closure.originalNode,
         arg,
@@ -308,7 +303,7 @@ function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
-    if (closure.originalNode.contract && isPrimitive(result.value)) {
+    if (closure.originalNode.contract && isPrimitiveType(result.type)) {
       const contractList = closure.originalNode.contract as Array<ContractType>;
       checkPredContract(
         closure.originalNode,
@@ -341,37 +336,6 @@ function apply(
 }
 
 // HELPER FUNCTIONS
-
-function checkPredContract(
-  node: Node,
-  val: RuntimeResult,
-  contract: ContractType,
-  context: Context,
-): void {
-  const contractExp = evaluate(
-    (contract as FlatContractExpression).contract,
-    context,
-  ).value;
-
-  if (!(contractExp instanceof Closure)) {
-    return handleRuntimeError(
-      context,
-      new InterpreterError(node, 'Expected flat contract for value'),
-    );
-  } else {
-    const check = apply(contractExp, val, context);
-    if (check.value === false) {
-      return handleRuntimeError(
-        context,
-        new InterpreterError(node, 'Contract Violation!'),
-      );
-    }
-  }
-}
-
-function isPrimitive(test: any): boolean {
-  return test !== Object(test);
-}
 
 function convertGlobalLetFuncToLambda(
   node: GlobalLetStatement,

@@ -1,7 +1,6 @@
-import { Type } from 'parser/types';
+import { Context, TypeEnvironment } from '../runtimeTypes';
 
-import { Context, TypeEnvironment } from '../../types';
-
+import { Type } from './types';
 import {
   boolType,
   floatType,

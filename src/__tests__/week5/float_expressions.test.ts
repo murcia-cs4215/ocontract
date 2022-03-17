@@ -1,4 +1,4 @@
-import { boolType, floatType } from 'checkers/types/utils';
+import { boolType, floatType } from 'types/utils';
 import { runTest } from 'utils/tests';
 
 test('float', () => {

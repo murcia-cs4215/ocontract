@@ -2,7 +2,7 @@ import { RuntimeSourceError } from 'errors/runtimeSourceError';
 import { Node } from 'parser/types';
 
 import { ErrorSeverity, ErrorType } from '../errors/types';
-import { Context } from '../types';
+import { Context } from '../runtimeTypes';
 
 export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
@@ -20,48 +20,6 @@ export class InterpreterError extends RuntimeSourceError {
 
   public elaborate(): string {
     return 'There is an evaluation error. This is an internal error - likely, the interpretation of this type of expression is not yet implemented.';
-  }
-}
-
-export class UnboundValueError extends RuntimeSourceError {
-  constructor(public name: string, node: Node) {
-    super(node);
-  }
-
-  public explain(): string {
-    return `Unbound value ${this.name}`;
-  }
-
-  public elaborate(): string {
-    return `Before you can read the value of ${this.name}, you need to bind it to a value.`;
-  }
-}
-
-export class TooManyArgumentsError extends RuntimeSourceError {
-  constructor(public functionType: string, node: Node) {
-    super(node);
-  }
-
-  public explain(): string {
-    return `This function has type ${this.functionType}`;
-  }
-
-  public elaborate(): string {
-    return "It is applied to too many arguments; maybe you forgot a `;'.";
-  }
-}
-
-export class NotAFunctionError extends RuntimeSourceError {
-  constructor(public expressionType: string, node: Node) {
-    super(node);
-  }
-
-  public explain(): string {
-    return `This expression has type ${this.expressionType}`;
-  }
-
-  public elaborate(): string {
-    return 'This is not a function; it cannot be applied.';
   }
 }
 
