@@ -282,12 +282,6 @@ export function apply(
   // check preds for arguments
 
   const copyArg = cloneDeep(arg);
-  /*
-  console.log('--------------------');
-  console.dir(closure.originalNode, { depth: 3 });
-  console.dir(arg.value, { depth: 3 });
-  console.log('--------------------');
-  */
 
   if (verifyContractExists(closure.originalNode, context)) {
     if (isPrimitiveType(arg.type)) {
@@ -341,7 +335,7 @@ export function apply(
           ],
           closure.originalNode.pos as string,
           closure.originalNode.neg as string,
-          result.value,
+          (result.value as Closure).originalNode,
         );
       }
     }

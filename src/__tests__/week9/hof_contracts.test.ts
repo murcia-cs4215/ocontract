@@ -170,3 +170,34 @@ test('complex hof satisfies contract', () => {
     type: intType,
   });
 });
+
+test('hof that returns hof has a contract violation', () => {
+  const context1 = createContext();
+  const res1 = run(
+    `
+    let gt0 (x : int) : bool = x > 0;;
+    contract f = gt0 -> (gt0 -> gt0);;
+    let f (x: int) : (int -> int) = fun (y : int) : int -> y;;
+    f 1 0;;
+  `,
+    context1,
+  );
+  expect(res1).toEqual({
+    status: 'errored',
+  });
+  checkContractViolation(context1, 'main');
+  const context2 = createContext();
+  const res2 = run(
+    `
+    let gt0 (x : int) : bool = x > 0;;
+    contract f = gt0 -> (gt0 -> gt0);;
+    let f (x: int) : (int -> int) = fun (y : int) : int -> y - 1;;
+    f 1 1;;
+  `,
+    context2,
+  );
+  expect(res2).toEqual({
+    status: 'errored',
+  });
+  checkContractViolation(context2, 'f');
+});
