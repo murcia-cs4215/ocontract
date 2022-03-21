@@ -1,13 +1,9 @@
 import uniqueId from 'lodash.uniqueid';
 
-import { Context, Environment, Frame, RuntimeResult } from '../types';
+import { Context, Environment, Frame, RuntimeResult } from '../runtimeTypes';
 
 import { Closure } from './closure';
-import {
-  handleRuntimeError,
-  InterpreterError,
-  UnboundValueError,
-} from './errors';
+import { handleRuntimeError, InterpreterError } from './errors';
 
 // ENVIRONMENT HELPERS
 
@@ -41,7 +37,10 @@ export function getVariable(context: Context, name: string): RuntimeResult {
   }
   return handleRuntimeError(
     context,
-    new UnboundValueError(name, context.runtime.nodes[0]),
+    new InterpreterError(
+      context.runtime.nodes[0],
+      'Variable referenced before being initialised, which should have been caught by the type checker.',
+    ),
   );
 }
 
@@ -85,7 +84,7 @@ export function createLocalEnvironment(
 // Assumption: number of arguments <= number of parameters
 export function createFunctionEnvironment(
   closure: Closure,
-  args: RuntimeResult[],
+  arg: RuntimeResult,
 ): Environment {
   const environment = {
     tail: closure.clonedEnvironments[0],
@@ -93,14 +92,7 @@ export function createFunctionEnvironment(
     id: uniqueId(),
   };
 
-  // We bound the number of iterations by the number of arguments
-  args.forEach((arg, index) => {
-    if (!environment.head) {
-      return;
-    }
-    const param = closure.originalNode.params[index];
-    environment.head[param.name] = arg;
-  });
-
+  const param = closure.originalNode.params[0];
+  environment.head[param.name] = arg;
   return environment;
 }

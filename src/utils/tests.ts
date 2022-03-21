@@ -1,6 +1,8 @@
+import { Type } from 'types/types';
+
 import { createContext } from '../context';
 import { run } from '../index';
-import { Result, Type } from '../types';
+import { Result } from '../runtimeTypes';
 
 import { formatType } from './formatters';
 

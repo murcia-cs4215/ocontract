@@ -1,6 +1,6 @@
-import { ContractEnvironment } from 'types';
-
 import { ContractType } from 'parser/types';
+
+import { ContractEnvironment } from '../runtimeTypes';
 
 export function lookupContracts(
   name: string,
@@ -26,7 +26,7 @@ export function addContractToCurrentScope(
   env[env.length - 1].contractMap.set(name, contract);
 }
 
-export function createContractEnvironment(): ContractEnvironment {
+export function createInitialContractEnvironment(): ContractEnvironment {
   return [
     {
       contractMap: new Map<string, ContractType>(),

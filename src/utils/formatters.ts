@@ -1,6 +1,7 @@
 import { SourceError } from 'errors/types';
+import { Type } from 'types/types';
 
-import { Finished, Type } from '../types';
+import { Finished } from '../runtimeTypes';
 
 const verboseErrors = false;
 
@@ -34,7 +35,7 @@ export function formatFinishedForRepl(result: Finished): string {
     result.value = `${result.value}.`;
   }
 
-  const value = result.type.kind === 'function' ? '<fun>' : result.value;
+  const value = result.type.type === 'FunctionType' ? '<fun>' : result.value;
 
   if (result.name) {
     return `val ${result.name} : ${type} = ${value}`;
@@ -46,10 +47,8 @@ export function formatType(type: Type | Type[]): string {
   if (Array.isArray(type)) {
     return type.map(formatType).join(' or ');
   }
-  if (type.kind === 'primitive') {
-    return type.type;
+  if (type.type === 'PrimitiveType') {
+    return type.valueType;
   }
-  return [...type.parameterTypes, type.returnType]
-    .map((t) => (t.kind === 'function' ? `(${formatType(t)})` : formatType(t)))
-    .join(' -> ');
+  return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;
 }

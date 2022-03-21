@@ -1,12 +1,11 @@
-import { typeCheck } from 'checkers/types/staticChecker';
-import { validate } from 'checkers/types/validator';
-import { wrapProgramInMonitor } from 'contracts/contractMonitor';
 import { start } from 'repl';
 import { inspect } from 'util';
 
+import { wrapProgramInMonitor } from 'contracts/contractMonitor';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
 import { StringWrapper } from 'parser/wrappers';
+import { typeCheck } from 'types/static';
 import { formatErrorsForRepl, formatFinishedForRepl } from 'utils/formatters';
 
 import {
@@ -14,12 +13,11 @@ import {
   createContext,
   prepareContextForRun,
 } from './context';
-import { Context, Result } from './types';
+import { Context, Result } from './runtimeTypes';
 
 export function run(code: string, context: Context): Result {
   try {
-    let program = parse(code, context);
-    program = validate(program);
+    const program = parse(code, context);
     // TODO: Wrap computation in a scheduler / stepper
     typeCheck(program, context);
 

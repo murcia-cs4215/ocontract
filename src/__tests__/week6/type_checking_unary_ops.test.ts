@@ -1,10 +1,10 @@
-import { getStaticTypeErrorMessage } from 'utils/tests';
 import {
   boolType,
   floatType,
   intType,
   valueTypeToPrimitive,
-} from 'utils/typing';
+} from 'types/utils';
+import { getStaticTypeErrorMessage } from 'utils/tests';
 
 import { createContext } from '../../context';
 import { run } from '../../index';

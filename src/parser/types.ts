@@ -2,6 +2,8 @@
  * GENERAL TYPES
  */
 
+import { FunctionType, Type } from 'types/types';
+
 import { StringWrapper } from './wrappers';
 
 export interface Position {
@@ -64,6 +66,7 @@ export interface GlobalLetStatement extends BaseStatement {
   left: Identifier;
   params: Array<Identifier>;
   right: Expression;
+  typeDeclaration: Type;
 }
 
 export interface ContractDeclarationStatement extends BaseStatement {
@@ -193,6 +196,7 @@ export interface EmptyExpression extends BaseExpression {
 export interface Identifier extends BaseExpression {
   type: 'Identifier';
   name: string;
+  typeDeclaration?: Type;
 }
 
 /**
@@ -206,6 +210,7 @@ interface BaseFunction extends BaseNode {
 
 export interface LambdaExpression extends BaseFunction, BaseExpression {
   type: 'LambdaExpression';
+  typeDeclaration: FunctionType;
 }
 
 interface BaseCallExpression extends BaseExpression {

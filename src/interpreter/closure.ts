@@ -1,27 +1,15 @@
 import structuredClone from '@ungap/structured-clone';
 
 import { LambdaExpression } from 'parser/types';
-import { formatType } from 'utils/formatters';
-import { primitiveTypes, unitType } from 'utils/typing';
+import { FunctionType } from 'types/types';
 
-import {
-  Context,
-  Environment,
-  FunctionType,
-  Primitive,
-  RuntimeResult,
-} from '../types';
+import { Context, Environment } from '../runtimeTypes';
 
-import { handleRuntimeError, TooManyArgumentsError } from './errors';
-
-function structuredCloneWithTypes<T>(item: T): T {
-  if (primitiveTypes.some((t) => t === (item as unknown as Primitive))) {
-    return item;
-  }
+function structuredCloneWithClosure<T>(item: T): T {
   if (Array.isArray(item)) {
-    return item.map((i) => structuredCloneWithTypes(i)) as unknown as T;
+    return item.map((i) => structuredCloneWithClosure(i)) as unknown as T;
   }
-  if (item === null || item === undefined) {
+  if (item == null) {
     return item;
   }
   if (item instanceof Closure) {
@@ -30,7 +18,7 @@ function structuredCloneWithTypes<T>(item: T): T {
   if (typeof item === 'object') {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(item)) {
-      result[key as keyof T] = structuredCloneWithTypes(value);
+      result[key as keyof T] = structuredCloneWithClosure(value);
     }
     return result as T;
   }
@@ -52,7 +40,7 @@ export class Closure {
   ): Closure {
     return new Closure(
       node,
-      structuredCloneWithTypes(context.runtime.environments),
+      structuredCloneWithClosure(context.runtime.environments),
     );
   }
 
@@ -61,28 +49,6 @@ export class Closure {
   }
 
   getType(): FunctionType {
-    return {
-      kind: 'function',
-      // TODO: Update this to be the actual function types
-      parameterTypes: this.originalNode.params.map(() => unitType),
-      returnType: unitType,
-    };
-  }
-}
-
-export function checkNumberOfArguments(
-  closure: Closure,
-  args: RuntimeResult[],
-  context: Context,
-): void {
-  const params = closure.originalNode.params;
-  if (params.length < args.length) {
-    return handleRuntimeError(
-      context,
-      new TooManyArgumentsError(
-        formatType(closure.getType()),
-        context.runtime.nodes[0],
-      ),
-    );
+    return this.originalNode.typeDeclaration;
   }
 }

@@ -1,6 +1,6 @@
-import { Context } from 'types';
-
 import { ContractType, Expression, Node, Program } from 'parser/types';
+
+import { Context } from '../runtimeTypes';
 
 import {
   addContractToCurrentScope,
@@ -12,7 +12,7 @@ export function wrapProgramInMonitor(program: Program, context: Context): void {
   _wrapNodeInMonitor(program, context);
 }
 
-export function propogateContract(
+export function propagateContract(
   contract: ContractType,
   pos: string,
   neg: string,
