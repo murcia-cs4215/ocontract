@@ -1,4 +1,5 @@
 import assert from 'assert';
+import cloneDeep from 'lodash.clonedeep';
 
 import { propagateContract } from 'contracts/contractMonitor';
 import {
@@ -279,11 +280,13 @@ export function apply(
   context: Context,
 ): RuntimeResult {
   // check preds for arguments
+
+  const copyArg = cloneDeep(arg);
   /*
-  console.log('----------------');
+  console.log('--------------------');
   console.dir(closure.originalNode, { depth: 3 });
   console.dir(arg.value, { depth: 3 });
-  console.log('----------------');
+  console.log('--------------------');
   */
 
   if (verifyContractExists(closure.originalNode, context)) {
@@ -301,7 +304,7 @@ export function apply(
         (closure.originalNode.contract as Array<ContractType>)[0],
         closure.originalNode.neg as string,
         closure.originalNode.pos as string,
-        (arg.value as Closure).originalNode,
+        (copyArg.value as Closure).originalNode,
       );
     }
   }
@@ -310,7 +313,7 @@ export function apply(
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
-  const functionEnvironment = createFunctionEnvironment(closure, arg);
+  const functionEnvironment = createFunctionEnvironment(closure, copyArg);
 
   context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
