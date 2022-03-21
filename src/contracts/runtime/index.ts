@@ -1,17 +1,23 @@
 import { Closure } from 'interpreter/closure';
 import { handleRuntimeError } from 'interpreter/errors';
 import { apply, evaluate } from 'interpreter/interpreter';
-import { ContractType, FlatContractExpression, Node } from 'parser/types';
+import {
+  ContractType,
+  Expression,
+  FlatContractExpression,
+  Node,
+} from 'parser/types';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
 
-import { ContractViolationError } from './errors';
+import { ContractNotWellFormedError, ContractViolationError } from './errors';
 
 export function checkPredContract(
   node: Node,
   val: RuntimeResult,
   contract: ContractType,
   context: Context,
+  blame: string,
 ): void {
   const contractExp = evaluate(
     (contract as FlatContractExpression).contract,
@@ -28,8 +34,29 @@ export function checkPredContract(
     if (check.value === false) {
       return handleRuntimeError(
         context,
-        new ContractViolationError(node, 'Contract Violation!'),
+        new ContractViolationError(node, `Contract Violation! Blame: ${blame}`),
       );
     }
+  }
+}
+
+export function verifyContractExists(
+  exp: Expression,
+  context: Context,
+): boolean {
+  if (exp.contract) {
+    const verified = exp.pos !== undefined && exp.neg !== undefined;
+    if (!verified) {
+      return handleRuntimeError(
+        context,
+        new ContractNotWellFormedError(
+          exp,
+          'Expected contract, pos, neg to be well-defined',
+        ),
+      );
+    }
+    return verified;
+  } else {
+    return false;
   }
 }

@@ -18,3 +18,20 @@ export class ContractViolationError extends RuntimeSourceError {
     return this.explain();
   }
 }
+
+export class ContractNotWellFormedError extends RuntimeSourceError {
+  public type = ErrorType.RUNTIME;
+  public severity = ErrorSeverity.ERROR;
+
+  constructor(node: Node, public message: string) {
+    super(node);
+  }
+
+  public explain(): string {
+    return this.message;
+  }
+
+  public elaborate(): string {
+    return this.explain();
+  }
+}
