@@ -172,7 +172,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         value,
         (contractForId as Array<ContractType>)[0],
         context,
-        'main', // should be safe since it is a global statement
+        node.left.name,
       );
     }
     return setVariable(context, identifier.name, value);
@@ -279,6 +279,13 @@ export function apply(
   context: Context,
 ): RuntimeResult {
   // check preds for arguments
+  /*
+  console.log('----------------');
+  console.dir(closure.originalNode, { depth: 3 });
+  console.dir(arg.value, { depth: 3 });
+  console.log('----------------');
+  */
+
   if (verifyContractExists(closure.originalNode, context)) {
     if (isPrimitiveType(arg.type)) {
       checkPredContract(

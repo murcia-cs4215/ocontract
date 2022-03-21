@@ -57,12 +57,7 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
       break;
     }
     case 'LocalLetExpression': {
-      context.contractEnvironment.push({
-        contractMap: new Map<string, ContractType>(),
-        currentScope: node.left.left.name,
-      });
       _wrapNodeInMonitor(node.right, context);
-      context.contractEnvironment.pop();
       break;
     }
     case 'CallExpression': {
@@ -71,7 +66,12 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
       break;
     }
     case 'GlobalLetStatement': {
+      context.contractEnvironment.push({
+        contractMap: new Map<string, ContractType>(),
+        currentScope: node.left.name,
+      });
       _wrapNodeInMonitor(node.right, context);
+      context.contractEnvironment.pop();
       break;
     }
     case 'UnaryExpression': {
