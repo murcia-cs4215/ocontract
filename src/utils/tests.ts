@@ -24,7 +24,7 @@ export function getStaticTypeErrorMessage(
 
 export function checkContractViolation(context: Context, blame: string): void {
   expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].explain()).toBe(
-    `Contract Violation! Blame: ${blame}`,
+  expect(context.errors[0].explain()).toContain(
+    `Contract Violation!\nBlame: ${blame}`,
   );
 }

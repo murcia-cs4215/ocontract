@@ -8,6 +8,7 @@ import {
   Node,
 } from 'parser/types';
 
+import { UNKNOWN_LOCATION } from '../../constants';
 import { Context, RuntimeResult } from '../../runtimeTypes';
 
 import { ContractNotWellFormedError, ContractViolationError } from './errors';
@@ -32,10 +33,12 @@ export function checkPredContract(
   } else {
     const check = apply(contractExp, val, context);
     if (check.value === false) {
-      return handleRuntimeError(
-        context,
-        new ContractViolationError(node, `Contract Violation! Blame: ${blame}`),
-      );
+      const loc = contractExp.originalNode.loc ?? UNKNOWN_LOCATION;
+      const msg =
+        'Contract Violation!\n' +
+        `Blame: ${blame}\n` +
+        `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}\n`;
+      return handleRuntimeError(context, new ContractViolationError(node, msg));
     }
   }
 }

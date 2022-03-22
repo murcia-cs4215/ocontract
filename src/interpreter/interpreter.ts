@@ -355,6 +355,7 @@ export function apply(
       pos: originalNode.pos,
       neg: originalNode.neg,
       typeDeclaration: closure.getType().returnType as FunctionType,
+      loc: originalNode.loc,
     },
     context,
   );
@@ -374,6 +375,7 @@ function convertGlobalLetFuncToLambda(
     params: node.params,
     body: node.right,
     typeDeclaration: node.typeDeclaration as FunctionType,
+    loc: node.loc,
   };
 }
 

@@ -1,10 +1,9 @@
+import { ParserRuleContext } from 'antlr4ts';
 import { ErrorNode } from 'antlr4ts/tree/ErrorNode';
-
-import { ExpressionContext } from 'lang/GrammarParser';
 
 import { SourceLocation } from './types';
 
-export function contextToLocation(ctx: ExpressionContext): SourceLocation {
+export function contextToLocation(ctx: ParserRuleContext): SourceLocation {
   return {
     start: {
       line: ctx.start.line,
