@@ -37,7 +37,7 @@ export function checkPredContract(
       const msg =
         'Contract Violation!\n' +
         `Blame: ${blame}\n` +
-        `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}\n`;
+        `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}`;
       return handleRuntimeError(context, new ContractViolationError(node, msg));
     }
   }
