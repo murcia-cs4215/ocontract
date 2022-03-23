@@ -17,10 +17,8 @@ test('global binding expression', () => {
 });
 
 test('bound identifier', () => {
-  const res = runTest(`
-    let x : int = 10;;
-    x;;
-  `);
+  const res = runTest(`let x : int = 10;;
+x;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 10,
@@ -29,10 +27,8 @@ test('bound identifier', () => {
 });
 
 test('rebinding identifier', () => {
-  let res = runTest(`
-    let x : int = 10;;
-    let x : int = 20;;
-  `);
+  let res = runTest(`let x : int = 10;;
+let x : int = 20;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 20,
@@ -40,11 +36,9 @@ test('rebinding identifier', () => {
     name: 'x',
   });
 
-  res = runTest(`
-    let x : int = 10;;
-    let x : int = 20;;
-    x;;
-  `);
+  res = runTest(`let x : int = 10;;
+let x : int = 20;;
+x;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 20,
@@ -71,12 +65,10 @@ test('local binding with operations', () => {
 });
 
 test('local binding with nesting', () => {
-  const res = runTest(`
-    let a : int = 1 in
-      let b : int = a + 1 in
-        let c : int = b + 1 in
-          a + b + c;;
-  `);
+  const res = runTest(`let a : int = 1 in
+  let b : int = a + 1 in
+    let c : int = b + 1 in
+      a + b + c;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 6,
@@ -85,18 +77,14 @@ test('local binding with nesting', () => {
 });
 
 test('local binding scopes the declaration', () => {
-  const res = runTest(`
-    let a : int = 1 in a;;
-    a;;
-  `);
+  const res = runTest(`let a : int = 1 in a;;
+a;;`);
   assertError(res, 'Unbound value a');
 });
 
 test('operation after binding', () => {
-  const res = runTest(`
-    let x : int = 10;;
-    x + 20;;
-  `);
+  const res = runTest(`let x : int = 10;;
+x + 20;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 30,

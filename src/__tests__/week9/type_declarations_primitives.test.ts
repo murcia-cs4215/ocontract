@@ -40,11 +40,9 @@ for (const [type1, value1] of Object.entries(values)) {
 }
 
 test('local binding with right types', () => {
-  const res = runTest(`
-    let x : int = 10 in
-      let y : int = 20 in
-        x + y;;
-  `);
+  const res = runTest(`let x : int = 10 in
+  let y : int = 20 in
+    x + y;;`);
   expect(res).toEqual({
     status: 'finished',
     value: 30,
@@ -53,19 +51,15 @@ test('local binding with right types', () => {
 });
 
 test('local binding with incorrect types', () => {
-  const res = runTest(`
-    let x : int = 10.5 in
-      let y : int = 20 in
-        x + y;;
-  `);
+  const res = runTest(`let x : int = 10.5 in
+  let y : int = 20 in
+    x + y;;`);
   assertTypeError(res, intType, floatType);
 });
 
 test('local binding with invalid "body"', () => {
-  const res = runTest(`
-    let x : int = 10 in
-      let y : float = 20.5 in
-        x +. y;;
-  `);
+  const res = runTest(`let x : int = 10 in
+  let y : float = 20.5 in
+    x +. y;;`);
   assertTypeError(res, floatType, intType);
 });
