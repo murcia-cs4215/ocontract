@@ -1,0 +1,9 @@
+let gt9 (x: int) : bool = x > 9;;
+let bet0_99 (x: int) : bool = x >= 0 && x <= 99;;
+contract g = (gt9 -> bet0_99) -> bet0_99;;
+let g (f: int -> int) : int = f 19;;
+let c (t: int) : bool = t <= 30;;
+contract foo = c -> {z | true};;
+let foo (z: int): int = g (fun (x: int) : int -> x + z * 5);;
+foo 30;;
+

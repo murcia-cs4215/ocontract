@@ -48,6 +48,8 @@ function main(): void {
     const result = run(code, context);
     if (result.status === 'errored') {
       console.log(formatErrorsForRepl(context.errors, undefined));
+    } else {
+      console.log(formatFinishedForRepl(result));
     }
     return;
   }
