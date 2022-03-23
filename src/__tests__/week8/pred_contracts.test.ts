@@ -1,15 +1,23 @@
 import { intType } from 'types/utils';
-import { runTest } from 'utils/tests';
+import { checkContractViolation, runTest } from 'utils/tests';
+
+import { createContext } from '../../context';
+import { run } from '../../index';
 
 test('contract violation on assignment', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0;;
     let f : int = -1;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'f');
 });
 
 test('no contract violation if satisfy contract', () => {
@@ -27,14 +35,19 @@ test('no contract violation if satisfy contract', () => {
 });
 
 test('contract violation on complex expression', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0;;
     let f : int = if false then 1 + 3 else (-1) - 100;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'f');
 });
 
 test('no contract violation on complex expression if satisfy contract', () => {

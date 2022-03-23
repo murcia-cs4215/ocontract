@@ -8,8 +8,11 @@ import {
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
 
+import { UNKNOWN_LOCATION } from '../constants';
+
 import { ExpressionParser } from './expressionParser';
 import { ContractExpression, ContractType, Identifier } from './types';
+import { contextToLocation } from './utils';
 
 export class ContractParser
   extends AbstractParseTreeVisitor<ContractExpression>
@@ -23,6 +26,7 @@ export class ContractParser
     return {
       type: 'ContractExpression',
       contract: con,
+      loc: UNKNOWN_LOCATION,
     };
   }
 
@@ -30,6 +34,7 @@ export class ContractParser
     return this.wrapWithContractExpression([
       {
         type: 'EmptyContractExpression',
+        loc: UNKNOWN_LOCATION,
       },
     ]);
   }
@@ -41,6 +46,7 @@ export class ContractParser
       {
         type: 'FlatContractExpression',
         contract: this.expressionParser.visit(ctx.expression()),
+        loc: contextToLocation(ctx),
       },
     ]);
   }
@@ -65,7 +71,9 @@ export class ContractParser
               valueType: 'bool',
             },
           },
+          loc: contextToLocation(ctx),
         },
+        loc: contextToLocation(ctx),
       },
     ]);
   }

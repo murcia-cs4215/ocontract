@@ -1,28 +1,41 @@
 import { intType } from 'types/utils';
-import { runTest } from 'utils/tests';
+import { checkContractViolation, runTest } from 'utils/tests';
+
+import { createContext } from '../../context';
+import { run } from '../../index';
 
 test('argument contract violation', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x - 1;;
     f 0;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'main');
 });
 
 test('return result contract violation', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x - 1;;
     f 1;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'f');
 });
 
 test('no violation', () => {
@@ -40,28 +53,38 @@ test('no violation', () => {
 });
 
 test('curried functions propogate contracts', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0 -> gt0;;
     let f (x : int) (y : int) : int = x + y;;
     let g : int -> int = f 1;;
     g (-2);;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract violation for function contracts using alternate syntax', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     contract f = {x | x > 0} -> {y | y > 0} -> {z | z > 0};;
     let f (x : int) (y : int) : int = x + y;;
     let g : int -> int = f 1;;
     g (-2);;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract satisfied for function contracts using alternate syntax', () => {
@@ -79,125 +102,158 @@ test('contract satisfied for function contracts using alternate syntax', () => {
 });
 
 test('can detect precondition violation for complex contracts', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let notEqTriple (a : int) (b : int) (c : int) : int -> bool = fun (d : int) : bool -> d != a && d != b && d != c;;
-    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3)
+    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3);;
     let f (x : int) (y : int) : int = x + y;;
     let g : int -> int = f 1;;
     g 1;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('can detect postcondition violation for complex contracts', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let notEqTriple (a : int) (b : int) (c : int) : int -> bool = fun (d : int) : bool -> d != a && d != b && d != c;;
-    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3)
+    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3);;
     let f (x : int) (y : int) : int = x + y;;
     let g : int -> int = f 4;;
     g (-1);;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'f');
 });
 
 test('contract satisfied for complex contracts', () => {
   const res = runTest(`
     let notEqTriple (a : int) (b : int) (c : int) : int -> bool = fun (d : int) : bool -> d != a && d != b && d != c;;
-    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3)
+    contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3);;
     let f (x : int) (y : int) : int = x + y;;
     let g : int -> int = f 4;;
     g 4;;
   `);
   expect(res).toEqual({
-    status: 'errored',
+    status: 'finished',
+    value: 8,
+    type: intType,
   });
 });
 
 test('calling function with a contract in let local binding', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int = let x : int = 0 in f x;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract violation when executing binary op', () => {
-  let res = runTest(`
+  const context1 = createContext();
+  let res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int = f 0 + f 1;;
-  `);
+  `,
+    context1,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
-  res = runTest(`
+  checkContractViolation(context1, 'g');
+  const context2 = createContext();
+  res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int = f 1 + f 0;;
-  `);
+  `,
+    context2,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context2, 'g');
 });
 
 test('contract violation when executing unary op', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int = -(f 0);;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract violation when executing conditional', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int = if (f 1) == 2 then f 0 else f 1;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract violation in lambda', () => {
-  const res = runTest(`
+  const context = createContext();
+  const res = run(
+    `
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;
     let g : int -> int = fun (x : int) : int -> 1 + f x;;
     g 0;;
-  `);
+  `,
+    context,
+  );
   expect(res).toEqual({
     status: 'errored',
   });
+  checkContractViolation(context, 'g');
 });
 
 test('contract satisfied when executing binary op', () => {
-  let res = runTest(`
-    let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
-    contract f = gt0 -> gt0;;
-    let f (x : int) : int = x + 1;;
-    let g : int = f 0 + f 1;;
-  `);
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  res = runTest(`
+  const res = runTest(`
     let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
     contract f = gt0 -> gt0;;
     let f (x : int) : int = x + 1;;

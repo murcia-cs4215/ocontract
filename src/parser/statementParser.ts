@@ -11,6 +11,8 @@ import { GrammarVisitor } from 'lang/GrammarVisitor';
 import { Type } from 'types/types';
 import { curryParamTypes } from 'types/utils';
 
+import { UNKNOWN_LOCATION } from '../constants';
+
 import { ContractParser } from './contractParser';
 import { FatalSyntaxError } from './errors';
 import { ExpressionParser } from './expressionParser';
@@ -22,7 +24,7 @@ import {
   Identifier,
   Statement,
 } from './types';
-import { nodeToErrorLocation } from './utils';
+import { contextToLocation, nodeToErrorLocation } from './utils';
 
 export class StatementParser
   extends AbstractParseTreeVisitor<Statement>
@@ -35,6 +37,7 @@ export class StatementParser
   protected defaultResult(): Statement {
     return {
       type: 'EmptyStatement',
+      loc: UNKNOWN_LOCATION,
     };
   }
 
@@ -87,6 +90,7 @@ export class StatementParser
       params: params,
       right: this.expressionParser.visit(ctx._init),
       typeDeclaration: type,
+      loc: contextToLocation(ctx),
     };
   }
 
@@ -96,6 +100,7 @@ export class StatementParser
       type: 'ContractDeclarationStatement',
       id: id,
       contract: this.contractParser.visit(ctx.contractExpression()),
+      loc: contextToLocation(ctx),
     };
   }
 

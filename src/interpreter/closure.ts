@@ -1,13 +1,13 @@
-import structuredClone from '@ungap/structured-clone';
+import cloneDeep from 'lodash.clonedeep';
 
 import { LambdaExpression } from 'parser/types';
 import { FunctionType } from 'types/types';
 
 import { Context, Environment } from '../runtimeTypes';
 
-function structuredCloneWithClosure<T>(item: T): T {
+function cloneDeepWithClosure<T>(item: T): T {
   if (Array.isArray(item)) {
-    return item.map((i) => structuredCloneWithClosure(i)) as unknown as T;
+    return item.map((i) => cloneDeepWithClosure(i)) as unknown as T;
   }
   if (item == null) {
     return item;
@@ -18,11 +18,11 @@ function structuredCloneWithClosure<T>(item: T): T {
   if (typeof item === 'object') {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(item)) {
-      result[key as keyof T] = structuredCloneWithClosure(value);
+      result[key as keyof T] = cloneDeepWithClosure(value);
     }
     return result as T;
   }
-  return structuredClone(item);
+  return cloneDeep(item);
 }
 
 export class Closure {
@@ -40,7 +40,7 @@ export class Closure {
   ): Closure {
     return new Closure(
       node,
-      structuredCloneWithClosure(context.runtime.environments),
+      cloneDeepWithClosure(context.runtime.environments),
     );
   }
 

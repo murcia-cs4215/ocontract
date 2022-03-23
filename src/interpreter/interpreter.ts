@@ -1,11 +1,12 @@
 import assert from 'assert';
+import cloneDeep from 'lodash.clonedeep';
 
 import { propagateContract } from 'contracts/contractMonitor';
 import {
   addContractToCurrentScope,
   lookupContracts,
 } from 'contracts/environment';
-import { checkPredContract } from 'contracts/runtime';
+import { checkPredContract, verifyContractExists } from 'contracts/runtime';
 import {
   ContractType,
   GlobalLetStatement,
@@ -172,6 +173,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         value,
         (contractForId as Array<ContractType>)[0],
         context,
+        node.left.name,
       );
     }
     return setVariable(context, identifier.name, value);
@@ -278,13 +280,25 @@ export function apply(
   context: Context,
 ): RuntimeResult {
   // check preds for arguments
-  if (closure.originalNode.contract) {
+
+  const copyArg = cloneDeep(arg);
+
+  if (verifyContractExists(closure.originalNode, context)) {
     if (isPrimitiveType(arg.type)) {
       checkPredContract(
         closure.originalNode,
         arg,
         (closure.originalNode.contract as Array<ContractType>)[0],
         context,
+        closure.originalNode.neg as string,
+      );
+    } else {
+      // hof
+      propagateContract(
+        (closure.originalNode.contract as Array<ContractType>)[0],
+        closure.originalNode.neg as string,
+        closure.originalNode.pos as string,
+        (copyArg.value as Closure).originalNode,
       );
     }
   }
@@ -293,7 +307,7 @@ export function apply(
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
-  const functionEnvironment = createFunctionEnvironment(closure, arg);
+  const functionEnvironment = createFunctionEnvironment(closure, copyArg);
 
   context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
@@ -303,14 +317,27 @@ export function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
-    if (closure.originalNode.contract && isPrimitiveType(result.type)) {
+
+    if (verifyContractExists(originalNode, context)) {
       const contractList = closure.originalNode.contract as Array<ContractType>;
-      checkPredContract(
-        closure.originalNode,
-        result,
-        contractList[contractList.length - 1],
-        context,
-      );
+      if (isPrimitiveType(result.type)) {
+        checkPredContract(
+          closure.originalNode,
+          result,
+          contractList[contractList.length - 1],
+          context,
+          closure.originalNode.pos as string,
+        );
+      } else {
+        propagateContract(
+          (closure.originalNode.contract as Array<ContractType>)[
+            contractList.length - 1
+          ],
+          closure.originalNode.pos as string,
+          closure.originalNode.neg as string,
+          (result.value as Closure).originalNode,
+        );
+      }
     }
     // Restore context environments
     context.runtime.environments = originalEnvironments;
@@ -322,10 +349,13 @@ export function apply(
       type: 'LambdaExpression',
       params: originalNode.params.slice(1),
       body: originalNode.body,
-      contract: closure.originalNode.contract
-        ? (closure.originalNode.contract as Array<ContractType>).slice(1)
+      contract: originalNode.contract
+        ? (originalNode.contract as Array<ContractType>).slice(1)
         : undefined,
+      pos: originalNode.pos,
+      neg: originalNode.neg,
       typeDeclaration: closure.getType().returnType as FunctionType,
+      loc: originalNode.loc,
     },
     context,
   );
@@ -345,6 +375,7 @@ function convertGlobalLetFuncToLambda(
     params: node.params,
     body: node.right,
     typeDeclaration: node.typeDeclaration as FunctionType,
+    loc: node.loc,
   };
 }
 

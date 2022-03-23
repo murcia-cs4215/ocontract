@@ -1,3 +1,4 @@
+import { readFileSync } from 'fs';
 import { start } from 'repl';
 import { inspect } from 'util';
 
@@ -42,6 +43,15 @@ export function run(code: string, context: Context): Result {
 
 function main(): void {
   const context = createContext();
+  if (process.argv[2]) {
+    const code = readFileSync(process.argv[2], 'utf-8');
+    const result = run(code, context);
+    if (result.status === 'errored') {
+      console.log(formatErrorsForRepl(context.errors, undefined));
+    }
+    return;
+  }
+
   start({
     eval: (code, _context, _filename, callback) => {
       const result = run(code, context);

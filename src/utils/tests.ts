@@ -2,7 +2,7 @@ import { Type } from 'types/types';
 
 import { createContext } from '../context';
 import { run } from '../index';
-import { Result } from '../runtimeTypes';
+import { Context, Result } from '../runtimeTypes';
 
 import { formatType } from './formatters';
 
@@ -20,4 +20,11 @@ export function getStaticTypeErrorMessage(
   )} but an expression was expected of type ${
     typeof expected === 'string' ? expected : formatType(expected)
   }`;
+}
+
+export function checkContractViolation(context: Context, blame: string): void {
+  expect(context.errors).toHaveLength(1);
+  expect(context.errors[0].explain()).toContain(
+    `Contract Violation!\nBlame: ${blame}`,
+  );
 }

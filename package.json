@@ -8,6 +8,7 @@
     "build": "yarn build:prepare && set debug=* && tsc --project tsconfig.json && tscpaths -p tsconfig.json -s ./src -o ./build",
     "lint": "eslint . --fix --ext .ts,.js && prettier --write \"src/**/*.{ts,js}\" --tab-width 2",
     "start": "set debug=* && cross-env NODE_ENV=development ts-node-dev --exit-child --respawn --transpile-only -r tsconfig-paths/register ./src/index.ts",
+    "run_prog": "set debug=* && cross-env NODE_ENV=development ts-node-dev --exit-child --transpile-only -r tsconfig-paths/register ./src/index.ts",
     "pre-commit": "lint-staged",
     "prepare": "node -e \"if(require('fs').existsSync('.git')){process.exit(1)}\" || husky install",
     "test": "dotenv -e .env.test cross-env NODE_ENV=test jest -- --runInBand --detectOpenHandles --forceExit --passWithNoTests --verbose"
@@ -22,11 +23,11 @@
   "homepage": "https://github.com/zhuhanming/cs4215-murcia#readme",
   "devDependencies": {
     "@types/jest": "^27.4.0",
+    "@types/lodash.clonedeep": "^4.5.6",
     "@types/lodash.flow": "^3.5.6",
     "@types/lodash.isequal": "^4.5.5",
     "@types/lodash.uniqueid": "^4.0.6",
     "@types/node": "^17.0.18",
-    "@types/ungap__structured-clone": "^0.3.0",
     "@typescript-eslint/eslint-plugin": "^5.12.0",
     "@typescript-eslint/parser": "^5.12.0",
     "antlr4ts-cli": "^0.5.0-alpha.4",
@@ -60,8 +61,8 @@
     ]
   },
   "dependencies": {
-    "@ungap/structured-clone": "^0.3.4",
     "antlr4ts": "^0.5.0-alpha.4",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.flow": "^3.5.0",
     "lodash.isequal": "^4.5.0",
     "lodash.uniqueid": "^4.0.1"
