@@ -2,6 +2,7 @@
  * GENERAL TYPES
  */
 
+import { Contract } from 'contracts/types';
 import { FunctionType, Type } from 'types/types';
 
 import { StringWrapper } from './wrappers';
@@ -227,26 +228,12 @@ export interface CallExpression extends BaseCallExpression {
  */
 
 interface BaseContractMonitor {
-  contract?: ContractType;
+  contract?: Contract;
   pos?: string;
   neg?: string;
 }
 
-export type ContractType =
-  | FlatContractExpression
-  | Array<ContractType>
-  | EmptyContractExpression;
-
 export interface ContractExpression extends BaseNode {
   type: 'ContractExpression';
-  contract: Array<ContractType>;
-}
-
-export interface FlatContractExpression extends BaseNode {
-  type: 'FlatContractExpression';
-  contract: Expression;
-}
-
-export interface EmptyContractExpression extends BaseNode {
-  type: 'EmptyContractExpression';
+  contract: Contract;
 }

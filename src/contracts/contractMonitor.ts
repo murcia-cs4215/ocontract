@@ -1,4 +1,4 @@
-import { ContractType, Expression, Node, Program } from 'parser/types';
+import { Expression, Node, Program } from 'parser/types';
 
 import { Context } from '../runtimeTypes';
 
@@ -7,13 +7,14 @@ import {
   getCurrentContractScope,
   lookupContracts,
 } from './environment';
+import { Contract } from './types';
 
 export function wrapProgramInMonitor(program: Program, context: Context): void {
   _wrapNodeInMonitor(program, context);
 }
 
 export function propagateContract(
-  contract: ContractType,
+  contract: Contract,
   pos: string,
   neg: string,
   toNode: Expression,
@@ -46,7 +47,7 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
         node.name,
         context.contractEnvironment,
       );
-      if (contractForIdentifier != undefined) {
+      if (contractForIdentifier != null) {
         _wrapExpressionInMonitor(
           node,
           contractForIdentifier,
@@ -66,12 +67,12 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
       break;
     }
     case 'GlobalLetStatement': {
-      context.contractEnvironment.push({
-        contractMap: new Map<string, ContractType>(),
+      context.contractEnvironment.unshift({
+        contractMap: new Map<string, Contract>(),
         currentScope: node.left.name,
       });
       _wrapNodeInMonitor(node.right, context);
-      context.contractEnvironment.pop();
+      context.contractEnvironment.shift();
       break;
     }
     case 'UnaryExpression': {
@@ -103,7 +104,7 @@ function _wrapNodeInMonitor(node: Node, context: Context): void {
 
 function _wrapExpressionInMonitor(
   exp: Expression,
-  contract: ContractType | undefined,
+  contract: Contract | undefined,
   pos: string | undefined,
   neg: string | undefined,
 ): void {

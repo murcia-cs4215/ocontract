@@ -1,12 +1,12 @@
-import { ContractType } from 'parser/types';
-
 import { ContractEnvironment } from '../runtimeTypes';
+
+import { Contract } from './types';
 
 export function lookupContracts(
   name: string,
   env: ContractEnvironment,
-): ContractType | undefined {
-  for (let i = env.length - 1; i >= 0; i--) {
+): Contract | undefined {
+  for (let i = 0; i < env.length; i++) {
     if (env[i].contractMap.has(name)) {
       return env[i].contractMap.get(name);
     }
@@ -15,21 +15,21 @@ export function lookupContracts(
 }
 
 export function getCurrentContractScope(env: ContractEnvironment): string {
-  return env[env.length - 1].currentScope;
+  return env[0].currentScope;
 }
 
 export function addContractToCurrentScope(
   env: ContractEnvironment,
   name: string,
-  contract: ContractType,
+  contract: Contract,
 ): void {
-  env[env.length - 1].contractMap.set(name, contract);
+  env[0].contractMap.set(name, contract);
 }
 
 export function createInitialContractEnvironment(): ContractEnvironment {
   return [
     {
-      contractMap: new Map<string, ContractType>(),
+      contractMap: new Map<string, Contract>(),
       currentScope: 'main',
     },
   ];
