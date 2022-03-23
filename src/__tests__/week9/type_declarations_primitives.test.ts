@@ -6,10 +6,7 @@ import {
   intType,
   stringType,
 } from 'types/utils';
-import { getStaticTypeErrorMessage, runTest } from 'utils/tests';
-
-import { createContext } from '../../context';
-import { run } from '../../index';
+import { assertTypeError, runTest } from 'utils/tests';
 
 const values = {
   int: [10, intType],
@@ -22,10 +19,8 @@ const values = {
 for (const [type1, value1] of Object.entries(values)) {
   for (const [type2, value2] of Object.entries(values)) {
     test(`declared ${type1}, actually ${type2}`, () => {
-      const context = createContext();
-      const res = run(
+      const res = runTest(
         `let x : ${type1} = ${value2[0] as string | number | boolean};;`,
-        context,
       );
       if (type1 === type2) {
         expect(res).toEqual({
@@ -39,25 +34,17 @@ for (const [type1, value1] of Object.entries(values)) {
         });
         return;
       }
-      expect(res).toEqual({
-        status: 'errored',
-      });
-      expect(context.errors).toHaveLength(1);
-      expect(context.errors[0].explain()).toBe(
-        getStaticTypeErrorMessage(value1[1] as Type, value2[1] as Type),
-      );
+      assertTypeError(res, value1[1] as Type, value2[1] as Type);
     });
   }
 }
 
 test('local binding with right types', () => {
-  const res = runTest(
-    `
+  const res = runTest(`
     let x : int = 10 in
       let y : int = 20 in
         x + y;;
-    `,
-  );
+  `);
   expect(res).toEqual({
     status: 'finished',
     value: 30,
@@ -66,39 +53,19 @@ test('local binding with right types', () => {
 });
 
 test('local binding with incorrect types', () => {
-  const context = createContext();
-  const res = run(
-    `
+  const res = runTest(`
     let x : int = 10.5 in
       let y : int = 20 in
         x + y;;
-    `,
-    context,
-  );
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].explain()).toBe(
-    getStaticTypeErrorMessage(intType, floatType),
-  );
+  `);
+  assertTypeError(res, intType, floatType);
 });
 
 test('local binding with invalid "body"', () => {
-  const context = createContext();
-  const res = run(
-    `
+  const res = runTest(`
     let x : int = 10 in
       let y : float = 20.5 in
         x +. y;;
-    `,
-    context,
-  );
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].explain()).toBe(
-    getStaticTypeErrorMessage(floatType, intType),
-  );
+  `);
+  assertTypeError(res, floatType, intType);
 });

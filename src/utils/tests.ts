@@ -13,21 +13,42 @@ export function runTest(code: string): Result {
   return run(code, context);
 }
 
-export function getStaticTypeErrorMessage(
-  expected: Type | string,
-  got: Type,
-): string {
-  return `This expression has type ${formatType(
-    got,
-  )} but an expression was expected of type ${
-    typeof expected === 'string' ? expected : formatType(expected)
-  }`;
-}
-
-export function checkContractViolation(result: Result, blame: string): void {
+export function assertError(
+  result: Result,
+  explainMessage: string,
+  elaborateMessage?: string,
+): void {
   expect(result.status).toBe('errored');
   assert('error' in result);
-  expect(result.error.explain()).toContain(
-    `Contract Violation!\nBlame: ${blame}`,
+  expect(result.error.explain()).toBe(explainMessage);
+  if (elaborateMessage) {
+    expect(result.error.elaborate()).toBe(elaborateMessage);
+  }
+}
+
+export function assertTypeError(
+  result: Result,
+  expected: Type | string,
+  got: Type,
+): void {
+  assertError(
+    result,
+    `This expression has type ${formatType(
+      got,
+    )} but an expression was expected of type ${
+      typeof expected === 'string' ? expected : formatType(expected)
+    }`,
+  );
+}
+
+export function assertContractViolation(
+  result: Result,
+  blame: string,
+  row: number,
+  col: number,
+): void {
+  assertError(
+    result,
+    `Contract Violation!\nBlame: ${blame}\nSource of blame: Line ${row}, Column ${col}`,
   );
 }

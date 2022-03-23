@@ -17,7 +17,7 @@ export class ContractViolationError extends RuntimeSourceError {
     return (
       'Contract Violation!\n' +
       `Blame: ${this.blame}\n` +
-      `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}`
+      `Source of blame: Line ${loc.start.line}, Column ${loc.start.column}`
     );
   }
 

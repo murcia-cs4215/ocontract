@@ -1,17 +1,9 @@
 import { intType } from 'types/utils';
-import { runTest } from 'utils/tests';
-
-import { createContext } from '../../context';
-import { run } from '../../index';
+import { assertError, runTest } from 'utils/tests';
 
 test('unbound name', () => {
-  const context = createContext();
-  const res = run('x;;', context);
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].explain()).toBe('Unbound value x');
+  const res = runTest('x;;');
+  assertError(res, 'Unbound value x');
 });
 
 test('global binding expression', () => {
@@ -93,19 +85,11 @@ test('local binding with nesting', () => {
 });
 
 test('local binding scopes the declaration', () => {
-  const context = createContext();
-  const res = run(
-    `
+  const res = runTest(`
     let a : int = 1 in a;;
     a;;
-  `,
-    context,
-  );
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].explain()).toBe('Unbound value a');
+  `);
+  assertError(res, 'Unbound value a');
 });
 
 test('operation after binding', () => {

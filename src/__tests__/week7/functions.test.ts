@@ -1,10 +1,7 @@
 import assert from 'assert';
 
 import { intType, makeFunctionType } from 'types/utils';
-import { runTest } from 'utils/tests';
-
-import { createContext } from '../../context';
-import { run } from '../../index';
+import { assertError, runTest } from 'utils/tests';
 
 test('single parameter function', () => {
   const res = runTest('let x (a : int) : int = a + 10;;');
@@ -118,19 +115,13 @@ test('recursive function application', () => {
 });
 
 test('application of non-function', () => {
-  const context = createContext();
-  const res = run(
-    `
+  const res = runTest(`
     let x : int = 5;;
     x 10;;
-  `,
-    context,
-  );
-  expect(res).toEqual({
-    status: 'errored',
-  });
-  expect(context.errors).toHaveLength(1);
-  expect(context.errors[0].elaborate()).toBe(
+  `);
+  assertError(
+    res,
+    'This expression has type int',
     'This is not a function; it cannot be applied.',
   );
 });
