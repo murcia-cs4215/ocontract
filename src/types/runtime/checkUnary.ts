@@ -1,8 +1,9 @@
-import { RuntimeResult } from 'runtimeTypes';
-
+import { handleRuntimeError } from 'interpreter/errors';
 import { Node, UnaryOperator } from 'parser/types';
 import { boolType, floatType, intType } from 'types/utils';
 import { formatType } from 'utils/formatters';
+
+import { Context, RuntimeResult } from '../../runtimeTypes';
 
 import { RuntimeTypeError } from './errors';
 import { isBoolResult, isFloatResult, isIntResult } from './utils';
@@ -11,20 +12,27 @@ export const checkUnaryExpression = (
   node: Node,
   operator: UnaryOperator,
   value: RuntimeResult,
-): RuntimeTypeError | undefined => {
+  context: Context,
+): void => {
   if (operator === '-' && !isIntResult(value) && !isFloatResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      '',
-      formatType([intType, floatType]),
-      formatType(value.type),
+    return handleRuntimeError(
+      context,
+      new RuntimeTypeError(
+        node,
+        '',
+        formatType([intType, floatType]),
+        formatType(value.type),
+      ),
     );
   } else if (operator === 'not' && !isBoolResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      '',
-      formatType(boolType),
-      formatType(value.type),
+    return handleRuntimeError(
+      context,
+      new RuntimeTypeError(
+        node,
+        '',
+        formatType(boolType),
+        formatType(value.type),
+      ),
     );
   }
 };

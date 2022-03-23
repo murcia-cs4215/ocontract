@@ -17,7 +17,6 @@ const createEmptyContext = <T>(
 ): Context<T> => {
   return {
     externalSymbols,
-    errors: [],
     externalContext,
     runtime: createEmptyRuntime(),
     numberOfOuterEnvironments: 1,

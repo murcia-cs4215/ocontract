@@ -14,7 +14,7 @@ import { FunctionType, Type } from '../types';
 import { isSameType, unitType } from '../utils';
 
 import { TypeMismatchError } from './errors';
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkGlobalLetStatement(
   node: GlobalLetStatement,
@@ -32,7 +32,7 @@ export function checkGlobalLetStatement(
       pushTypeEnvironment(context, recursiveEnvironment);
       setType(context, name, declaredType);
     }
-    type = _typeCheck(node.right, context);
+    type = typeCheck(node.right, context);
 
     if (node.recursive) {
       const poppedEnvironment = popTypeEnvironment(context);
@@ -55,7 +55,7 @@ export function checkGlobalLetStatement(
     if (node.recursive) {
       setType(context, name, declaredType);
     }
-    type = _typeCheck(node.right, context);
+    type = typeCheck(node.right, context);
 
     const poppedEnvironment = popTypeEnvironment(context);
     assert(poppedEnvironment === functionEnvironment);

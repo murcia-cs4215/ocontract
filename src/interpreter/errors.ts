@@ -27,7 +27,6 @@ export function handleRuntimeError(
   context: Context,
   error: RuntimeSourceError,
 ): never {
-  context.errors.push(error);
   context.runtime.environments = context.runtime.environments.slice(
     -context.numberOfOuterEnvironments,
   );

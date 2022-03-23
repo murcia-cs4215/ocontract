@@ -7,14 +7,14 @@ import { FunctionType, Type } from '../types';
 import { isSameType } from '../utils';
 
 import { TypeMismatchError } from './errors';
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkBinaryExpression(
   node: BinaryExpression,
   context: Context,
 ): Type {
-  const binaryLeft = _typeCheck(node.left, context);
-  const binaryRight = _typeCheck(node.right, context);
+  const binaryLeft = typeCheck(node.left, context);
+  const binaryRight = typeCheck(node.right, context);
   let binaryTypes = getType(context, node.operator) as
     | FunctionType
     | FunctionType[];

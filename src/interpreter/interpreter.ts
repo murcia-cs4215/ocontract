@@ -71,10 +71,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const argument = evaluate(node.argument, context);
-    const error = checkUnaryExpression(node, node.operator, argument);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkUnaryExpression(node, node.operator, argument, context);
     return evaluateUnaryExpression(node.operator, argument);
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -83,10 +80,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
-    const error = checkBinaryExpression(node, node.operator, left, right);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBinaryExpression(node, node.operator, left, right, context);
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -94,10 +88,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
-    let error = checkBoolean(node, left, LHS);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBoolean(node, left, LHS, context);
     if (
       (node.operator === '&&' && !left.value) ||
       (node.operator === '||' && left.value)
@@ -105,10 +96,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = evaluate(node.right, context);
-    error = checkBoolean(node, right, RHS);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBoolean(node, right, RHS, context);
     return evaluateLogicalExpression(node.operator, left, right);
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -116,10 +104,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const test = evaluate(node.test, context);
-    const error = checkBoolean(node, test);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBoolean(node, test, undefined, context);
     return test.value
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
@@ -213,10 +198,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
           ),
         );
       }
-      const error = checkArgument(node, closure, args[i]);
-      if (error) {
-        return handleRuntimeError(context, error);
-      }
+      checkArgument(node, closure, args[i], context);
       result = apply(closure, args[i], context);
       closure = result.value;
     }

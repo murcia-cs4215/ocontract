@@ -8,7 +8,7 @@ import {
 } from '../environment';
 import { Type } from '../types';
 
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkLocalLetExpression(
   node: LocalLetExpression,
@@ -16,8 +16,8 @@ export function checkLocalLetExpression(
 ): Type {
   const localLetEnvironment = createLocalTypeEnvironment();
   pushTypeEnvironment(context, localLetEnvironment);
-  _typeCheck(node.left, context); // let the global bindings happen
-  const type = _typeCheck(node.right, context); // TODO: Check if we should return this type
+  typeCheck(node.left, context); // let the global bindings happen
+  const type = typeCheck(node.right, context); // TODO: Check if we should return this type
   popTypeEnvironment(context);
   return type;
 }
