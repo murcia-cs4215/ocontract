@@ -6,7 +6,7 @@ import {
   intType,
   stringType,
 } from 'types/utils';
-import { getStaticTypeErrorMessage } from 'utils/tests';
+import { getStaticTypeErrorMessage, runTest } from 'utils/tests';
 
 import { createContext } from '../../context';
 import { run } from '../../index';
@@ -50,4 +50,55 @@ for (const [type1, value1] of Object.entries(values)) {
   }
 }
 
-// TODO: test local binding also
+test('local binding with right types', () => {
+  const res = runTest(
+    `
+    let x : int = 10 in
+      let y : int = 20 in
+        x + y;;
+    `,
+  );
+  expect(res).toEqual({
+    status: 'finished',
+    value: 30,
+    type: intType,
+  });
+});
+
+test('local binding with incorrect types', () => {
+  const context = createContext();
+  const res = run(
+    `
+    let x : int = 10.5 in
+      let y : int = 20 in
+        x + y;;
+    `,
+    context,
+  );
+  expect(res).toEqual({
+    status: 'errored',
+  });
+  expect(context.errors).toHaveLength(1);
+  expect(context.errors[0].explain()).toBe(
+    getStaticTypeErrorMessage(intType, floatType),
+  );
+});
+
+test('local binding with invalid "body"', () => {
+  const context = createContext();
+  const res = run(
+    `
+    let x : int = 10 in
+      let y : float = 20.5 in
+        x +. y;;
+    `,
+    context,
+  );
+  expect(res).toEqual({
+    status: 'errored',
+  });
+  expect(context.errors).toHaveLength(1);
+  expect(context.errors[0].explain()).toBe(
+    getStaticTypeErrorMessage(floatType, intType),
+  );
+});
