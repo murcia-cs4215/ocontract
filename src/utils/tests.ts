@@ -41,6 +41,28 @@ export function expectTypeError(
   );
 }
 
+export function expectContractReturnTypeError(result: Result, got: Type): void {
+  expectError(
+    result,
+    `This contract has checks that return type ${formatType(
+      got,
+    )} instead of type bool`,
+  );
+}
+
+export function expectContractTypeError(
+  result: Result,
+  expected: Type,
+  got: Type,
+): void {
+  expectError(
+    result,
+    `This name has type ${formatType(
+      got,
+    )} but its contract was expecting type ${formatType(expected)}`,
+  );
+}
+
 export function expectContractViolation(
   result: Result,
   blame: string,
@@ -50,5 +72,13 @@ export function expectContractViolation(
   expectError(
     result,
     `Contract violation!\nBlame: ${blame}\nContract at: Line ${row}, Column ${col}`,
+  );
+}
+
+export function expectNotAFunction(result: Result, type: Type): void {
+  expectError(
+    result,
+    `This expression has type ${formatType(type)}`,
+    'This is not a function; it cannot be applied or be used as a contract.',
   );
 }

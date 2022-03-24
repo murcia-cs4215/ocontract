@@ -4,9 +4,9 @@ import { formatType } from 'utils/formatters';
 import { Context } from '../../runtimeTypes';
 import { setContractType } from '../environment';
 import { ContractType, Type } from '../types';
-import { boolType, isBool, isPrimitiveType, unitType } from '../utils';
+import { isBool, isPrimitiveType, unitType } from '../utils';
 
-import { NotAFunctionError, TypeMismatchError } from './errors';
+import { InvalidContractReturnTypeError, NotAFunctionError } from './errors';
 import { typeCheck } from './index';
 
 export function checkContractDeclarationStatement(
@@ -32,10 +32,9 @@ function checkContractExpression(
       throw new NotAFunctionError(formatType(closureType), node);
     }
     if (!isBool(closureType.returnType)) {
-      throw new TypeMismatchError(
+      throw new InvalidContractReturnTypeError(
         node,
-        formatType(boolType),
-        formatType(closureType),
+        formatType(closureType.returnType),
       );
     }
     return {

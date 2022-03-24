@@ -1,5 +1,5 @@
 import { intType, makeFunctionType } from 'types/utils';
-import { expectError, runTest } from 'utils/tests';
+import { expectNotAFunction, runTest } from 'utils/tests';
 
 test('single parameter function', () => {
   const res = runTest('let x (a : int) : int = a + 10;;');
@@ -106,9 +106,5 @@ fact 5;;`);
 test('application of non-function', () => {
   const res = runTest(`let x : int = 5;;
 x 10;;`);
-  expectError(
-    res,
-    'This expression has type int',
-    'This is not a function; it cannot be applied.',
-  );
+  expectNotAFunction(res, intType);
 });
