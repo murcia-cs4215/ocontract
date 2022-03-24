@@ -9,6 +9,7 @@ import {
   checkReturnValueContract,
 } from 'contracts/runtime';
 import { Contract, FunctionContract } from 'contracts/types';
+import { propagateLoc } from 'contracts/utils';
 import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import {
   checkArgumentType,
@@ -190,6 +191,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const id = node.id.name;
     const contract = evaluate(node.contract, context);
+    propagateLoc(contract.value as Contract, node.loc);
     addContractToCurrentScope(context, id, contract.value as Contract);
     return {
       value: undefined, // TODO: Look into value and type to return here

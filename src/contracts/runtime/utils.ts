@@ -26,7 +26,7 @@ export function checkFlatContract(
 
   return handleRuntimeError(
     context,
-    new ContractViolationError(node, contract.contract.originalNode, blame),
+    new ContractViolationError(node, contract, blame),
   );
 }
 
