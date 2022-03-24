@@ -1,9 +1,8 @@
 import assert from 'assert';
 
-import { FlatContract } from 'contracts/types';
-import { Closure } from 'interpreter/closure';
-import { handleRuntimeError, InterpreterError } from 'interpreter/errors';
-import { apply, evaluate } from 'interpreter/interpreter';
+import { Contract, FlatContract } from 'contracts/types';
+import { handleRuntimeError } from 'interpreter/errors';
+import { apply } from 'interpreter/interpreter';
 import { Expression, Node } from 'parser/types';
 import { isBool } from 'types/utils';
 
@@ -18,19 +17,8 @@ export function checkFlatContract(
   context: Context,
   blame: string,
 ): void {
-  const contractExp = evaluate(contract.contract, context).value;
-
-  if (!(contractExp instanceof Closure)) {
-    return handleRuntimeError(
-      context,
-      new InterpreterError(
-        node,
-        'Contract is not a function, which should have been caught by the type checker.',
-      ),
-    );
-  }
-  const check = apply(contractExp, val, context);
-  assert(isBool(check.type));
+  const check = apply(contract.contract, val, context);
+  assert(isBool(check.type)); // should have been validated by the type checker
   if (check.value) {
     // Contract successfully asserted
     return;
@@ -38,7 +26,7 @@ export function checkFlatContract(
 
   return handleRuntimeError(
     context,
-    new ContractViolationError(node, contractExp.originalNode, blame),
+    new ContractViolationError(node, contract.contract.originalNode, blame),
   );
 }
 
@@ -59,4 +47,15 @@ export function verifyContractExists(
     );
   }
   return true;
+}
+
+export function wrapExpressionInMonitor(
+  exp: Expression,
+  contract: Contract | undefined,
+  pos: string | undefined,
+  neg: string | undefined,
+): void {
+  exp.contract = contract;
+  exp.pos = pos;
+  exp.neg = neg;
 }

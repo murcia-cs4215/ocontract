@@ -15,9 +15,9 @@ export class ContractViolationError extends RuntimeSourceError {
   public explain(): string {
     const loc = this.contractNode.loc ?? UNKNOWN_LOCATION;
     return (
-      'Contract Violation!\n' +
+      'Contract violation!\n' +
       `Blame: ${this.blame}\n` +
-      `Source of blame: Line ${loc.start.line}, Column ${loc.start.column}`
+      `Contract at: Line ${loc.start.line}, Column ${loc.start.column}`
     );
   }
 

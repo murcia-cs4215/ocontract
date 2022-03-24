@@ -2,7 +2,6 @@ import { readFileSync } from 'fs';
 import { start } from 'repl';
 import { inspect } from 'util';
 
-import { wrapProgramInMonitor } from 'contracts/contractMonitor';
 import { SourceError } from 'errors/types';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
@@ -24,7 +23,6 @@ export function run(code: string, context: Context): Result {
     typeCheck(program, context);
 
     prepareContextForRun(context);
-    wrapProgramInMonitor(program, context);
     const result = evaluate(program, context);
     cleanUpContextAfterRun(context);
 

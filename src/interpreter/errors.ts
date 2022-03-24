@@ -4,6 +4,8 @@ import { Node } from 'parser/types';
 import { ErrorSeverity, ErrorType } from '../errors/types';
 import { Context } from '../runtimeTypes';
 
+import { Closure } from './closure';
+
 export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
   public severity = ErrorSeverity.ERROR;
@@ -31,4 +33,21 @@ export function handleRuntimeError(
     -context.numberOfOuterEnvironments,
   );
   throw error;
+}
+
+export function assertClosure(
+  closure: any,
+  node: Node,
+  context: Context,
+): closure is Closure {
+  if (!(closure instanceof Closure)) {
+    return handleRuntimeError(
+      context,
+      new InterpreterError(
+        node,
+        'A non-function was called, which should have been caught by the type checker',
+      ),
+    );
+  }
+  return true;
 }

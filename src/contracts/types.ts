@@ -1,6 +1,12 @@
-import { Expression } from 'parser/types';
+import { Closure } from 'interpreter/closure';
 
-export type Contract = FlatContract | FunctionContract | EmptyContract;
+export type Contract = FlatContract | FunctionContract;
+
+export interface BaseContractMonitor {
+  contract?: Contract;
+  pos?: string;
+  neg?: string;
+}
 
 export interface FunctionContract {
   type: 'FunctionContract';
@@ -10,9 +16,5 @@ export interface FunctionContract {
 
 export interface FlatContract {
   type: 'FlatContract';
-  contract: Expression;
-}
-
-export interface EmptyContract {
-  type: 'EmptyContract';
+  contract: Closure;
 }
