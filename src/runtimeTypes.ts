@@ -47,7 +47,6 @@ export type TypeEnvironment = Map<string, Type | Type[]>;
 
 export interface ContractEnvironment {
   contractMap: Map<string, Contract>;
-  nameSet: Set<string>; // for tracking of names with contract during static monitoring
   currentScope: string; // used for assigning blame
 }
 

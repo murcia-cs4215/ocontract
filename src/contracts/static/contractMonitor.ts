@@ -56,7 +56,6 @@ function monitorNode(node: Node, context: Context): void {
     case 'GlobalLetStatement': {
       pushContractEnvironment(context, {
         contractMap: new Map<string, Contract>(),
-        nameSet: new Set<string>(),
         currentScope: node.left.name,
       });
       monitorNode(node.right, context);

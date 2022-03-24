@@ -6,7 +6,6 @@ export function createInitialContractEnvironments(): ContractEnvironment[] {
   return [
     {
       contractMap: new Map<string, Contract>(),
-      nameSet: new Set<string>(),
       currentScope: 'main',
     },
   ];
@@ -23,15 +22,6 @@ export function popContractEnvironment(
   context: Context,
 ): ContractEnvironment | null {
   return context.contractEnvironments.shift() ?? null;
-}
-
-export function lookupName(name: string, context: Context): boolean {
-  for (let i = 0; i < context.contractEnvironments.length; i++) {
-    if (context.contractEnvironments[i].nameSet.has(name)) {
-      return true;
-    }
-  }
-  return false;
 }
 
 export function lookupContract(
@@ -52,10 +42,6 @@ export function addContractToCurrentScope(
   contract: Contract,
 ): void {
   context.contractEnvironments[0].contractMap.set(name, contract);
-}
-
-export function addNameToCurrentScope(context: Context, name: string): void {
-  context.contractEnvironments[0].nameSet.add(name);
 }
 
 export function getCurrentContractScope(context: Context): string {
