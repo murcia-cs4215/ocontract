@@ -5,7 +5,7 @@ import { Identifier } from 'parser/types';
 import { Context, RuntimeResult } from '../../runtimeTypes';
 import { wrapExpressionInMonitor } from '../utils';
 
-export function monitorIdentifier(
+export function checkIdentifierContract(
   node: Identifier,
   context: Context,
   result: RuntimeResult,

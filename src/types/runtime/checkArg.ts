@@ -8,7 +8,7 @@ import { Context, RuntimeResult } from '../../runtimeTypes';
 
 import { RuntimeTypeError } from './errors';
 
-export const checkArgument = (
+export const checkArgumentType = (
   node: Node,
   closure: Closure,
   arg: RuntimeResult,

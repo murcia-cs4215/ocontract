@@ -7,7 +7,7 @@ import { wrapExpressionInMonitor } from '../utils';
 
 import { checkFlatContract, verifyContractExists } from './utils';
 
-export function monitorApplyArgument(
+export function checkArgumentContract(
   closure: Closure,
   arg: RuntimeResult, // Should be cloned
   context: Context,
@@ -34,7 +34,7 @@ export function monitorApplyArgument(
   }
 }
 
-export function monitorApplyReturnValue(
+export function checkReturnValueContract(
   closure: Closure,
   result: RuntimeResult,
   context: Context,

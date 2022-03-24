@@ -8,7 +8,7 @@ import { Context, RuntimeResult } from '../../runtimeTypes';
 import { RuntimeTypeError } from './errors';
 import { isBoolResult, isFloatResult, isIntResult } from './utils';
 
-export const checkUnaryExpression = (
+export const checkUnaryExpressionType = (
   node: Node,
   operator: UnaryOperator,
   value: RuntimeResult,

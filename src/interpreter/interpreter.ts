@@ -3,18 +3,18 @@ import cloneDeep from 'lodash.clonedeep';
 
 import { addContractToCurrentScope } from 'contracts/environment';
 import {
-  monitorApplyArgument,
-  monitorApplyReturnValue,
-} from 'contracts/runtime/monitorApply';
-import { monitorGlobalLet } from 'contracts/runtime/monitorGlobalLet';
-import { monitorIdentifier } from 'contracts/runtime/monitorIdentifier';
+  checkArgumentContract,
+  checkGlobalLetContract,
+  checkIdentifierContract,
+  checkReturnValueContract,
+} from 'contracts/runtime';
 import { Contract, FunctionContract } from 'contracts/types';
 import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import {
-  checkArgument,
-  checkBinaryExpression,
-  checkBoolean,
-  checkUnaryExpression,
+  checkArgumentType,
+  checkBinaryExpressionType,
+  checkBooleanType,
+  checkUnaryExpressionType,
   LHS,
   RHS,
 } from 'types/runtime';
@@ -57,7 +57,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const res = getVariable(context, node.name);
-    monitorIdentifier(node, context, res);
+    checkIdentifierContract(node, context, res);
     return res;
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -65,7 +65,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const argument = evaluate(node.argument, context);
-    checkUnaryExpression(node, node.operator, argument, context);
+    checkUnaryExpressionType(node, node.operator, argument, context);
     return evaluateUnaryExpression(node.operator, argument);
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -74,7 +74,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
-    checkBinaryExpression(node, node.operator, left, right, context);
+    checkBinaryExpressionType(node, node.operator, left, right, context);
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -82,7 +82,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
-    checkBoolean(node, left, LHS, context);
+    checkBooleanType(node, left, LHS, context);
     if (
       (node.operator === '&&' && !left.value) ||
       (node.operator === '||' && left.value)
@@ -90,7 +90,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = evaluate(node.right, context);
-    checkBoolean(node, right, RHS, context);
+    checkBooleanType(node, right, RHS, context);
     return evaluateLogicalExpression(node.operator, left, right);
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -98,7 +98,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const test = evaluate(node.test, context);
-    checkBoolean(node, test, undefined, context);
+    checkBooleanType(node, test, undefined, context);
     return test.value
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
@@ -135,7 +135,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
 
     assert(value != null); // Functions have been handled above
-    monitorGlobalLet(node, context, value);
+    checkGlobalLetContract(node, context, value);
     return setVariable(context, identifier.name, value);
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
@@ -169,7 +169,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
 
     for (let i = 0; i < args.length; i++) {
       assertClosure(closure, node, context);
-      checkArgument(node, closure, args[i], context);
+      checkArgumentType(node, closure, args[i], context);
       result = apply(closure, args[i], context);
       closure = result.value;
     }
@@ -260,7 +260,7 @@ export function apply(
   context: Context,
 ): RuntimeResult {
   const copyArg = cloneDeep(arg);
-  monitorApplyArgument(closure, copyArg, context);
+  checkArgumentContract(closure, copyArg, context);
 
   // Replace context environments with function environments
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
@@ -276,7 +276,7 @@ export function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
-    monitorApplyReturnValue(closure, result, context);
+    checkReturnValueContract(closure, result, context);
     // Restore context environments
     context.runtime.environments = originalEnvironments;
     return result;

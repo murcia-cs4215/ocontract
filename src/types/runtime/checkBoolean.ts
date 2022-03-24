@@ -8,7 +8,7 @@ import { boolType } from '../utils';
 import { RuntimeTypeError } from './errors';
 import { isBoolResult } from './utils';
 
-export const checkBoolean = (
+export const checkBooleanType = (
   node: Node,
   value: RuntimeResult,
   side = '',

@@ -16,7 +16,7 @@ import {
   RHS,
 } from './utils';
 
-export const checkBinaryExpression = (
+export const checkBinaryExpressionType = (
   node: Node,
   operator: BinaryOperator,
   left: RuntimeResult,
