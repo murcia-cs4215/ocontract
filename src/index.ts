@@ -2,6 +2,7 @@ import { readFileSync } from 'fs';
 import { start } from 'repl';
 import { inspect } from 'util';
 
+import { monitorProgram } from 'contracts/static/contractMonitor';
 import { SourceError } from 'errors/types';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
@@ -21,6 +22,7 @@ export function run(code: string, context: Context): Result {
     const program = parse(code);
     // TODO: Wrap computation in a scheduler / stepper
     typeCheck(program, context);
+    monitorProgram(program, context);
 
     prepareContextForRun(context);
     const result = evaluate(program, context);

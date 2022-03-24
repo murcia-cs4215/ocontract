@@ -1,7 +1,7 @@
-import { lookupContract } from 'contracts/environment';
 import { GlobalLetStatement } from 'parser/types';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
+import { lookupContract } from '../environment';
 
 import { checkFlatContract } from './utils';
 

@@ -45,10 +45,11 @@ export interface Environment {
 
 export type TypeEnvironment = Map<string, Type | Type[]>;
 
-export type ContractEnvironment = {
+export interface ContractEnvironment {
   contractMap: Map<string, Contract>;
+  nameSet: Set<string>; // for tracking of names with contract during static monitoring
   currentScope: string; // used for assigning blame
-}[];
+}
 
 export interface Context<T = any> {
   /** The external symbols that exist in the Context. */
@@ -74,5 +75,5 @@ export interface Context<T = any> {
   externalContext?: T;
 
   typeEnvironments: TypeEnvironment[];
-  contractEnvironment: ContractEnvironment;
+  contractEnvironments: ContractEnvironment[];
 }

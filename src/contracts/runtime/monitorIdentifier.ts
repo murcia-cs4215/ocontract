@@ -1,10 +1,9 @@
-import { getCurrentContractScope, lookupContract } from 'contracts/environment';
+import { lookupContract } from 'contracts/environment';
 import { Closure } from 'interpreter/closure';
 import { Identifier } from 'parser/types';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
-
-import { wrapExpressionInMonitor } from './utils';
+import { wrapExpressionInMonitor } from '../utils';
 
 export function monitorIdentifier(
   node: Identifier,
@@ -15,18 +14,8 @@ export function monitorIdentifier(
   if (contract == null) {
     return;
   }
-  wrapExpressionInMonitor(
-    node,
-    contract,
-    node.name,
-    getCurrentContractScope(context),
-  );
-  if (
-    node.contract &&
-    node.pos &&
-    node.neg &&
-    result.value instanceof Closure
-  ) {
+  node.contract = contract;
+  if (contract && node.pos && node.neg && result.value instanceof Closure) {
     wrapExpressionInMonitor(
       result.value.originalNode,
       node.contract,

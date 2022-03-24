@@ -1,12 +1,12 @@
 import assert from 'assert';
 
-import { Contract, FlatContract } from 'contracts/types';
 import { handleRuntimeError } from 'interpreter/errors';
 import { apply } from 'interpreter/interpreter';
 import { Expression, Node } from 'parser/types';
 import { isBool } from 'types/utils';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
+import { FlatContract } from '../types';
 
 import { ContractNotWellFormedError, ContractViolationError } from './errors';
 
@@ -47,15 +47,4 @@ export function verifyContractExists(
     );
   }
   return true;
-}
-
-export function wrapExpressionInMonitor(
-  exp: Expression,
-  contract: Contract | undefined,
-  pos: string | undefined,
-  neg: string | undefined,
-): void {
-  exp.contract = contract;
-  exp.pos = pos;
-  exp.neg = neg;
 }

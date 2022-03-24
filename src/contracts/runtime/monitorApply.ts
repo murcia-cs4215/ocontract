@@ -1,14 +1,11 @@
-import { FlatContract, FunctionContract } from 'contracts/types';
 import { Closure } from 'interpreter/closure';
 import { isPrimitiveType } from 'types/utils';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
+import { FlatContract, FunctionContract } from '../types';
+import { wrapExpressionInMonitor } from '../utils';
 
-import {
-  checkFlatContract,
-  verifyContractExists,
-  wrapExpressionInMonitor,
-} from './utils';
+import { checkFlatContract, verifyContractExists } from './utils';
 
 export function monitorApplyArgument(
   closure: Closure,
