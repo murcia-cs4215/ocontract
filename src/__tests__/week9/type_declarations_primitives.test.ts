@@ -6,7 +6,7 @@ import {
   intType,
   stringType,
 } from 'types/utils';
-import { assertTypeError, runTest } from 'utils/tests';
+import { expectTypeError, runTest } from 'utils/tests';
 
 const values = {
   int: [10, intType],
@@ -34,7 +34,7 @@ for (const [type1, value1] of Object.entries(values)) {
         });
         return;
       }
-      assertTypeError(res, value1[1] as Type, value2[1] as Type);
+      expectTypeError(res, value1[1] as Type, value2[1] as Type);
     });
   }
 }
@@ -54,12 +54,12 @@ test('local binding with incorrect types', () => {
   const res = runTest(`let x : int = 10.5 in
   let y : int = 20 in
     x + y;;`);
-  assertTypeError(res, intType, floatType);
+  expectTypeError(res, intType, floatType);
 });
 
 test('local binding with invalid "body"', () => {
   const res = runTest(`let x : int = 10 in
   let y : float = 20.5 in
     x +. y;;`);
-  assertTypeError(res, floatType, intType);
+  expectTypeError(res, floatType, intType);
 });

@@ -1,9 +1,9 @@
 import { intType } from 'types/utils';
-import { assertError, runTest } from 'utils/tests';
+import { expectError, runTest } from 'utils/tests';
 
 test('unbound name', () => {
   const res = runTest('x;;');
-  assertError(res, 'Unbound value x');
+  expectError(res, 'Unbound value x');
 });
 
 test('global binding expression', () => {
@@ -79,7 +79,7 @@ test('local binding with nesting', () => {
 test('local binding scopes the declaration', () => {
   const res = runTest(`let a : int = 1 in a;;
 a;;`);
-  assertError(res, 'Unbound value a');
+  expectError(res, 'Unbound value a');
 });
 
 test('operation after binding', () => {

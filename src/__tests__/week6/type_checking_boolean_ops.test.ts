@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import { boolType, valueTypeToPrimitive } from 'types/utils';
-import { assertTypeError, runTest } from 'utils/tests';
+import { expectTypeError, runTest } from 'utils/tests';
 
 const testValues = {
   int: ['1', '2'],
@@ -32,13 +32,13 @@ for (const operator of operators) {
           continue;
         }
         res = runTest(`${value1} ${operator} ${values2[0]};;`);
-        assertTypeError(res, boolType, valueTypeToPrimitive[type]);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
 
         res = runTest(`${values2[0]} ${operator} ${value1};;`);
-        assertTypeError(res, boolType, valueTypeToPrimitive[type]);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
 
         res = runTest(`${values2[0]} ${operator} ${values2[1]};;`);
-        assertTypeError(res, boolType, valueTypeToPrimitive[type]);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
       }
     }
   });

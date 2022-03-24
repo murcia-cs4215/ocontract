@@ -1,12 +1,12 @@
 import { intType } from 'types/utils';
-import { assertContractViolation, runTest } from 'utils/tests';
+import { expectContractViolation, runTest } from 'utils/tests';
 
 test('argument contract violation', () => {
   const res = runTest(`let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x - 1;;
 f 0;;`);
-  assertContractViolation(res, 'main', 2, 28);
+  expectContractViolation(res, 'main', 2, 0); // contract definition location
 });
 
 test('return result contract violation', () => {
@@ -14,7 +14,7 @@ test('return result contract violation', () => {
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x - 1;;
 f 1;;`);
-  assertContractViolation(res, 'f', 2, 28);
+  expectContractViolation(res, 'f', 2, 0); // contract definition location
 });
 
 test('no violation', () => {
@@ -35,7 +35,7 @@ contract f = gt0 -> gt0 -> gt0;;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g (-2);;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract violation for function contracts using alternate syntax', () => {
@@ -43,7 +43,7 @@ test('contract violation for function contracts using alternate syntax', () => {
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g (-2);;`);
-  assertContractViolation(res, 'g', 2, 32);
+  expectContractViolation(res, 'g', 1, 0); // contract definition location
 });
 
 test('contract satisfied for function contracts using alternate syntax', () => {
@@ -66,7 +66,7 @@ contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3);;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g 1;;`);
-  assertContractViolation(res, 'g', 2, 66);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('can detect postcondition violation for complex contracts', () => {
@@ -76,7 +76,7 @@ contract f = (notEqTriple 1 2 3) -> (notEqTriple 1 2 3) -> (notEqTriple 1 2 3);;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 4;;
 g (-1);;`);
-  assertContractViolation(res, 'f', 2, 66);
+  expectContractViolation(res, 'f', 2, 0); // contract definition location
 });
 
 test('contract satisfied for complex contracts', () => {
@@ -98,7 +98,7 @@ test('calling function with a contract in let local binding', () => {
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int = let x : int = 0 in f x;;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract violation when executing binary op', () => {
@@ -106,13 +106,13 @@ test('contract violation when executing binary op', () => {
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int = f 0 + f 1;;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 
   res = runTest(`let gt0 : int -> bool = fun (x : int) : bool -> x > 0;;
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int = f 1 + f 0;;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract violation when executing unary op', () => {
@@ -120,7 +120,7 @@ test('contract violation when executing unary op', () => {
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int = -(f 0);;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract violation when executing conditional', () => {
@@ -128,7 +128,7 @@ test('contract violation when executing conditional', () => {
 contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int = if (f 1) == 2 then f 0 else f 1;;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract violation in lambda', () => {
@@ -137,7 +137,7 @@ contract f = gt0 -> gt0;;
 let f (x : int) : int = x + 1;;
 let g : int -> int = fun (x : int) : int -> 1 + f x;;
 g 0;;`);
-  assertContractViolation(res, 'g', 2, 28);
+  expectContractViolation(res, 'g', 2, 0); // contract definition location
 });
 
 test('contract satisfied when executing binary op', () => {

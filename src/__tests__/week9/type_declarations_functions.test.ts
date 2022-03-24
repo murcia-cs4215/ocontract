@@ -5,7 +5,7 @@ import {
   makeFunctionType,
   stringType,
 } from 'types/utils';
-import { assertTypeError, runTest } from 'utils/tests';
+import { expectTypeError, runTest } from 'utils/tests';
 
 test('function with arguments of correct types', () => {
   let res = runTest(`let f (x : int) : int = x + 10;;
@@ -26,22 +26,22 @@ sum 20.5 2.5;;`);
 
 test('function with invalid body given parameter types', () => {
   const res = runTest('let f (x : int) : int = x *. 2.0;;');
-  assertTypeError(res, floatType, intType);
+  expectTypeError(res, floatType, intType);
 });
 
 test('function with invalid body given return type', () => {
   const res = runTest('let f (x : float) : int = x *. 2.0;;');
-  assertTypeError(res, intType, floatType);
+  expectTypeError(res, intType, floatType);
 });
 
 test('function with arguments of incorrect type', () => {
   let res = runTest(`let f (x : string) : string = x ^ "world";;
 f 'h';;`);
-  assertTypeError(res, stringType, charType);
+  expectTypeError(res, stringType, charType);
 
   res = runTest(`let f (x : string) (y : string) : string = x ^ y;;
 f "hello" 123;;`);
-  assertTypeError(res, stringType, intType);
+  expectTypeError(res, stringType, intType);
 });
 
 test('function with hof arguments of right type', () => {
@@ -67,21 +67,21 @@ y 15.0 30.0;;`);
 
 test('function with invalid body given hof types', () => {
   let res = runTest('let f (x : int -> int) : int = x 2.0;;');
-  assertTypeError(res, intType, floatType);
+  expectTypeError(res, intType, floatType);
 
   res = runTest('let f (x : int -> int) (y : float -> int) : int = y (x 2);;');
-  assertTypeError(res, floatType, intType);
+  expectTypeError(res, floatType, intType);
 
   res = runTest(
     'let f (x : int -> int) (y : float -> int) : float = x (y 2.0);;',
   );
-  assertTypeError(res, floatType, intType);
+  expectTypeError(res, floatType, intType);
 });
 
 test('function with hof arguments of incorrect type', () => {
   let res = runTest(`let f (x : string -> string) : string = x "world";;
 f (fun (a : string) : int -> 10);;`);
-  assertTypeError(
+  expectTypeError(
     res,
     makeFunctionType(stringType, stringType),
     makeFunctionType(stringType, intType),
@@ -90,7 +90,7 @@ f (fun (a : string) : int -> 10);;`);
   res = runTest(`let f (x : int -> int) : int = x 20;;
 let y (x : int) : int -> int -> int = fun (a : int) (b : int) : int -> a + b + x;;
 f (y 20);;`);
-  assertTypeError(
+  expectTypeError(
     res,
     makeFunctionType(intType, intType),
     makeFunctionType(intType, intType, intType),
@@ -110,5 +110,5 @@ let g : int -> int = f 20;;`);
 test('function currying with incorrect type', () => {
   const res = runTest(`let f (x : int) (y : int) : int = x + y;;
 let g : int = f 20;;`);
-  assertTypeError(res, intType, makeFunctionType(intType, intType));
+  expectTypeError(res, intType, makeFunctionType(intType, intType));
 });

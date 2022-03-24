@@ -13,7 +13,7 @@ export function runTest(code: string): Result {
   return run(code, context);
 }
 
-export function assertError(
+export function expectError(
   result: Result,
   explainMessage: string,
   elaborateMessage?: string,
@@ -26,12 +26,12 @@ export function assertError(
   }
 }
 
-export function assertTypeError(
+export function expectTypeError(
   result: Result,
   expected: Type | string,
   got: Type,
 ): void {
-  assertError(
+  expectError(
     result,
     `This expression has type ${formatType(
       got,
@@ -41,14 +41,14 @@ export function assertTypeError(
   );
 }
 
-export function assertContractViolation(
+export function expectContractViolation(
   result: Result,
   blame: string,
   row: number,
   col: number,
 ): void {
-  assertError(
+  expectError(
     result,
-    `Contract Violation!\nBlame: ${blame}\nSource of blame: Line ${row}, Column ${col}`,
+    `Contract violation!\nBlame: ${blame}\nContract at: Line ${row}, Column ${col}`,
   );
 }

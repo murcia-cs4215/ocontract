@@ -4,7 +4,7 @@ import {
   intType,
   valueTypeToPrimitive,
 } from 'types/utils';
-import { assertTypeError, runTest } from 'utils/tests';
+import { expectTypeError, runTest } from 'utils/tests';
 
 const testValues = {
   int: ['1', '2'],
@@ -30,7 +30,7 @@ test('not with non-bools', () => {
       continue;
     }
     res = runTest(`not ${values[0]};;`);
-    assertTypeError(res, boolType, valueTypeToPrimitive[type]);
+    expectTypeError(res, boolType, valueTypeToPrimitive[type]);
   }
 });
 
@@ -59,6 +59,6 @@ test('-unary with non-ints and non-floats', () => {
       continue;
     }
     res = runTest(`-${values[0]};;`);
-    assertTypeError(res, 'int or float', valueTypeToPrimitive[type]);
+    expectTypeError(res, 'int or float', valueTypeToPrimitive[type]);
   }
 });

@@ -1,7 +1,7 @@
 import assert from 'assert';
 
 import { intType, makeFunctionType } from 'types/utils';
-import { assertError, runTest } from 'utils/tests';
+import { expectError, runTest } from 'utils/tests';
 
 test('single parameter function', () => {
   const res = runTest('let x (a : int) : int = a + 10;;');
@@ -104,7 +104,7 @@ fact 5;;`);
 test('application of non-function', () => {
   const res = runTest(`let x : int = 5;;
 x 10;;`);
-  assertError(
+  expectError(
     res,
     'This expression has type int',
     'This is not a function; it cannot be applied.',
