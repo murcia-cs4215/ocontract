@@ -39,7 +39,8 @@ g (-2);;`);
 });
 
 test('contract violation for function contracts using alternate syntax', () => {
-  const res = runTest(`contract f = {x | x > 0} -> {y | y > 0} -> {z | z > 0};;
+  const res =
+    runTest(`contract f = {x : int | x > 0} -> {y : int | y > 0} -> {z : int | z > 0};;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g (-2);;`);
@@ -47,7 +48,8 @@ g (-2);;`);
 });
 
 test('contract satisfied for function contracts using alternate syntax', () => {
-  const res = runTest(`contract f = {x | x > 0} -> {y | y > 0} -> {z | z > 0};;
+  const res =
+    runTest(`contract f = {x : int | x > 0} -> {y : int | y > 0} -> {z : int | z > 0};;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g 1;;

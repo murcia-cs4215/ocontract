@@ -30,7 +30,7 @@ g (fun (x: int) : int -> 98);;`);
 
 test('hof with alternate contract syntax has contract violation in its argument which is a hof', () => {
   const res =
-    runTest(`contract f1 = ({x | x > 0} -> {y | y > 1}) -> {z | z > 0};;
+    runTest(`contract f1 = ({x : int | x > 0} -> {y : int | y > 1}) -> {z : int | z > 0};;
 let f1 (g: int -> int) : int = (g 0) - 5;;
 f1 (fun (x: int) : int -> x + 1);;`);
   expectContractViolation(res, 'f1', 1, 0); // contract definition location
@@ -38,14 +38,14 @@ f1 (fun (x: int) : int -> x + 1);;`);
 
 test("complex hof has a contract violation in its argument's argument", () => {
   let res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 1) + (h 100) + 1000;;
 let id (x: int) : int = x;;
 f id id;;`);
   expectContractViolation(res, 'f', 1, 0); // contract definition location
 
   res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 0) + (h 101) + 1000;;
 let id (x: int) : int = x;;
 f id id;;`);
@@ -54,14 +54,14 @@ f id id;;`);
 
 test("complex hof has a contract violation in its argument's return val", () => {
   let res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 2) + (h 101) + 1000;;
 let id (x: int) : int = x - 1;;
 f id id;;`);
   expectContractViolation(res, 'main', 1, 0); // contract definition location
 
   res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 1) + (h 102) + 1000;;
 let id (x: int) : int = x - 1;;
 f id id;;`);
@@ -70,7 +70,7 @@ f id id;;`);
 
 test('complex hof has a contract violation in its return val', () => {
   const res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 2) + (h 101);;
 let id (x: int) : int = x;;
 f id id;;`);
@@ -79,7 +79,7 @@ f id id;;`);
 
 test('complex hof satisfies contract', () => {
   const res =
-    runTest(`contract f = ({a | a > 0} -> {b | b > 0}) -> ({c | c > 100} -> {d | d > 100}) -> {e | e > 1000};;
+    runTest(`contract f = ({a : int | a > 0} -> {b : int | b > 0}) -> ({c : int | c > 100} -> {d : int | d > 100}) -> {e : int | e > 1000};;
 let f (g: int -> int) (h: int -> int) : int = (g 1) + (h 101) + 1000;;
 let id (x: int) : int = x;;
 f id id;;`);

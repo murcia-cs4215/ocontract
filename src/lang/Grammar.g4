@@ -136,7 +136,7 @@ typeAnnotation
 
 contractExpression // need to write a helper method to properly form the correct contract
    : expression                                                      # ContractSimpleExpression
-   | '{' identifier PIPE expression '}'                              # ContractSetNotation
+   | '{' identifierWithType PIPE expression '}'                              # ContractSetNotation
    | contractExpression (ARROW contractExpression)+                  # ContractList
    | '(' contractExpression ')'                                      # ParenthesesContract
    ;

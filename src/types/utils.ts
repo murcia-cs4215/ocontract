@@ -1,6 +1,14 @@
 import isEqual from 'lodash.isequal';
 
-import { FunctionType, PrimitiveType, PrimitiveValueType, Type } from './types';
+import { formatType } from 'utils/formatters';
+
+import {
+  ContractType,
+  FunctionType,
+  PrimitiveType,
+  PrimitiveValueType,
+  Type,
+} from './types';
 
 export function makePrimitive(type: PrimitiveValueType): PrimitiveType {
   return {
@@ -88,4 +96,13 @@ export function curryParamTypes(
     };
   }
   return finalType as FunctionType;
+}
+
+export function formatContractType(contractType: ContractType): string {
+  if (contractType.type === 'FlatContractType') {
+    return formatType(contractType.contractType.parameterType);
+  }
+  return `${formatContractType(
+    contractType.parameterType,
+  )} -> ${formatContractType(contractType.returnType)}`;
 }

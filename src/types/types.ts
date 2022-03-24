@@ -18,3 +18,16 @@ export interface FunctionType {
   parameterType: Type; // If multiple params, it's curried in types as well
   returnType: Type;
 }
+
+export type ContractType = FlatContractType | FunctionContractType;
+
+export interface FlatContractType {
+  type: 'FlatContractType';
+  contractType: FunctionType;
+}
+
+export interface FunctionContractType {
+  type: 'FunctionContractType';
+  parameterType: ContractType;
+  returnType: ContractType;
+}
