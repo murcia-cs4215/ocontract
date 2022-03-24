@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import { boolType, valueTypeToPrimitive } from 'types/utils';
 import { expectTypeError, runTest } from 'utils/tests';
 
@@ -20,9 +18,10 @@ for (const operator of operators) {
     let res;
     for (const [_type, values] of testValueEntries) {
       res = runTest(`${values[0]} ${operator} ${values[1]};;`);
-      expect(res.status).toBe('finished');
-      assert('type' in res);
-      expect(res.type).toBe(boolType);
+      expect(res).toMatchObject({
+        status: 'finished',
+        type: boolType,
+      });
     }
   });
 

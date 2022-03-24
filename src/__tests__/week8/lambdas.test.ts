@@ -1,32 +1,31 @@
-import assert from 'assert';
-
 import { intType, makeFunctionType } from 'types/utils';
 import { runTest } from 'utils/tests';
 
 test('single parameter lambda', () => {
   const res = runTest('let x : int -> int = fun (a : int) : int -> a + 10;;');
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType),
+  });
 });
 
 test('multiple parameter lambda', () => {
   let res = runTest(
     'let x : int -> int -> int = fun (a : int) : int -> int -> fun (b : int) : int -> a + b;;',
   );
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(
-    makeFunctionType(intType, makeFunctionType(intType, intType)),
-  );
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, makeFunctionType(intType, intType)),
+  });
 
   // two parameters at once
   res = runTest(
     'let x : int -> int -> int = fun (a : int) (b : int) : int -> a + b;;',
   );
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType, intType),
+  });
 });
 
 test('lambda call with one argument', () => {
@@ -54,9 +53,10 @@ test('lambda currying', () => {
   const res =
     runTest(`let x : int -> int -> int = fun (a : int) : int -> int -> fun (b : int) : int -> a + b;;
 let y : int -> int = x 10;;`);
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType),
+  });
 });
 
 test('lambda currying with call', () => {

@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import { intType, valueTypeToPrimitive } from 'types/utils';
 import { expectTypeError, runTest } from 'utils/tests';
 
@@ -19,9 +17,10 @@ for (const operator of operators) {
   test(`${operator} with ints`, () => {
     const values = testValues['int'];
     const res = runTest(`${values[0]} ${operator} ${values[1]};;`);
-    expect(res.status).toBe('finished');
-    assert('type' in res);
-    expect(res.type).toBe(intType);
+    expect(res).toMatchObject({
+      status: 'finished',
+      type: intType,
+    });
   });
 
   test(`${operator} with non-ints`, () => {

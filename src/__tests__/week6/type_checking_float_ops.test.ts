@@ -1,5 +1,3 @@
-import assert from 'assert';
-
 import { floatType, valueTypeToPrimitive } from 'types/utils';
 import { expectTypeError, runTest } from 'utils/tests';
 
@@ -19,9 +17,10 @@ for (const operator of operators) {
   test(`${operator} with floats`, () => {
     const values = testValues['float'];
     const res = runTest(`${values[0]} ${operator} ${values[1]};;`);
-    expect(res.status).toBe('finished');
-    assert('type' in res);
-    expect(res.type).toBe(floatType);
+    expect(res).toMatchObject({
+      status: 'finished',
+      type: floatType,
+    });
   });
 
   test(`${operator} with non-floats`, () => {

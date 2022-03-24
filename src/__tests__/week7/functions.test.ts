@@ -1,29 +1,30 @@
-import assert from 'assert';
-
 import { intType, makeFunctionType } from 'types/utils';
 import { expectError, runTest } from 'utils/tests';
 
 test('single parameter function', () => {
   const res = runTest('let x (a : int) : int = a + 10;;');
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType),
+  });
 });
 
 test('multiple parameter function', () => {
   const res = runTest('let x (a : int) (b : int) : int = a + b;;');
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType, intType),
+  });
 });
 
 test('recursive function declaration', () => {
   const res = runTest(
     'let rec fact (a : int) : int = if a = 0 then 1 else fact (a - 1) * a;;',
   );
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType),
+  });
 });
 
 test('function call with one argument', () => {
@@ -49,9 +50,10 @@ x 20 10;;`);
 test('function currying', () => {
   const res = runTest(`let x (a : int) (b : int) : int = a + b;;
 let y : int -> int = x 10;;`);
-  expect(res.status).toBe('finished');
-  assert('type' in res);
-  expect(res.type).toEqual(makeFunctionType(intType, intType));
+  expect(res).toMatchObject({
+    status: 'finished',
+    type: makeFunctionType(intType, intType),
+  });
 });
 
 test('function currying with call', () => {
