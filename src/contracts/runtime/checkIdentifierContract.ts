@@ -10,12 +10,13 @@ export function checkIdentifierContract(
   context: Context,
   result: RuntimeResult,
 ): void {
-  const contract = lookupContract(node.name, context);
-  if (contract == null) {
-    return;
-  }
-  node.contract = contract;
-  if (contract && node.pos && node.neg && result.value instanceof Closure) {
+  node.contract = lookupContract(node.name, context);
+  if (
+    node.contract &&
+    node.pos &&
+    node.neg &&
+    result.value instanceof Closure
+  ) {
     wrapExpressionInMonitor(
       result.value.originalNode,
       node.contract,
