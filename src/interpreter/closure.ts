@@ -5,7 +5,7 @@ import { FunctionType } from 'types/types';
 
 import { Context, Environment } from '../runtimeTypes';
 
-function cloneDeepWithClosure<T>(item: T): T {
+export function cloneDeepWithClosure<T>(item: T): T {
   if (Array.isArray(item)) {
     return item.map((i) => cloneDeepWithClosure(i)) as unknown as T;
   }

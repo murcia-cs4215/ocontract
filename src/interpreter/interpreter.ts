@@ -8,8 +8,8 @@ import {
   checkIdentifierContract,
   checkReturnValueContract,
 } from 'contracts/runtime';
-import { Contract, FunctionContract } from 'contracts/types';
-import { propagateLoc } from 'contracts/utils';
+import { propagateEnvironment, propagateLoc } from 'contracts/runtime/utils';
+import { Contract, FlatContract, FunctionContract } from 'contracts/types';
 import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import {
   checkArgumentType,
@@ -192,6 +192,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const id = node.id.name;
     const contract = evaluate(node.contract, context);
     propagateLoc(contract.value as Contract, node.loc);
+    propagateEnvironment(contract.value as Contract, context);
     addContractToCurrentScope(context, id, contract.value as Contract);
     return {
       value: undefined, // TODO: Look into value and type to return here
@@ -208,11 +209,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.contract.type === 'FlatContractExpression') {
       const result = evaluate(node.contract.contract, context);
       assert(result.value instanceof Closure);
+
       return {
         value: {
           type: 'FlatContract',
           contract: result.value,
-        },
+          isSetNotation: node.contract.isSetNotation,
+        } as FlatContract,
         type: unitType, // TODO: Look into the type to return here
       };
     }
@@ -225,7 +228,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
         type: 'FunctionContract',
         parameterContract,
         returnContract,
-      },
+      } as FunctionContract,
       type: unitType, // TODO: Look into the type to return here
     };
   },

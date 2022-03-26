@@ -19,5 +19,6 @@ export interface FunctionContract {
 export interface FlatContract {
   type: 'FlatContract';
   contract: Closure;
+  isSetNotation: boolean;
   loc?: SourceLocation; // Where the contract was first defined
 }
