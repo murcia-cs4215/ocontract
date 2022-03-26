@@ -45,6 +45,7 @@ export class ContractParser
       type: 'FlatContractExpression',
       contract: this.expressionParser.visit(ctx.expression()),
       loc: contextToLocation(ctx),
+      isSetNotation: false,
     });
   }
 
@@ -71,6 +72,7 @@ export class ContractParser
         },
         loc: contextToLocation(ctx),
       },
+      isSetNotation: true,
     });
   }
 
