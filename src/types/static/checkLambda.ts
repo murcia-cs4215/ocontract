@@ -14,7 +14,7 @@ import { FunctionType, Type } from '../types';
 import { isSameType } from '../utils';
 
 import { TypeMismatchError } from './errors';
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkLambdaExpression(
   node: LambdaExpression,
@@ -33,7 +33,7 @@ export function checkLambdaExpression(
     lambdaType = (lambdaType as FunctionType).returnType;
   }
 
-  const returnType = _typeCheck(node.body, context);
+  const returnType = typeCheck(node.body, context);
   const poppedEnvironment = popTypeEnvironment(context);
   assert(poppedEnvironment === lambdaEnvironment);
 

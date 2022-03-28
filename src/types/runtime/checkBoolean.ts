@@ -1,23 +1,28 @@
+import { handleRuntimeError } from 'interpreter/errors';
 import { Node } from 'parser/types';
 import { formatType } from 'utils/formatters';
 
-import { RuntimeResult } from '../../runtimeTypes';
+import { Context, RuntimeResult } from '../../runtimeTypes';
 import { boolType } from '../utils';
 
 import { RuntimeTypeError } from './errors';
 import { isBoolResult } from './utils';
 
-export const checkBoolean = (
+export const checkBooleanType = (
   node: Node,
   value: RuntimeResult,
   side = '',
-): RuntimeTypeError | undefined => {
+  context: Context,
+): void => {
   if (!isBoolResult(value)) {
-    return new RuntimeTypeError(
-      node,
-      side,
-      formatType(boolType),
-      formatType(value.type),
+    return handleRuntimeError(
+      context,
+      new RuntimeTypeError(
+        node,
+        side,
+        formatType(boolType),
+        formatType(value.type),
+      ),
     );
   }
 };

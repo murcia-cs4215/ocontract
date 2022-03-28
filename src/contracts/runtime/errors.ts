@@ -1,3 +1,4 @@
+import { Contract } from 'contracts/types';
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
 import { ErrorSeverity, ErrorType } from 'errors/types';
 import { Node } from 'parser/types';
@@ -8,16 +9,16 @@ export class ContractViolationError extends RuntimeSourceError {
   public type = ErrorType.RUNTIME;
   public severity = ErrorSeverity.ERROR;
 
-  constructor(node: Node, public contractNode: Node, public blame: string) {
+  constructor(node: Node, public contract: Contract, public blame: string) {
     super(node);
   }
 
   public explain(): string {
-    const loc = this.contractNode.loc ?? UNKNOWN_LOCATION;
+    const loc = this.contract.loc ?? UNKNOWN_LOCATION;
     return (
-      'Contract Violation!\n' +
+      'Contract violation!\n' +
       `Blame: ${this.blame}\n` +
-      `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}`
+      `Contract at: Line ${loc.start.line}, Column ${loc.start.column}`
     );
   }
 

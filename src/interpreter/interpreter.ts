@@ -1,24 +1,26 @@
 import assert from 'assert';
 import cloneDeep from 'lodash.clonedeep';
 
-import { propagateContract } from 'contracts/contractMonitor';
+import { addContractToCurrentScope } from 'contracts/environment';
 import {
-  addContractToCurrentScope,
-  lookupContracts,
-} from 'contracts/environment';
-import { checkFlatContract, verifyContractExists } from 'contracts/runtime';
-import { FlatContract, FunctionContract } from 'contracts/types';
+  checkArgumentContract,
+  checkGlobalLetContract,
+  checkIdentifierContract,
+  checkReturnValueContract,
+} from 'contracts/runtime';
+import { Contract, FunctionContract } from 'contracts/types';
+import { propagateLoc } from 'contracts/utils';
 import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import {
-  checkArgument,
-  checkBinaryExpression,
-  checkBoolean,
-  checkUnaryExpression,
+  checkArgumentType,
+  checkBinaryExpressionType,
+  checkBooleanType,
+  checkUnaryExpressionType,
   LHS,
   RHS,
 } from 'types/runtime';
 import { FunctionType } from 'types/types';
-import { isPrimitiveType, unitType, valueTypeToPrimitive } from 'types/utils';
+import { unitType, valueTypeToPrimitive } from 'types/utils';
 
 import { Context, RuntimeResult } from '../runtimeTypes';
 
@@ -31,7 +33,7 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import { handleRuntimeError, InterpreterError } from './errors';
+import { assertClosure, handleRuntimeError, InterpreterError } from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -56,14 +58,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const res = getVariable(context, node.name);
-    if (node.contract && node.pos && node.neg && res.value instanceof Closure) {
-      propagateContract(
-        node.contract,
-        node.pos,
-        node.neg,
-        res.value.originalNode,
-      );
-    }
+    checkIdentifierContract(node, context, res);
     return res;
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -71,10 +66,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const argument = evaluate(node.argument, context);
-    const error = checkUnaryExpression(node, node.operator, argument);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkUnaryExpressionType(node, node.operator, argument, context);
     return evaluateUnaryExpression(node.operator, argument);
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -83,10 +75,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
-    const error = checkBinaryExpression(node, node.operator, left, right);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBinaryExpressionType(node, node.operator, left, right, context);
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -94,10 +83,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
-    let error = checkBoolean(node, left, LHS);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, left, LHS, context);
     if (
       (node.operator === '&&' && !left.value) ||
       (node.operator === '||' && left.value)
@@ -105,10 +91,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = evaluate(node.right, context);
-    error = checkBoolean(node, right, RHS);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, right, RHS, context);
     return evaluateLogicalExpression(node.operator, left, right);
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -116,10 +99,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const test = evaluate(node.test, context);
-    const error = checkBoolean(node, test);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, test, undefined, context);
     return test.value
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
@@ -156,22 +136,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
 
     assert(value != null); // Functions have been handled above
-
-    const contractForId = lookupContracts(
-      node.left.name,
-      context.contractEnvironment,
-    );
-    if (contractForId != null) {
-      // this contract should be flat
-      // enforce this contract
-      checkFlatContract(
-        node,
-        value,
-        contractForId as FlatContract,
-        context,
-        node.left.name,
-      );
-    }
+    checkGlobalLetContract(node, context, value);
     return setVariable(context, identifier.name, value);
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
@@ -204,19 +169,8 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const args = node.arguments.map((arg) => evaluate(arg, context));
 
     for (let i = 0; i < args.length; i++) {
-      if (!(closure instanceof Closure)) {
-        return handleRuntimeError(
-          context,
-          new InterpreterError(
-            node,
-            'A non-function was called, which should have been caught by the type checker',
-          ),
-        );
-      }
-      const error = checkArgument(node, closure, args[i]);
-      if (error) {
-        return handleRuntimeError(context, error);
-      }
+      assertClosure(closure, node, context);
+      checkArgumentType(node, closure, args[i], context);
       result = apply(closure, args[i], context);
       closure = result.value;
     }
@@ -236,11 +190,43 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const id = node.id.name;
-    const contract = node.contract.contract;
-    addContractToCurrentScope(context.contractEnvironment, id, contract);
+    const contract = evaluate(node.contract, context);
+    propagateLoc(contract.value as Contract, node.loc);
+    addContractToCurrentScope(context, id, contract.value as Contract);
     return {
-      value: undefined,
+      value: undefined, // TODO: Look into value and type to return here
       type: unitType,
+    };
+  },
+  ContractExpression: (node: Node, context: Context): RuntimeResult => {
+    if (
+      node.type !== 'ContractExpression' ||
+      node.contract.type === 'EmptyContractExpression'
+    ) {
+      return handleRuntimeError(context, new InterpreterError(node));
+    }
+    if (node.contract.type === 'FlatContractExpression') {
+      const result = evaluate(node.contract.contract, context);
+      assert(result.value instanceof Closure);
+      return {
+        value: {
+          type: 'FlatContract',
+          contract: result.value,
+        },
+        type: unitType, // TODO: Look into the type to return here
+      };
+    }
+    const parameterContract = evaluate(node.contract.parameterContract, context)
+      .value as Contract;
+    const returnContract = evaluate(node.contract.returnContract, context)
+      .value as Contract;
+    return {
+      value: {
+        type: 'FunctionContract',
+        parameterContract,
+        returnContract,
+      },
+      type: unitType, // TODO: Look into the type to return here
     };
   },
   Program: (node: Node, context: Context): RuntimeResult => {
@@ -276,26 +262,7 @@ export function apply(
   context: Context,
 ): RuntimeResult {
   const copyArg = cloneDeep(arg);
-  if (verifyContractExists(closure.originalNode, context)) {
-    const originalContract = closure.originalNode.contract as FunctionContract;
-    if (isPrimitiveType(arg.type)) {
-      checkFlatContract(
-        closure.originalNode,
-        arg,
-        originalContract.parameterContract as FlatContract,
-        context,
-        closure.originalNode.neg as string,
-      );
-    } else {
-      // hof
-      propagateContract(
-        originalContract.parameterContract as FunctionContract,
-        closure.originalNode.neg as string,
-        closure.originalNode.pos as string,
-        (copyArg.value as Closure).originalNode,
-      );
-    }
-  }
+  checkArgumentContract(closure, copyArg, context);
 
   // Replace context environments with function environments
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
@@ -311,26 +278,7 @@ export function apply(
   // Means fully evaluated, no currying occurring here
   if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
-
-    if (verifyContractExists(originalNode, context)) {
-      const contract = closure.originalNode.contract as FunctionContract;
-      if (isPrimitiveType(result.type)) {
-        checkFlatContract(
-          closure.originalNode,
-          result,
-          contract.returnContract as FlatContract,
-          context,
-          closure.originalNode.pos as string,
-        );
-      } else {
-        propagateContract(
-          contract.returnContract,
-          closure.originalNode.pos as string,
-          closure.originalNode.neg as string,
-          (result.value as Closure).originalNode,
-        );
-      }
-    }
+    checkReturnValueContract(closure, result, context);
     // Restore context environments
     context.runtime.environments = originalEnvironments;
     return result;

@@ -1,5 +1,6 @@
+import { Contract } from 'contracts/types';
 import { SourceError } from 'errors/types';
-import { ContractType, Node } from 'parser/types';
+import { Node } from 'parser/types';
 import { Type } from 'types/types';
 
 /**
@@ -10,6 +11,7 @@ export type Value = any;
 
 export interface Errored {
   status: 'errored';
+  error: SourceError;
 }
 
 export interface Finished {
@@ -43,17 +45,14 @@ export interface Environment {
 
 export type TypeEnvironment = Map<string, Type | Type[]>;
 
-export type ContractEnvironment = {
-  contractMap: Map<string, ContractType>;
+export interface ContractEnvironment {
+  contractMap: Map<string, Contract>;
   currentScope: string; // used for assigning blame
-}[];
+}
 
 export interface Context<T = any> {
   /** The external symbols that exist in the Context. */
   externalSymbols: string[];
-
-  /** All the errors gathered */
-  errors: SourceError[];
 
   /** Runtime specific state */
   runtime: {
@@ -75,5 +74,5 @@ export interface Context<T = any> {
   externalContext?: T;
 
   typeEnvironments: TypeEnvironment[];
-  contractEnvironment: ContractEnvironment;
+  contractEnvironments: ContractEnvironment[];
 }

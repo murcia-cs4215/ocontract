@@ -1,4 +1,4 @@
-import { createInitialContractEnvironment } from 'contracts/environment';
+import { createInitialContractEnvironments } from 'contracts/environment';
 import { createInitialTypeEnvironments } from 'types/environment';
 
 import { GLOBAL } from './constants';
@@ -17,13 +17,12 @@ const createEmptyContext = <T>(
 ): Context<T> => {
   return {
     externalSymbols,
-    errors: [],
     externalContext,
     runtime: createEmptyRuntime(),
     numberOfOuterEnvironments: 1,
     prelude: null,
     typeEnvironments: createInitialTypeEnvironments(),
-    contractEnvironment: createInitialContractEnvironment(),
+    contractEnvironments: createInitialContractEnvironments(),
   };
 };
 

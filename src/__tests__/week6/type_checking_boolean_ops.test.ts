@@ -1,10 +1,5 @@
-import assert from 'assert';
-
 import { boolType, valueTypeToPrimitive } from 'types/utils';
-import { getStaticTypeErrorMessage } from 'utils/tests';
-
-import { createContext } from '../../context';
-import { run } from '../../index';
+import { expectTypeError, runTest } from 'utils/tests';
 
 const testValues = {
   int: ['1', '2'],
@@ -20,51 +15,29 @@ const operators = ['&&', '||'];
 
 for (const operator of operators) {
   test(`${operator} with bools`, () => {
-    const context = createContext();
     const values = testValues['bool'];
-    const res = run(`${values[0]} ${operator} ${values[1]};;`, context);
-    expect(res.status).toBe('finished');
-    assert('type' in res);
-    expect(res.type).toBe(boolType);
+    const res = runTest(`${values[0]} ${operator} ${values[1]};;`);
+    expect(res).toMatchObject({
+      status: 'finished',
+      type: boolType,
+    });
   });
 
   test(`${operator} with non-bools`, () => {
-    const context = createContext();
     let res;
     for (const value1 of testValues['bool']) {
       for (const [type, values2] of testValueEntries) {
         if (type === 'bool') {
           continue;
         }
-        res = run(`${value1} ${operator} ${values2[0]};;`, context);
-        expect(res).toEqual({
-          status: 'errored',
-        });
-        expect(context.errors).toHaveLength(1);
-        expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage(boolType, valueTypeToPrimitive[type]),
-        );
-        context.errors = [];
+        res = runTest(`${value1} ${operator} ${values2[0]};;`);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
 
-        res = run(`${values2[0]} ${operator} ${value1};;`, context);
-        expect(res).toEqual({
-          status: 'errored',
-        });
-        expect(context.errors).toHaveLength(1);
-        expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage(boolType, valueTypeToPrimitive[type]),
-        );
-        context.errors = [];
+        res = runTest(`${values2[0]} ${operator} ${value1};;`);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
 
-        res = run(`${values2[0]} ${operator} ${values2[1]};;`, context);
-        expect(res).toEqual({
-          status: 'errored',
-        });
-        expect(context.errors).toHaveLength(1);
-        expect(context.errors[0].explain()).toBe(
-          getStaticTypeErrorMessage(boolType, valueTypeToPrimitive[type]),
-        );
-        context.errors = [];
+        res = runTest(`${values2[0]} ${operator} ${values2[1]};;`);
+        expectTypeError(res, boolType, valueTypeToPrimitive[type]);
       }
     }
   });

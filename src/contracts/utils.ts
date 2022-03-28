@@ -1,13 +1,26 @@
-import { Contract, FunctionContract } from './types';
+import { Expression, SourceLocation } from 'parser/types';
 
-export function curryParamContracts(contracts: Contract[]): FunctionContract {
-  let finalContract = contracts[contracts.length - 1];
-  for (let i = contracts.length - 2; i >= 0; i--) {
-    finalContract = {
-      type: 'FunctionContract',
-      parameterContract: contracts[i],
-      returnContract: finalContract,
-    };
+import { Contract } from './types';
+
+export function wrapExpressionInMonitor(
+  exp: Expression,
+  contract: Contract | undefined,
+  pos: string | undefined,
+  neg: string | undefined,
+): void {
+  exp.contract = contract;
+  exp.pos = pos;
+  exp.neg = neg;
+}
+
+export function propagateLoc(
+  contract: Contract,
+  loc: SourceLocation | undefined,
+): void {
+  if (contract.type === 'FlatContract') {
+    contract.loc = loc;
+    return;
   }
-  return finalContract as FunctionContract;
+  propagateLoc(contract.parameterContract, loc);
+  propagateLoc(contract.returnContract, loc);
 }

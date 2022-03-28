@@ -1,7 +1,5 @@
 import { AbstractParseTreeVisitor } from 'antlr4ts/tree/AbstractParseTreeVisitor';
 
-import { Contract } from 'contracts/types';
-import { curryParamContracts } from 'contracts/utils';
 import {
   ContractListContext,
   ContractSetNotationContext,
@@ -10,10 +8,12 @@ import {
 } from 'lang/GrammarParser';
 import { GrammarVisitor } from 'lang/GrammarVisitor';
 
-import { UNKNOWN_LOCATION } from '../constants';
-
 import { ExpressionParser } from './expressionParser';
-import { ContractExpression, Identifier } from './types';
+import {
+  ContractExpression,
+  ContractExpressionType,
+  Identifier,
+} from './types';
 import { contextToLocation } from './utils';
 
 export class ContractParser
@@ -22,17 +22,19 @@ export class ContractParser
 {
   private expressionParser = new ExpressionParser();
 
-  private wrapWithContractExpression(con: Contract): ContractExpression {
+  private wrapWithContractExpression(
+    con: ContractExpressionType,
+  ): ContractExpression {
     return {
       type: 'ContractExpression',
       contract: con,
-      loc: UNKNOWN_LOCATION,
+      loc: con.loc,
     };
   }
 
   protected defaultResult(): ContractExpression {
     return this.wrapWithContractExpression({
-      type: 'EmptyContract',
+      type: 'EmptyContractExpression',
     });
   }
 
@@ -40,8 +42,9 @@ export class ContractParser
     ctx: ContractSimpleExpressionContext,
   ): ContractExpression {
     return this.wrapWithContractExpression({
-      type: 'FlatContract',
+      type: 'FlatContractExpression',
       contract: this.expressionParser.visit(ctx.expression()),
+      loc: contextToLocation(ctx),
     });
   }
 
@@ -50,7 +53,7 @@ export class ContractParser
   ): ContractExpression {
     const param = this.expressionParser.visit(ctx.identifier()) as Identifier;
     return this.wrapWithContractExpression({
-      type: 'FlatContract',
+      type: 'FlatContractExpression',
       contract: {
         type: 'LambdaExpression',
         body: this.expressionParser.visit(ctx.expression()),
@@ -70,12 +73,12 @@ export class ContractParser
   }
 
   visitContractList(ctx: ContractListContext): ContractExpression {
-    const contractList: Array<Contract> = [];
+    const contractList: Array<ContractExpression> = [];
     const contractExpArr = ctx.contractExpression();
     for (let i = 0; i < contractExpArr.length; i++) {
-      contractList.push(this.visit(contractExpArr[i]).contract);
+      contractList.push(this.visit(contractExpArr[i]));
     }
-    return this.wrapWithContractExpression(curryParamContracts(contractList));
+    return curryParamContracts(contractList);
   }
 
   visitParenthesesContract(
@@ -85,4 +88,21 @@ export class ContractParser
       this.visit(ctx.contractExpression()).contract,
     );
   }
+}
+
+function curryParamContracts(
+  contracts: ContractExpression[],
+): ContractExpression {
+  let finalContract = contracts[contracts.length - 1];
+  for (let i = contracts.length - 2; i >= 0; i--) {
+    finalContract = {
+      type: 'ContractExpression',
+      contract: {
+        type: 'FunctionContractExpression',
+        parameterContract: contracts[i],
+        returnContract: finalContract,
+      },
+    };
+  }
+  return finalContract;
 }

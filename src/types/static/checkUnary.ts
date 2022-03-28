@@ -7,13 +7,13 @@ import { FunctionType, Type } from '../types';
 import { isSameType } from '../utils';
 
 import { TypeMismatchError } from './errors';
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkUnaryExpression(
   node: UnaryExpression,
   context: Context,
 ): Type {
-  const argument = _typeCheck(node.argument, context);
+  const argument = typeCheck(node.argument, context);
   const operator = node.operator === '-' ? NEGATIVE_OP : node.operator;
   let unaryTypes = getType(context, operator) as FunctionType | FunctionType[];
   if (!Array.isArray(unaryTypes)) {

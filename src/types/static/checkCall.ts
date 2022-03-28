@@ -10,14 +10,14 @@ import {
   TooManyArgumentsError,
   TypeMismatchError,
 } from './errors';
-import { _typeCheck } from './index';
+import { typeCheck } from './index';
 
 export function checkCallExpression(
   node: CallExpression,
   context: Context,
 ): Type {
   // Two cases to handle here: when all arguments have been supplied vs partial
-  const originalFunctionType = _typeCheck(node.callee, context);
+  const originalFunctionType = typeCheck(node.callee, context);
   if (originalFunctionType.type !== 'FunctionType') {
     throw new NotAFunctionError(formatType(originalFunctionType), node);
   }
@@ -29,7 +29,7 @@ export function checkCallExpression(
       throw new TooManyArgumentsError(formatType(originalFunctionType), node);
     }
     const expectedType = (functionType as FunctionType).parameterType;
-    const argumentType = _typeCheck(node.arguments[i], context);
+    const argumentType = typeCheck(node.arguments[i], context);
     if (!isSameType(expectedType, argumentType)) {
       throw new TypeMismatchError(
         node.arguments[i],

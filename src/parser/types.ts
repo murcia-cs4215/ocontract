@@ -2,7 +2,7 @@
  * GENERAL TYPES
  */
 
-import { Contract } from 'contracts/types';
+import { BaseContractMonitor } from 'contracts/types';
 import { FunctionType, Type } from 'types/types';
 
 import { StringWrapper } from './wrappers';
@@ -226,14 +226,27 @@ export interface CallExpression extends BaseCallExpression {
 /**
  * CONTRACTS
  */
-
-interface BaseContractMonitor {
-  contract?: Contract;
-  pos?: string;
-  neg?: string;
-}
-
 export interface ContractExpression extends BaseNode {
   type: 'ContractExpression';
-  contract: Contract;
+  contract: ContractExpressionType;
+}
+
+export type ContractExpressionType =
+  | FlatContractExpression
+  | FunctionContractExpression
+  | EmptyContractExpression;
+
+export interface FunctionContractExpression extends BaseNode {
+  type: 'FunctionContractExpression';
+  parameterContract: ContractExpression; // Note that we will curry contracts, i.e. the next param's contract is inside the return contract
+  returnContract: ContractExpression;
+}
+
+export interface FlatContractExpression extends BaseNode {
+  type: 'FlatContractExpression';
+  contract: Expression;
+}
+
+export interface EmptyContractExpression extends BaseNode {
+  type: 'EmptyContractExpression';
 }

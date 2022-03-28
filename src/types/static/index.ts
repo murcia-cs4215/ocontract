@@ -1,6 +1,6 @@
 import { Context } from 'runtimeTypes';
 
-import { Node, Program } from 'parser/types';
+import { Node } from 'parser/types';
 import { unitType, valueTypeToPrimitive } from 'types/utils';
 
 import { Type } from '../types';
@@ -15,20 +15,8 @@ import { checkLocalLetExpression } from './checkLocalLet';
 import { checkLogicalExpression } from './checkLogical';
 import { checkProgram } from './checkProgram';
 import { checkUnaryExpression } from './checkUnary';
-import { StaticTypeError } from './errors';
 
-export function typeCheck(program: Program, context: Context): void {
-  try {
-    _typeCheck(program, context);
-  } catch (e) {
-    if (e instanceof StaticTypeError) {
-      context.errors.push(e);
-    }
-    throw e;
-  }
-}
-
-export function _typeCheck(node: Node, context: Context): Type {
+export function typeCheck(node: Node, context: Context): Type {
   switch (node.type) {
     case 'BinaryExpression':
       return checkBinaryExpression(node, context);
@@ -41,7 +29,7 @@ export function _typeCheck(node: Node, context: Context): Type {
     case 'EmptyExpression':
       return unitType; // We won't type contract stuff for now
     case 'ExpressionStatement':
-      return _typeCheck(node.expression, context);
+      return typeCheck(node.expression, context);
     case 'GlobalLetStatement':
       return checkGlobalLetStatement(node, context);
     case 'Identifier':
