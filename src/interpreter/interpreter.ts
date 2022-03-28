@@ -6,13 +6,9 @@ import {
   addContractToCurrentScope,
   lookupContracts,
 } from 'contracts/environment';
-import { checkPredContract, verifyContractExists } from 'contracts/runtime';
-import {
-  ContractType,
-  GlobalLetStatement,
-  LambdaExpression,
-  Node,
-} from 'parser/types';
+import { checkFlatContract, verifyContractExists } from 'contracts/runtime';
+import { FlatContract, FunctionContract } from 'contracts/types';
+import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
 import {
   checkArgument,
   checkBinaryExpression,
@@ -165,13 +161,13 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       node.left.name,
       context.contractEnvironment,
     );
-    if (contractForId != undefined) {
+    if (contractForId != null) {
       // this contract should be flat
       // enforce this contract
-      checkPredContract(
+      checkFlatContract(
         node,
         value,
-        (contractForId as Array<ContractType>)[0],
+        contractForId as FlatContract,
         context,
         node.left.name,
       );
@@ -279,23 +275,21 @@ export function apply(
   arg: RuntimeResult,
   context: Context,
 ): RuntimeResult {
-  // check preds for arguments
-
   const copyArg = cloneDeep(arg);
-
   if (verifyContractExists(closure.originalNode, context)) {
+    const originalContract = closure.originalNode.contract as FunctionContract;
     if (isPrimitiveType(arg.type)) {
-      checkPredContract(
+      checkFlatContract(
         closure.originalNode,
         arg,
-        (closure.originalNode.contract as Array<ContractType>)[0],
+        originalContract.parameterContract as FlatContract,
         context,
         closure.originalNode.neg as string,
       );
     } else {
       // hof
       propagateContract(
-        (closure.originalNode.contract as Array<ContractType>)[0],
+        originalContract.parameterContract as FunctionContract,
         closure.originalNode.neg as string,
         closure.originalNode.pos as string,
         (copyArg.value as Closure).originalNode,
@@ -319,20 +313,18 @@ export function apply(
     const result = evaluate(originalNode.body, context);
 
     if (verifyContractExists(originalNode, context)) {
-      const contractList = closure.originalNode.contract as Array<ContractType>;
+      const contract = closure.originalNode.contract as FunctionContract;
       if (isPrimitiveType(result.type)) {
-        checkPredContract(
+        checkFlatContract(
           closure.originalNode,
           result,
-          contractList[contractList.length - 1],
+          contract.returnContract as FlatContract,
           context,
           closure.originalNode.pos as string,
         );
       } else {
         propagateContract(
-          (closure.originalNode.contract as Array<ContractType>)[
-            contractList.length - 1
-          ],
+          contract.returnContract,
           closure.originalNode.pos as string,
           closure.originalNode.neg as string,
           (result.value as Closure).originalNode,
@@ -350,7 +342,7 @@ export function apply(
       params: originalNode.params.slice(1),
       body: originalNode.body,
       contract: originalNode.contract
-        ? (originalNode.contract as Array<ContractType>).slice(1)
+        ? (originalNode.contract as FunctionContract).returnContract
         : undefined,
       pos: originalNode.pos,
       neg: originalNode.neg,

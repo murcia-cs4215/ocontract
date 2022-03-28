@@ -1,65 +1,62 @@
-import { Closure } from 'interpreter/closure';
-import { handleRuntimeError } from 'interpreter/errors';
-import { apply, evaluate } from 'interpreter/interpreter';
-import {
-  ContractType,
-  Expression,
-  FlatContractExpression,
-  Node,
-} from 'parser/types';
+import assert from 'assert';
 
-import { UNKNOWN_LOCATION } from '../../constants';
+import { FlatContract } from 'contracts/types';
+import { Closure } from 'interpreter/closure';
+import { handleRuntimeError, InterpreterError } from 'interpreter/errors';
+import { apply, evaluate } from 'interpreter/interpreter';
+import { Expression, Node } from 'parser/types';
+import { isBool } from 'types/utils';
+
 import { Context, RuntimeResult } from '../../runtimeTypes';
 
 import { ContractNotWellFormedError, ContractViolationError } from './errors';
 
-export function checkPredContract(
+export function checkFlatContract(
   node: Node,
   val: RuntimeResult,
-  contract: ContractType,
+  contract: FlatContract,
   context: Context,
   blame: string,
 ): void {
-  const contractExp = evaluate(
-    (contract as FlatContractExpression).contract,
-    context,
-  ).value;
+  const contractExp = evaluate(contract.contract, context).value;
 
   if (!(contractExp instanceof Closure)) {
     return handleRuntimeError(
       context,
-      new ContractViolationError(node, 'Expected flat contract for value'),
+      new InterpreterError(
+        node,
+        'Contract is not a function, which should have been caught by the type checker.',
+      ),
     );
-  } else {
-    const check = apply(contractExp, val, context);
-    if (check.value === false) {
-      const loc = contractExp.originalNode.loc ?? UNKNOWN_LOCATION;
-      const msg =
-        'Contract Violation!\n' +
-        `Blame: ${blame}\n` +
-        `Source of blame:  Line ${loc.start.line}, Column ${loc.start.column}`;
-      return handleRuntimeError(context, new ContractViolationError(node, msg));
-    }
   }
+  const check = apply(contractExp, val, context);
+  assert(isBool(check.type));
+  if (check.value) {
+    // Contract successfully asserted
+    return;
+  }
+
+  return handleRuntimeError(
+    context,
+    new ContractViolationError(node, contractExp.originalNode, blame),
+  );
 }
 
 export function verifyContractExists(
   exp: Expression,
   context: Context,
 ): boolean {
-  if (exp.contract) {
-    const verified = exp.pos !== undefined && exp.neg !== undefined;
-    if (!verified) {
-      return handleRuntimeError(
-        context,
-        new ContractNotWellFormedError(
-          exp,
-          'Expected contract, pos, neg to be well-defined',
-        ),
-      );
-    }
-    return verified;
-  } else {
+  if (exp.contract == null) {
     return false;
   }
+  if (exp.pos == null || exp.neg == null) {
+    return handleRuntimeError(
+      context,
+      new ContractNotWellFormedError(
+        exp,
+        'Expected contract, pos, neg to be well-defined',
+      ),
+    );
+  }
+  return true;
 }
