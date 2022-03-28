@@ -6,14 +6,20 @@ import { formatType } from 'utils/formatters';
 import { Context } from '../../runtimeTypes';
 import {
   createLocalTypeEnvironment,
+  getContractType,
   popTypeEnvironment,
   pushTypeEnvironment,
   setType,
 } from '../environment';
-import { FunctionType, Type } from '../types';
-import { isSameType, unitType } from '../utils';
+import { ContractType, FunctionType, Type } from '../types';
+import {
+  formatContractType,
+  isPrimitiveType,
+  isSameType,
+  unitType,
+} from '../utils';
 
-import { TypeMismatchError } from './errors';
+import { ContractTypeMismatchError, TypeMismatchError } from './errors';
 import { typeCheck } from './index';
 
 export function checkGlobalLetStatement(
@@ -70,6 +76,32 @@ export function checkGlobalLetStatement(
       formatType(type),
     );
   }
+
+  const contractType = getContractType(context, name);
+  if (contractType && !matchesContractType(declaredType, contractType)) {
+    throw new ContractTypeMismatchError(
+      node,
+      formatContractType(contractType),
+      formatType(declaredType),
+    );
+  }
+
   setType(context, name, declaredType);
   return unitType; // update this for functions
+}
+
+function matchesContractType(type: Type, contractType: ContractType): boolean {
+  if (isPrimitiveType(type)) {
+    if (contractType.type !== 'FlatContractType') {
+      return false;
+    }
+    return isSameType(type, contractType.contractType.parameterType);
+  }
+  if (contractType.type !== 'FunctionContractType') {
+    return false;
+  }
+  return (
+    matchesContractType(type.parameterType, contractType.parameterType) &&
+    matchesContractType(type.returnType, contractType.returnType)
+  );
 }

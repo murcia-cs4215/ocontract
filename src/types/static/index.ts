@@ -8,6 +8,7 @@ import { Type } from '../types';
 import { checkBinaryExpression } from './checkBinary';
 import { checkCallExpression } from './checkCall';
 import { checkConditionalExpression } from './checkConditional';
+import { checkContractDeclarationStatement } from './checkContract';
 import { checkGlobalLetStatement } from './checkGlobalLet';
 import { checkIdentifier } from './checkIdentifier';
 import { checkLambdaExpression } from './checkLambda';
@@ -25,6 +26,7 @@ export function typeCheck(node: Node, context: Context): Type {
     case 'ConditionalExpression':
       return checkConditionalExpression(node, context);
     case 'ContractDeclarationStatement':
+      return checkContractDeclarationStatement(node, context);
     case 'ContractExpression':
     case 'EmptyExpression':
       return unitType; // We won't type contract stuff for now

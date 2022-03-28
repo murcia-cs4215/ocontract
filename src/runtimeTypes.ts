@@ -1,7 +1,7 @@
 import { Contract } from 'contracts/types';
 import { SourceError } from 'errors/types';
 import { Node } from 'parser/types';
-import { Type } from 'types/types';
+import { ContractType, Type } from 'types/types';
 
 /**
  * TYPES FOR OUTPUT
@@ -43,7 +43,10 @@ export interface Environment {
   thisContext?: Value;
 }
 
-export type TypeEnvironment = Map<string, Type | Type[]>;
+export interface TypeEnvironment {
+  typeMap: Map<string, Type | Type[]>;
+  contractTypeMap: Map<string, ContractType>;
+}
 
 export interface ContractEnvironment {
   contractMap: Map<string, Contract>;

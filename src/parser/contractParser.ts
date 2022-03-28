@@ -51,7 +51,9 @@ export class ContractParser
   visitContractSetNotation(
     ctx: ContractSetNotationContext,
   ): ContractExpression {
-    const param = this.expressionParser.visit(ctx.identifier()) as Identifier;
+    const param = this.expressionParser.visit(
+      ctx.identifierWithType(),
+    ) as Identifier;
     return this.wrapWithContractExpression({
       type: 'FlatContractExpression',
       contract: {

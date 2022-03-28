@@ -1,6 +1,6 @@
 import { Context, TypeEnvironment } from '../runtimeTypes';
 
-import { Type } from './types';
+import { ContractType, Type } from './types';
 import {
   boolType,
   floatType,
@@ -55,7 +55,9 @@ const primitiveFuncs: [string, Type | Type[]][] = [
 export function createInitialTypeEnvironments(): TypeEnvironment[] {
   const initialTypeMappings = [...predeclaredNames, ...primitiveFuncs];
 
-  return [new Map(initialTypeMappings)];
+  return [
+    { typeMap: new Map(initialTypeMappings), contractTypeMap: new Map() },
+  ];
 }
 
 // ENVIRONMENT HELPERS
@@ -75,9 +77,9 @@ export function popTypeEnvironment(context: Context): TypeEnvironment | null {
 
 export function getType(context: Context, name: string): Type | Type[] | null {
   for (let i = 0; i < context.typeEnvironments.length; i++) {
-    if (context.typeEnvironments[i].has(name)) {
+    if (context.typeEnvironments[i].typeMap.has(name)) {
       // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return context.typeEnvironments[i].get(name)!;
+      return context.typeEnvironments[i].typeMap.get(name)!;
     }
   }
   return null;
@@ -88,11 +90,32 @@ export function setType(
   name: string,
   type: Type | Type[],
 ): void {
-  context.typeEnvironments[0].set(name, type);
+  context.typeEnvironments[0].typeMap.set(name, type);
+}
+
+export function getContractType(
+  context: Context,
+  name: string,
+): ContractType | null {
+  for (let i = 0; i < context.typeEnvironments.length; i++) {
+    if (context.typeEnvironments[i].contractTypeMap.has(name)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      return context.typeEnvironments[i].contractTypeMap.get(name)!;
+    }
+  }
+  return null;
+}
+
+export function setContractType(
+  context: Context,
+  name: string,
+  type: ContractType,
+): void {
+  context.typeEnvironments[0].contractTypeMap.set(name, type);
 }
 
 // LOCAL ENVIRONMENT
 
 export function createLocalTypeEnvironment(): TypeEnvironment {
-  return new Map();
+  return { typeMap: new Map(), contractTypeMap: new Map() };
 }
