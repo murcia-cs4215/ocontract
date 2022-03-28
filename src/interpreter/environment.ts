@@ -96,3 +96,15 @@ export function createFunctionEnvironment(
   environment.head[param.name] = arg;
   return environment;
 }
+
+export function createContractEnvironment(
+  environments: Environment[],
+  name = 'contractEnvironment',
+): Environment {
+  return {
+    name,
+    tail: environments[0],
+    head: {},
+    id: uniqueId(),
+  };
+}

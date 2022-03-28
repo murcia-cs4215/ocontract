@@ -1,8 +1,16 @@
+import assert from 'assert';
+
 import { ContractDeclarationStatement, ContractExpression } from 'parser/types';
 import { formatType } from 'utils/formatters';
 
 import { Context } from '../../runtimeTypes';
-import { setContractType } from '../environment';
+import {
+  createLocalTypeEnvironment,
+  popTypeEnvironment,
+  pushTypeEnvironment,
+  setContractType,
+  setType,
+} from '../environment';
 import { ContractType, Type } from '../types';
 import { isBool, isPrimitiveType, unitType } from '../utils';
 
@@ -46,10 +54,34 @@ function checkContractExpression(
     contract.parameterContract,
     context,
   );
+  const isFlatSetNotation =
+    contract.parameterContract.contract.type === 'FlatContractExpression' &&
+    contract.parameterContract.contract.isSetNotation;
+
+  if (isFlatSetNotation) {
+    assert(
+      contract.parameterContract.contract.type === 'FlatContractExpression',
+    );
+    const contractExpression = contract.parameterContract.contract.contract;
+    assert(contractExpression.type === 'LambdaExpression'); // True if set notation
+    const contractTypeEnvironment = createLocalTypeEnvironment();
+    pushTypeEnvironment(context, contractTypeEnvironment);
+    setType(
+      context,
+      contractExpression.params[0].name,
+      contractExpression.typeDeclaration.parameterType,
+    );
+  }
+
   const returnContract = checkContractExpression(
     contract.returnContract,
     context,
   );
+
+  if (isFlatSetNotation) {
+    popTypeEnvironment(context);
+  }
+
   return {
     type: 'FunctionContractType',
     parameterType: parameterContract,

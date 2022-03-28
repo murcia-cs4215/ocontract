@@ -245,6 +245,7 @@ export interface FunctionContractExpression extends BaseNode {
 export interface FlatContractExpression extends BaseNode {
   type: 'FlatContractExpression';
   contract: Expression;
+  isSetNotation: boolean;
 }
 
 export interface EmptyContractExpression extends BaseNode {
