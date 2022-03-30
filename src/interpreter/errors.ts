@@ -1,9 +1,10 @@
 import { RuntimeSourceError } from 'errors/runtimeSourceError';
-
 import { Node } from 'parser/types';
 
 import { ErrorSeverity, ErrorType } from '../errors/types';
-import { Context } from '../types';
+import { Context } from '../runtimeTypes';
+
+import { Closure } from './closure';
 
 export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
@@ -24,41 +25,29 @@ export class InterpreterError extends RuntimeSourceError {
   }
 }
 
-export class UnboundValueError extends RuntimeSourceError {
-  constructor(public name: string, node: Node) {
-    super(node);
-  }
-
-  public explain(): string {
-    return `Unbound value ${this.name}`;
-  }
-
-  public elaborate(): string {
-    return `Before you can read the value of ${this.name}, you need to bind it to a value.`;
-  }
-}
-
-export class TooManyArgumentsError extends RuntimeSourceError {
-  constructor(public functionType: string, node: Node) {
-    super(node);
-  }
-
-  public explain(): string {
-    return `This function has type ${this.functionType}`;
-  }
-
-  public elaborate(): string {
-    return "It is applied to too many arguments; maybe you forgot a `;'.";
-  }
-}
-
 export function handleRuntimeError(
   context: Context,
   error: RuntimeSourceError,
 ): never {
-  context.errors.push(error);
   context.runtime.environments = context.runtime.environments.slice(
     -context.numberOfOuterEnvironments,
   );
   throw error;
+}
+
+export function assertClosure(
+  closure: any,
+  node: Node,
+  context: Context,
+): closure is Closure {
+  if (!(closure instanceof Closure)) {
+    return handleRuntimeError(
+      context,
+      new InterpreterError(
+        node,
+        'A non-function was called, which should have been caught by the type checker',
+      ),
+    );
+  }
+  return true;
 }

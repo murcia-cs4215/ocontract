@@ -1,28 +1,26 @@
-import { SourceError } from 'errors/types';
+import { Type } from 'types/types';
 
-import { Finished, Type } from '../types';
+import { Errored, Finished } from '../runtimeTypes';
 
 const verboseErrors = false;
 
-export function formatErrorsForRepl(
-  errors: SourceError[],
+export function formatErroredForRepl(
+  result: Errored,
   verbose: boolean = verboseErrors,
 ): string {
-  const errorMessagesArr = errors.map((error) => {
-    const line = error.location ? error.location.start.line : '<unknown>';
-    const column = error.location ? error.location.start.column : '<unknown>';
-    const explanation = error.explain();
+  const error = result.error;
+  const line = error.location ? error.location.start.line : '<unknown>';
+  const column = error.location ? error.location.start.column : '<unknown>';
+  const explanation = error.explain();
 
-    if (verbose) {
-      // TODO: Currently elaboration is just tagged on to a new line after the error message itself. Find a better
-      // way to display it.
-      const elaboration = error.elaborate();
-      return `Line ${line}, Column ${column}: ${explanation}\n${elaboration}\n`;
-    } else {
-      return `Line ${line}, Column ${column}: ${explanation}`;
-    }
-  });
-  return errorMessagesArr.join('\n');
+  if (verbose) {
+    // TODO: Currently elaboration is just tagged on to a new line after the error message itself. Find a better
+    // way to display it.
+    const elaboration = error.elaborate();
+    return `Line ${line}, Column ${column}: ${explanation}\n${elaboration}\n`;
+  } else {
+    return `Line ${line}, Column ${column}: ${explanation}`;
+  }
 }
 
 export function formatFinishedForRepl(result: Finished): string {
@@ -34,7 +32,7 @@ export function formatFinishedForRepl(result: Finished): string {
     result.value = `${result.value}.`;
   }
 
-  const value = result.type.kind === 'function' ? '<fun>' : result.value;
+  const value = result.type.type === 'FunctionType' ? '<fun>' : result.value;
 
   if (result.name) {
     return `val ${result.name} : ${type} = ${value}`;
@@ -42,11 +40,12 @@ export function formatFinishedForRepl(result: Finished): string {
   return `- : ${type} = ${value}`;
 }
 
-export function formatType(type: Type): string {
-  if (type.kind === 'primitive') {
-    return type.type;
+export function formatType(type: Type | Type[]): string {
+  if (Array.isArray(type)) {
+    return type.map(formatType).join(' or ');
   }
-  return [...type.parameterTypes, type.returnType]
-    .map((t) => (t.kind === 'function' ? `(${formatType(t)})` : formatType(t)))
-    .join(' -> ');
+  if (type.type === 'PrimitiveType') {
+    return type.valueType;
+  }
+  return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;
 }

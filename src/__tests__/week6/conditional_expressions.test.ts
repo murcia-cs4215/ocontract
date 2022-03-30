@@ -1,5 +1,5 @@
-import { intType } from '../../constants';
-import { runTest } from '../../utils/tests';
+import { intType } from 'types/utils';
+import { runTest } from 'utils/tests';
 
 test('conditional expression', () => {
   const resT = runTest('if true then 10 else 20;;');

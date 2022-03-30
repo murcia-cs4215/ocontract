@@ -1,32 +1,7 @@
+import { Contract } from 'contracts/types';
 import { SourceError } from 'errors/types';
-
 import { Node } from 'parser/types';
-
-/**
- * TYPES FOR TYPE CHECKING
- */
-
-export type PrimitiveType =
-  | 'int'
-  | 'float'
-  | 'bool'
-  | 'string'
-  | 'char'
-  | 'unit';
-
-export interface Primitive {
-  kind: 'primitive';
-  type: PrimitiveType;
-}
-
-// cannot name Function, conflicts with TS
-export interface FunctionType {
-  kind: 'function';
-  parameterTypes: Type[];
-  returnType: Type;
-}
-
-export type Type = Primitive | FunctionType;
+import { ContractType, Type } from 'types/types';
 
 /**
  * TYPES FOR OUTPUT
@@ -36,6 +11,7 @@ export type Value = any;
 
 export interface Errored {
   status: 'errored';
+  error: SourceError;
 }
 
 export interface Finished {
@@ -60,23 +36,26 @@ export interface Frame {
 
 export interface Environment {
   id: string;
-  name: string;
+  name?: string;
   tail: Environment | null;
   // callExpression?: es.CallExpression;
   head: Frame;
   thisContext?: Value;
 }
 
-export type TypeEnvironment = {
+export interface TypeEnvironment {
   typeMap: Map<string, Type | Type[]>;
-}[];
+  contractTypeMap: Map<string, ContractType>;
+}
+
+export interface ContractEnvironment {
+  contractMap: Map<string, Contract>;
+  currentScope: string; // used for assigning blame
+}
 
 export interface Context<T = any> {
   /** The external symbols that exist in the Context. */
   externalSymbols: string[];
-
-  /** All the errors gathered */
-  errors: SourceError[];
 
   /** Runtime specific state */
   runtime: {
@@ -97,5 +76,6 @@ export interface Context<T = any> {
    */
   externalContext?: T;
 
-  typeEnvironment: TypeEnvironment;
+  typeEnvironments: TypeEnvironment[];
+  contractEnvironments: ContractEnvironment[];
 }

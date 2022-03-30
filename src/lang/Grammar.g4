@@ -36,25 +36,33 @@ BOOLEAN: 'true' | 'false';
 IF: 'if';
 THEN: 'then';
 ELSE: 'else';
-// FUN: 'fun';
-// ARROW: '->';
-// PIPE: '|>';
+FUN: 'fun';
+ARROW: '->';
+PIPE: '|';
 LET: 'let';
 IN: 'in';
 REC: 'rec';
+COLON: ':';
+CONTRACT: 'contract';
 
 // LISTSTART: '[';
 // LISTEND: ']';
 DOUBLESEMICOLON: ';;';
 
-TYPE
-  : 'int'
-  | 'float'
-  | 'char'
-  | 'string'
-  | 'bool'
-  | 'unit'
-  ;
+PRIMITIVETYPE
+   : 'int'
+   | 'float'
+   | 'char'
+   | 'string'
+   | 'bool'
+   | 'unit'
+   ;
+
+type
+   : PRIMITIVETYPE                                                   # PrimType
+   | '(' type ')'                                                    # ParenType
+   | type (ARROW type)+                                              # FunType
+   ;
 
 // pattern matching related tokens
 // MATCH: 'match';
@@ -62,90 +70,128 @@ TYPE
 
 // match the last
 IDENTIFIER: [a-z_] [a-zA-Z0-9_]*;
+
+atom
+   : NUMBER                                                          # Number
+   | FLOAT                                                           # Float
+   | BOOLEAN                                                         # Boolean
+   | CHAR                                                            # Char
+   | STRING                                                          # String
+   ;
 /*
  * Productions
  */
-start : statements* EOF;
+start : (statement DOUBLESEMICOLON)* EOF;
 
-statements: expression DOUBLESEMICOLON;
+statement
+   : expression
+   | letGlobalBinding
+   | contractDeclaration
+   ;
 
 // TODO: how to define letGlobalBinding as not an expression so that (let x = 1) + 1 and let x = let y = 1 will not pass the parser
 
 // TODO: add support let parser trim leading and trailing whitespaces so that it does not return console error when parsing
 expression
    // : patternMatching # PatternMatchingExpression
-   // | arrowFunction   # ArrowFunctionExpression 
-   : funcApplication                                                 # CallFunction
+   // | arrowFunction   # ArrowFunctionExpression
    // | arg=expression  PIPE  caller=expression    #PipedCallExpression
    // | LISTSTART listContent  LISTEND                       # ListDeclaration
-   | NUMBER                                                          # Number
-   | FLOAT                                                           # Float
-   | BOOLEAN                                                         # Boolean
-   | CHAR                                                            # Char
-   | STRING                                                          # String
-   | parenthesesExpression                                           # Parentheses
-   | <assoc=right> left=expression  operator=POW  right=expression   # Power
-   | left=expression  operator=MUL  right=expression                 # Multiplication
-   | left=expression  operator=DIV  right=expression                 # Division
-   | left=expression  operator=MULFLOAT  right=expression            # MultiplicationFloat
-   | left=expression  operator=DIVFLOAT  right=expression            # DivisionFloat
-   | left=expression  operator=MOD right=expression                  # Modulus
-   | left=expression  operator=ADD  right=expression                 # Addition
-   | left=expression  operator=SUB  right=expression                 # Subtraction
-   | left=expression  operator=ADDFLOAT  right=expression            # AdditionFloat
-   | left=expression  operator=SUBFLOAT  right=expression            # SubtractionFloat
-   | left=expression  operator=LESSTHAN  right=expression            # LessThan
-   | left=expression  operator=LESSTHANOREQUAL  right=expression     # LessThanOrEqual
-   | left=expression  operator=GREATERTHAN  right=expression         # GreaterThan
-   | left=expression  operator=GREATERTHANOREQUAL  right=expression  # GreaterThanOrEqual
-   | left=expression  operator=EQUALSTRUC  right=expression          # EqualStructural
-   | left=expression  operator=NOTEQUALSTRUC  right=expression       # NotEqualStructural
-   | left=expression  operator=EQUALPHYS  right=expression           # EqualPhysical
-   | left=expression  operator=NOTEQUALPHYS  right=expression        # NotEqualPhysical
-   | left=expression  operator=CONCAT  right=expression              # Concatenation
-   | operator=SUB  argument=expression                               # Negative
-   | operator=NOT  argument=expression                               # Not
-   | left=expression  operator=AND  right=expression                 # And
-   | left=expression  operator=OR  right=expression                  # Or
-   | letGlobalBinding                                                # LetGlobalBindingExpression
-   | <assoc=right> letLocalBinding                                   # LetLocalBindingExpression
-   | functionDeclaration                                             # FunctionDeclarationExpression
-   | condExp                                                         # ConditionalExpression
+   : atom                                                            # AtomExpression
    | identifier                                                      # IdentifierExpression
+   | parenthesesExpression                                           # Parentheses
+   | <assoc=right> left=expression operator=POW right=expression     # Power
+   | left=expression operator=MUL right=expression                   # Multiplication
+   | left=expression operator=DIV right=expression                   # Division
+   | left=expression operator=MULFLOAT right=expression              # MultiplicationFloat
+   | left=expression operator=DIVFLOAT right=expression              # DivisionFloat
+   | left=expression operator=MOD right=expression                   # Modulus
+   | left=expression operator=ADD right=expression                   # Addition
+   | left=expression operator=SUB right=expression                   # Subtraction
+   | left=expression operator=ADDFLOAT right=expression              # AdditionFloat
+   | left=expression operator=SUBFLOAT right=expression              # SubtractionFloat
+   | left=expression operator=LESSTHAN right=expression              # LessThan
+   | left=expression operator=LESSTHANOREQUAL right=expression       # LessThanOrEqual
+   | left=expression operator=GREATERTHAN right=expression           # GreaterThan
+   | left=expression operator=GREATERTHANOREQUAL right=expression    # GreaterThanOrEqual
+   | left=expression operator=EQUALSTRUC right=expression            # EqualStructural
+   | left=expression operator=NOTEQUALSTRUC right=expression         # NotEqualStructural
+   | left=expression operator=EQUALPHYS right=expression             # EqualPhysical
+   | left=expression operator=NOTEQUALPHYS right=expression          # NotEqualPhysical
+   | left=expression operator=CONCAT right=expression                # Concatenation
+   | operator=SUB argument=expression                                # Negative
+   | operator=NOT argument=expression                                # Not
+   | left=expression operator=AND right=expression                   # And
+   | left=expression operator=OR right=expression                    # Or
+   | condExp                                                         # ConditionalExpression
+   | letLocalBinding                                                 # LetLocalBindingExpression
+   | lambda                                                          # LambdaExpression
+   | funcApplication                                                 # CallFunction
    // | expression  '::'  expression ( '::'  expression)*  #DeconstructionExpression
    ;
 
-identifier // want identifier to be a node in the parser tree which can be visited
-   :  IDENTIFIER 
+typeAnnotation
+   : COLON type
+   ;
+
+contractExpression // need to write a helper method to properly form the correct contract
+   : expression                                                      # ContractSimpleExpression
+   | '{' identifierWithType PIPE expression '}'                      # ContractSetNotation
+   | contractExpression (ARROW contractExpression)+                  # ContractList
+   | '(' contractExpression ')'                                      # ParenthesesContract
+   ;
+
+contractDeclaration
+   : CONTRACT identifier EQUALSTRUC contractExpression
+   ;
+
+identifierWithTypeParen // enforce having parenthesis to disambiguate
+   : '(' identifierWithType ')'
+   ;
+
+identifierWithType
+   : id=identifier idType=typeAnnotation
+   ;
+
+condExp
+   : IF test=expression THEN consequent=expression ELSE alternate=expression
+   ;
+
+parenthesesExpression
+   : '('  inner=expression  ')'
+   ;
+
+funcArgument
+   : atom
+   | identifier
+   | parenthesesExpression
+   ;
+
+identifier: IDENTIFIER;
+
+identifierListWithType
+ 	: (identifierWithTypeParen)+
+   ;
+
+funcApplyArgumentList
+   : funcArgument ( funcArgument)*
    ;
 
 funcApplication
-   : func=identifier  args=expressionLists
+   : func=identifier args=funcApplyArgumentList
+   | '(' lambdaFunc=lambda ')' args=funcApplyArgumentList
    ;
 
-// arrowFunctionBody // need arrowFunctionBody be a child node of ArrowFunctionExpression
-//    : expression
-//    ;
-
-parenthesesExpression
-   :  '('  inner=expression  ')'  
-   ;
-   
-// arrowFunction
-//    :  FUN  param=identifier  ARROW  body=arrowFunctionBody 
-//    ;
-
-// We will enforce the presence of an alternate for now, although it's optional in OCaml.
-condExp
-   :  IF  test=expression  THEN  consequent=expression  ELSE  alternate=expression 
+lambda
+   : FUN (params=identifierListWithType) returnType=typeAnnotation ARROW body=expression
    ;
 
 letGlobalBinding
-	: LET (REC?) id=identifier  EQUALSTRUC  init=expression // TODO: any expression other than letGlobalBinding itself!!
+	: LET (REC?) id=identifier (params=identifierListWithType?) idType=typeAnnotation EQUALSTRUC init=expression
    ;
 
 letLocalBinding
-   : (letGlobalBinding | functionDeclaration)  IN  exp2=expression
+   : letGlobalBinding IN exp2=expression
    ;
 
 // listElement
@@ -161,17 +207,5 @@ letLocalBinding
 //    ;
 
 // patternBranch
-//    :  '|'  pattern=expression  ARROW  result=expression 
+//    :  '|'  pattern=expression  ARROW  result=expression
 //    ;
-
-identifierList
- 	:  identifier ( identifier)*
-   ;
-
-expressionLists
- 	:  expression ( expression)*
-   ;
-
-functionDeclaration
-   : LET  (REC?)  ids=identifierList '=' body=expression
-   ;

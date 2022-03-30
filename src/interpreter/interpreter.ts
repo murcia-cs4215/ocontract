@@ -1,15 +1,30 @@
+import assert from 'assert';
+import cloneDeep from 'lodash.clonedeep';
+
+import { addContractToCurrentScope } from 'contracts/environment';
 import {
-  checkBinaryExpression,
-  checkBoolean,
-  checkUnaryExpression,
-} from 'checkers/types/runtimeChecker';
+  checkArgumentContract,
+  checkGlobalLetContract,
+  checkIdentifierContract,
+  checkReturnValueContract,
+} from 'contracts/runtime';
+import { propagateEnvironment, propagateLoc } from 'contracts/runtime/utils';
+import { Contract, FlatContract, FunctionContract } from 'contracts/types';
+import { GlobalLetStatement, LambdaExpression, Node } from 'parser/types';
+import {
+  checkArgumentType,
+  checkBinaryExpressionType,
+  checkBooleanType,
+  checkUnaryExpressionType,
+  LHS,
+  RHS,
+} from 'types/runtime';
+import { FunctionType } from 'types/types';
+import { unitType, valueTypeToPrimitive } from 'types/utils';
 
-import { Node } from 'parser/types';
+import { Context, RuntimeResult } from '../runtimeTypes';
 
-import { unitType, valueTypeToPrimitive } from '../constants';
-import { Context, RuntimeResult } from '../types';
-
-import { checkNumberOfArguments, Closure } from './closure';
+import { Closure } from './closure';
 import {
   createFunctionEnvironment,
   createLocalEnvironment,
@@ -18,7 +33,7 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import { handleRuntimeError, InterpreterError } from './errors';
+import { assertClosure, handleRuntimeError, InterpreterError } from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -32,6 +47,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Literal') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
+
     return {
       value: node.value,
       type: valueTypeToPrimitive[node.valueType],
@@ -41,17 +57,16 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     if (node.type !== 'Identifier') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    return getVariable(context, node.name);
+    const res = getVariable(context, node.name);
+    checkIdentifierContract(node, context, res);
+    return res;
   },
   UnaryExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'UnaryExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const argument = evaluate(node.argument, context);
-    const error = checkUnaryExpression(node, node.operator, argument);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkUnaryExpressionType(node, node.operator, argument, context);
     return evaluateUnaryExpression(node.operator, argument);
   },
   BinaryExpression: (node: Node, context: Context): RuntimeResult => {
@@ -60,10 +75,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
-    const error = checkBinaryExpression(node, node.operator, left, right);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBinaryExpressionType(node, node.operator, left, right, context);
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -71,10 +83,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const left = evaluate(node.left, context);
-    let error = checkBoolean(node, left);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, left, LHS, context);
     if (
       (node.operator === '&&' && !left.value) ||
       (node.operator === '||' && left.value)
@@ -82,10 +91,7 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return left;
     }
     const right = evaluate(node.right, context);
-    error = checkBoolean(node, left);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, right, RHS, context);
     return evaluateLogicalExpression(node.operator, left, right);
   },
   ConditionalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -93,21 +99,44 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     const test = evaluate(node.test, context);
-    const error = checkBoolean(node, test);
-    if (error) {
-      return handleRuntimeError(context, error);
-    }
+    checkBooleanType(node, test, undefined, context);
     return test.value
       ? evaluate(node.consequent, context)
       : evaluate(node.alternate, context);
   },
-  GlobalLetExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'GlobalLetExpression') {
+  GlobalLetStatement: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'GlobalLetStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
     // TODO: Look into handling of `let rec` expressions
     const identifier = node.left;
-    const value = evaluate(node.right, context);
+    let closure, value;
+    if (node.params.length > 0) {
+      closure = Closure.createFromLambdaExpression(
+        convertGlobalLetFuncToLambda(node),
+        context,
+      );
+    } else {
+      value = evaluate(node.right, context);
+      if (value.value instanceof Closure) {
+        closure = value.value;
+      }
+    }
+
+    // Define self in the closure's cloned environment only if recursive
+    if (closure && node.recursive) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      closure.clonedEnvironments[0]!.head[identifier.name] = {
+        value: closure,
+        type: closure.getType(),
+      };
+    }
+    if (closure) {
+      return setVariable(context, identifier.name, closure);
+    }
+
+    assert(value != null); // Functions have been handled above
+    checkGlobalLetContract(node, context, value);
     return setVariable(context, identifier.name, value);
   },
   LocalLetExpression: (node: Node, context: Context): RuntimeResult => {
@@ -121,30 +150,31 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     popEnvironment(context);
     return result;
   },
-  FunctionExpression: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'FunctionExpression') {
+  LambdaExpression: (node: Node, context: Context): RuntimeResult => {
+    if (node.type !== 'LambdaExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    const identifier = node.id;
-    const closure = Closure.createFromFunctionExpression(node, context);
-
-    // Define self in the closure's cloned environment only if recursive
-    if (node.recursive) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      closure.clonedEnvironments[0]!.head[identifier.name] = {
-        value: closure,
-        type: closure.getType(),
-      };
-    }
-    return setVariable(context, identifier.name, closure);
+    const closure = Closure.createFromLambdaExpression(node, context);
+    return {
+      value: closure,
+      type: closure.getType(),
+    };
   },
   CallExpression: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'CallExpression') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    const func = evaluate(node.callee, context);
+    let result = evaluate(node.callee, context);
+    let closure = result.value;
     const args = node.arguments.map((arg) => evaluate(arg, context));
-    return apply(func, args, context);
+
+    for (let i = 0; i < args.length; i++) {
+      assertClosure(closure, node, context);
+      checkArgumentType(node, closure, args[i], context);
+      result = apply(closure, args[i], context);
+      closure = result.value;
+    }
+    return result;
   },
   ExpressionStatement: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'ExpressionStatement') {
@@ -152,15 +182,55 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     return evaluate(node.expression, context);
   },
-  SequenceStatement: (node: Node, context: Context): RuntimeResult => {
-    if (node.type !== 'SequenceExpression') {
+  ContractDeclarationStatement: (
+    node: Node,
+    context: Context,
+  ): RuntimeResult => {
+    if (node.type !== 'ContractDeclarationStatement') {
       return handleRuntimeError(context, new InterpreterError(node));
     }
-    let value = { value: undefined, type: unitType } as RuntimeResult;
-    for (const expression of node.expressions) {
-      value = evaluate(expression, context);
+    const id = node.id.name;
+    const contract = evaluate(node.contract, context);
+    propagateLoc(contract.value as Contract, node.loc);
+    propagateEnvironment(contract.value as Contract, context);
+    addContractToCurrentScope(context, id, contract.value as Contract);
+    return {
+      value: undefined, // TODO: Look into value and type to return here
+      type: unitType,
+    };
+  },
+  ContractExpression: (node: Node, context: Context): RuntimeResult => {
+    if (
+      node.type !== 'ContractExpression' ||
+      node.contract.type === 'EmptyContractExpression'
+    ) {
+      return handleRuntimeError(context, new InterpreterError(node));
     }
-    return value;
+    if (node.contract.type === 'FlatContractExpression') {
+      const result = evaluate(node.contract.contract, context);
+      assert(result.value instanceof Closure);
+
+      return {
+        value: {
+          type: 'FlatContract',
+          contract: result.value,
+          isSetNotation: node.contract.isSetNotation,
+        } as FlatContract,
+        type: unitType, // TODO: Look into the type to return here
+      };
+    }
+    const parameterContract = evaluate(node.contract.parameterContract, context)
+      .value as Contract;
+    const returnContract = evaluate(node.contract.returnContract, context)
+      .value as Contract;
+    return {
+      value: {
+        type: 'FunctionContract',
+        parameterContract,
+        returnContract,
+      } as FunctionContract,
+      type: unitType, // TODO: Look into the type to return here
+    };
   },
   Program: (node: Node, context: Context): RuntimeResult => {
     if (node.type !== 'Program') {
@@ -189,46 +259,46 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
   return result;
 }
 
-function apply(
-  func: RuntimeResult,
-  args: RuntimeResult[],
+export function apply(
+  closure: Closure,
+  arg: RuntimeResult,
   context: Context,
 ): RuntimeResult {
-  if (!(func.value instanceof Closure)) {
-    return handleRuntimeError(
-      context,
-      new InterpreterError(context.runtime.nodes[0]),
-    );
-  }
-  const closure = func.value;
-  checkNumberOfArguments(closure, args, context); // Only throws is num args > func params. Otherwise, it curries if <
-  // TODO: Do typechecking of function call
+  const copyArg = cloneDeep(arg);
+  checkArgumentContract(closure, copyArg, context);
 
   // Replace context environments with function environments
   // Note that unlike JS, where you can define/modify bindings later and have it affect functions define prior,
   // in OCaml/OContract, function environments are fixed upon definition. So we need to do a substitution here.
   const originalEnvironments = context.runtime.environments;
-  const functionEnvironment = createFunctionEnvironment(closure, args);
-  context.runtime.environments = closure.clonedEnvironments;
+  const functionEnvironment = createFunctionEnvironment(closure, copyArg);
+
+  context.runtime.environments = [...closure.clonedEnvironments];
   pushEnvironment(context, functionEnvironment);
 
   const originalNode = closure.originalNode;
 
   // Means fully evaluated, no currying occurring here
-  if (originalNode.params.length === args.length) {
+  if (originalNode.params.length === 1) {
     const result = evaluate(originalNode.body, context);
+    checkReturnValueContract(closure, result, context);
     // Restore context environments
     context.runtime.environments = originalEnvironments;
     return result;
   }
 
-  const curriedClosure = Closure.createFromFunctionExpression(
+  const curriedClosure = Closure.createFromLambdaExpression(
     {
-      type: 'FunctionExpression',
-      id: { type: 'Identifier', name: 'curried' },
-      recursive: false,
-      params: originalNode.params.slice(args.length),
+      type: 'LambdaExpression',
+      params: originalNode.params.slice(1),
       body: originalNode.body,
+      contract: originalNode.contract
+        ? (originalNode.contract as FunctionContract).returnContract
+        : undefined,
+      pos: originalNode.pos,
+      neg: originalNode.neg,
+      typeDeclaration: closure.getType().returnType as FunctionType,
+      loc: originalNode.loc,
     },
     context,
   );
@@ -239,6 +309,18 @@ function apply(
 }
 
 // HELPER FUNCTIONS
+
+function convertGlobalLetFuncToLambda(
+  node: GlobalLetStatement,
+): LambdaExpression {
+  return {
+    type: 'LambdaExpression',
+    params: node.params,
+    body: node.right,
+    typeDeclaration: node.typeDeclaration as FunctionType,
+    loc: node.loc,
+  };
+}
 
 function visitNode(context: Context, node: Node): void {
   context.runtime.nodes.unshift(node);

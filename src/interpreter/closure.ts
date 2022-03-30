@@ -1,27 +1,15 @@
-import structuredClone from '@ungap/structured-clone';
+import cloneDeep from 'lodash.clonedeep';
 
-import { FunctionExpression } from 'parser/types';
-import { formatType } from 'utils/formatters';
+import { LambdaExpression } from 'parser/types';
+import { FunctionType } from 'types/types';
 
-import { primitiveTypes, unitType } from '../constants';
-import {
-  Context,
-  Environment,
-  FunctionType,
-  Primitive,
-  RuntimeResult,
-} from '../types';
+import { Context, Environment } from '../runtimeTypes';
 
-import { handleRuntimeError, TooManyArgumentsError } from './errors';
-
-function structuredCloneWithTypes<T>(item: T): T {
-  if (primitiveTypes.some((t) => t === (item as unknown as Primitive))) {
-    return item;
-  }
+export function cloneDeepWithClosure<T>(item: T): T {
   if (Array.isArray(item)) {
-    return item.map((i) => structuredCloneWithTypes(i)) as unknown as T;
+    return item.map((i) => cloneDeepWithClosure(i)) as unknown as T;
   }
-  if (item === null || item === undefined) {
+  if (item == null) {
     return item;
   }
   if (item instanceof Closure) {
@@ -30,31 +18,29 @@ function structuredCloneWithTypes<T>(item: T): T {
   if (typeof item === 'object') {
     const result: Partial<T> = {};
     for (const [key, value] of Object.entries(item)) {
-      result[key as keyof T] = structuredCloneWithTypes(value);
+      result[key as keyof T] = cloneDeepWithClosure(value);
     }
     return result as T;
   }
-  return structuredClone(item);
+  return cloneDeep(item);
 }
 
 export class Closure {
-  name: string;
-  originalNode: FunctionExpression;
+  originalNode: LambdaExpression;
   clonedEnvironments: Environment[];
 
-  private constructor(node: FunctionExpression, environments: Environment[]) {
-    this.name = node.id.name;
+  private constructor(node: LambdaExpression, environments: Environment[]) {
     this.originalNode = node;
     this.clonedEnvironments = environments;
   }
 
-  static createFromFunctionExpression(
-    node: FunctionExpression,
+  static createFromLambdaExpression(
+    node: LambdaExpression,
     context: Context,
   ): Closure {
     return new Closure(
       node,
-      structuredCloneWithTypes(context.runtime.environments),
+      cloneDeepWithClosure(context.runtime.environments),
     );
   }
 
@@ -63,28 +49,6 @@ export class Closure {
   }
 
   getType(): FunctionType {
-    return {
-      kind: 'function',
-      // TODO: Update this to be the actual function types
-      parameterTypes: this.originalNode.params.map(() => unitType),
-      returnType: unitType,
-    };
-  }
-}
-
-export function checkNumberOfArguments(
-  closure: Closure,
-  args: RuntimeResult[],
-  context: Context,
-): void {
-  const params = closure.originalNode.params;
-  if (params.length < args.length) {
-    return handleRuntimeError(
-      context,
-      new TooManyArgumentsError(
-        formatType(closure.getType()),
-        context.runtime.nodes[0],
-      ),
-    );
+    return this.originalNode.typeDeclaration;
   }
 }

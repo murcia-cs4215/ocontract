@@ -1,13 +1,10 @@
-import { getStaticTypeErrorMessage } from 'utils/tests';
-
 import {
   boolType,
   floatType,
   intType,
   valueTypeToPrimitive,
-} from '../../constants';
-import { createContext } from '../../context';
-import { run } from '../../index';
+} from 'types/utils';
+import { expectTypeError, runTest } from 'utils/tests';
 
 const testValues = {
   int: ['1', '2'],
@@ -18,8 +15,7 @@ const testValues = {
 };
 
 test('not with bool', () => {
-  const context = createContext();
-  const res = run('not true;;', context);
+  const res = runTest('not true;;');
   expect(res).toEqual({
     status: 'finished',
     value: false,
@@ -28,27 +24,18 @@ test('not with bool', () => {
 });
 
 test('not with non-bools', () => {
-  const context = createContext();
   let res;
   for (const [type, values] of Object.entries(testValues)) {
     if (type === 'bool') {
       continue;
     }
-    res = run(`not ${values[0]};;`, context);
-    expect(res).toEqual({
-      status: 'errored',
-    });
-    expect(context.errors).toHaveLength(1);
-    expect(context.errors[0].explain()).toBe(
-      getStaticTypeErrorMessage(boolType, valueTypeToPrimitive[type]),
-    );
-    context.errors = [];
+    res = runTest(`not ${values[0]};;`);
+    expectTypeError(res, boolType, valueTypeToPrimitive[type]);
   }
 });
 
 test('-unary with int', () => {
-  const context = createContext();
-  const res = run('-1;;', context);
+  const res = runTest('-1;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1,
@@ -57,8 +44,7 @@ test('-unary with int', () => {
 });
 
 test('-unary with float', () => {
-  const context = createContext();
-  const res = run('-1.5;;', context);
+  const res = runTest('-1.5;;');
   expect(res).toEqual({
     status: 'finished',
     value: -1.5,
@@ -67,20 +53,12 @@ test('-unary with float', () => {
 });
 
 test('-unary with non-ints and non-floats', () => {
-  const context = createContext();
   let res;
   for (const [type, values] of Object.entries(testValues)) {
     if (type === 'int' || type === 'float') {
       continue;
     }
-    res = run(`-${values[0]};;`, context);
-    expect(res).toEqual({
-      status: 'errored',
-    });
-    expect(context.errors).toHaveLength(1);
-    expect(context.errors[0].explain()).toBe(
-      getStaticTypeErrorMessage('int or float', valueTypeToPrimitive[type]),
-    );
-    context.errors = [];
+    res = runTest(`-${values[0]};;`);
+    expectTypeError(res, 'int or float', valueTypeToPrimitive[type]);
   }
 });

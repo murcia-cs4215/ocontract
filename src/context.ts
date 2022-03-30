@@ -1,7 +1,8 @@
-import { createTypeEnvironment } from 'checkers/types/environment';
+import { createInitialContractEnvironments } from 'contracts/environment';
+import { createInitialTypeEnvironments } from 'types/environment';
 
 import { GLOBAL } from './constants';
-import { Context, Environment, Value } from './types';
+import { Context, Environment, Value } from './runtimeTypes';
 
 const createEmptyRuntime = (): Context['runtime'] => ({
   isRunning: false,
@@ -16,12 +17,12 @@ const createEmptyContext = <T>(
 ): Context<T> => {
   return {
     externalSymbols,
-    errors: [],
     externalContext,
     runtime: createEmptyRuntime(),
     numberOfOuterEnvironments: 1,
     prelude: null,
-    typeEnvironment: createTypeEnvironment(),
+    typeEnvironments: createInitialTypeEnvironments(),
+    contractEnvironments: createInitialContractEnvironments(),
   };
 };
 

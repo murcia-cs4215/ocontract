@@ -1,5 +1,5 @@
-import { boolType, charType } from '../../constants';
-import { runTest } from '../../utils/tests';
+import { boolType, charType } from 'types/utils';
+import { runTest } from 'utils/tests';
 
 test('character', () => {
   const res = runTest("'a';;");
