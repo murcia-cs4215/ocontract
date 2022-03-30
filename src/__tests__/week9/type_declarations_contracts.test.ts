@@ -70,3 +70,17 @@ let f (x : int) : int = x;;`);
     makeFunctionType(intType, intType),
   );
 });
+
+test('currying functions with contract', () => {
+  // No violation
+  const res =
+    runTest(`contract f = {x : int | x > 1} -> {y : int | y > x} -> {z : int | z > 2 * x};;
+let f (x : int) (y: int) : int = x + y;;
+let g : int -> int = f 5;;
+g 6;;`);
+  expect(res).toEqual({
+    status: 'finished',
+    value: 11,
+    type: intType,
+  });
+});
