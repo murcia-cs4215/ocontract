@@ -1,5 +1,6 @@
 import isEqual from 'lodash.isequal';
 
+import { Contract } from 'contracts/types';
 import { formatType } from 'utils/formatters';
 
 import {
@@ -105,4 +106,14 @@ export function formatContractType(contractType: ContractType): string {
   return `${formatContractType(
     contractType.parameterType,
   )} -> ${formatContractType(contractType.returnType)}`;
+}
+
+export function getTypeOfContract(contract: Contract): Type {
+  if (contract.type === 'FlatContract') {
+    return contract.contract.getType().parameterType;
+  }
+  return makeFunctionType(
+    getTypeOfContract(contract.parameterContract),
+    getTypeOfContract(contract.returnContract),
+  );
 }

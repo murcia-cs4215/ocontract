@@ -32,7 +32,16 @@ export function formatFinishedForRepl(result: Finished): string {
     result.value = `${result.value}.`;
   }
 
-  const value = result.type.type === 'FunctionType' ? '<fun>' : result.value;
+  let value;
+  if (
+    'type' in result.value &&
+    (result.value.type === 'FlatContract' ||
+      result.value.type === 'FunctionContract')
+  ) {
+    value = '<contract>';
+  } else {
+    value = result.type.type === 'FunctionType' ? '<fun>' : result.value;
+  }
 
   if (result.name) {
     return `val ${result.name} : ${type} = ${value}`;

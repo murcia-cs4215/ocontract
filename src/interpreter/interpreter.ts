@@ -20,7 +20,7 @@ import {
   RHS,
 } from 'types/runtime';
 import { FunctionType } from 'types/types';
-import { unitType, valueTypeToPrimitive } from 'types/utils';
+import { getTypeOfContract, unitType, valueTypeToPrimitive } from 'types/utils';
 
 import { Context, RuntimeResult } from '../runtimeTypes';
 
@@ -195,8 +195,8 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     propagateEnvironment(contract.value as Contract, context);
     addContractToCurrentScope(context, id, contract.value as Contract);
     return {
-      value: undefined, // TODO: Look into value and type to return here
-      type: unitType,
+      ...contract,
+      name: id,
     };
   },
   ContractExpression: (node: Node, context: Context): RuntimeResult => {
@@ -210,26 +210,30 @@ const evaluators: { [nodeType: string]: Evaluator } = {
       const result = evaluate(node.contract.contract, context);
       assert(result.value instanceof Closure);
 
+      const contract = {
+        type: 'FlatContract',
+        contract: result.value,
+        isSetNotation: node.contract.isSetNotation,
+      } as FlatContract;
+
       return {
-        value: {
-          type: 'FlatContract',
-          contract: result.value,
-          isSetNotation: node.contract.isSetNotation,
-        } as FlatContract,
-        type: unitType, // TODO: Look into the type to return here
+        value: contract,
+        type: getTypeOfContract(contract), // TODO: Look into the type to return here
       };
     }
     const parameterContract = evaluate(node.contract.parameterContract, context)
       .value as Contract;
     const returnContract = evaluate(node.contract.returnContract, context)
       .value as Contract;
+    const contract = {
+      type: 'FunctionContract',
+      parameterContract,
+      returnContract,
+    } as FunctionContract;
+
     return {
-      value: {
-        type: 'FunctionContract',
-        parameterContract,
-        returnContract,
-      } as FunctionContract,
-      type: unitType, // TODO: Look into the type to return here
+      value: contract,
+      type: getTypeOfContract(contract), // TODO: Look into the type to return here
     };
   },
   Program: (node: Node, context: Context): RuntimeResult => {
