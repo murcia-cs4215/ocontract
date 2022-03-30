@@ -1,6 +1,8 @@
 \documentclass[a4paper]{article}
 
 \usepackage[utf8]{inputenc}
+\usepackage{amstext}
+\usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{color,soul}
 \usepackage{tikz}
@@ -12,6 +14,10 @@
 \definecolor{codegray}{rgb}{0.5,0.5,0.5}
 \definecolor{codepurple}{rgb}{0.58,0,0.82}
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Rule Commands
+\newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
+\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
@@ -93,5 +99,26 @@
     
 \pagenumbering{arabic}
 \section{Introduction}
+
+In this paper, we will be discussing about OContract, a spin-off of OCaml that supports contract-based assertions.
+A typical expression in OContract is
+
+\begin{verbatim}
+10 * 2 > 21
+\end{verbatim}
+
+We turn such expressions into statements by appending two semicolons:
+
+\begin{verbatim}
+10 * 2 > 21;;
+\end{verbatim}
+
+This statement can then be run as a program.
+The user expects that the programming system evaluates such programs, and returns the result.
+
+% TODO: Introduce contracts here
+
+\section{Syntax of OContract}
+
 
 \end{document}
