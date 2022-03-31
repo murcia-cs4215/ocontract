@@ -168,6 +168,9 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     let closure = result.value;
     const args = node.arguments.map((arg) => evaluate(arg, context));
 
+    // inherit neg because "scope" of closure is now callee's "neg" position
+    closure.originalNode.neg = node.callee.neg;
+
     for (let i = 0; i < args.length; i++) {
       assertClosure(closure, node, context);
       checkArgumentType(node, closure, args[i], context);

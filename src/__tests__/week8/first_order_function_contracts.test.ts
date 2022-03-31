@@ -35,7 +35,7 @@ contract f = gt0 -> gt0 -> gt0;;
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g (-2);;`);
-  expectContractViolation(res, 'g', 2, 0); // contract definition location
+  expectContractViolation(res, 'main', 2, 0); // contract definition location
 });
 
 test('contract violation for function contracts using alternate syntax', () => {
@@ -44,7 +44,7 @@ test('contract violation for function contracts using alternate syntax', () => {
 let f (x : int) (y : int) : int = x + y;;
 let g : int -> int = f 1;;
 g (-2);;`);
-  expectContractViolation(res, 'g', 1, 0); // contract definition location
+  expectContractViolation(res, 'main', 1, 0); // contract definition location
 });
 
 test('contract satisfied for function contracts using alternate syntax', () => {
