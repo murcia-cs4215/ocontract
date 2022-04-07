@@ -8,6 +8,7 @@
 \usepackage{tikz}
 \usepackage{listings, lstautogobble}
 \usepackage{xcolor}
+\usepackage{url}
 
 % For code listing %
 \definecolor{codegreen}{rgb}{0,0.6,0}
@@ -66,10 +67,10 @@
 \begin{titlepage}
     \begin{center}
         \vspace*{1cm}
-            
+
         \Huge
         \textbf{OContract}
-            
+
         \vspace{0.5cm}
         \LARGE
         Assertion-Based Contracts and Blame Passing for OCaml
@@ -78,47 +79,238 @@
 
 
         \vfill
-            
+
         A paper presented for \textbf{CS4215}
-            
+
         \vspace{0.8cm}
-            
+
         \includegraphics[width=0.4\textwidth]{nus-logo.jpg}
-            
+
         \Large
         \textbf{Rayson Koh (A0149884J),\\Zhu Hanming (A0196737L)}\\
         School of Computing\\
         National University of Singapore\\
         March 2022
-            
+
     \end{center}
 \end{titlepage}
 
 \tableofcontents
 \newpage
-    
+
 \pagenumbering{arabic}
 \section{Introduction}
 
-In this paper, we will be discussing about OContract, a spin-off of OCaml that supports contract-based assertions.
-A typical expression in OContract is
+Assertions as a programming language construct have great practical significance as it has been shown to be very useful in making robust software systems \cite{rosen}.
+Also, as the functional programming languages becomes increasingly more popular, there is a greater need for such languages to support assertion-based contracts in a higher-order world.
+
+As such, we will be discussing about the design and implementation of OContract, a spin-off of OCaml that supports higher-order contract-based assertions.
+We hope that OContract would serve as a proof-of-concept of the ideas as described in the landmark paper \emph{Contracts for Higher-Order Functions} \cite{contracts}.
+
+The first main section will largely be on user-level documentation. This would include high-level descriptions of OContract's features as well as some example programs.
+The second main section will be on developer documentation which would include detailed technical specifications and implementation details of OContract.
+
+\section{OContract Features}
+
+This section lists the various features that OContract offers.
+For a compelete technical specification of OContract, please refer to the developer documentation in section 3.
+
+Note that the example programs in this section is displayed as if the program was executed one statement at a time using the interactive Read-Eval-Print-Loop(REPL) shell.
+For more information regarding how to set up and run OContract programs, please refer to the README of the OContract repo.
+
+\subsection{Primitive Types}
+
+OContract supports the following primitive types: \texttt{int}, \texttt{float}, \texttt{string}, \texttt{char} and \texttt{bool}.
+
+A basic expression is simply a primitive value. We can turn such expressions into statements by appending two semicolons:
 
 \begin{verbatim}
-10 * 2 > 21
+    > 10;;
+    - : int = 10
+    > 10.5;;
+    - : float = 10.5
+    > "abc";;
+    - : string = abc
+    > '1';;
+    - : char = 1
+    > true;;
+    - : bool = true
 \end{verbatim}
 
-We turn such expressions into statements by appending two semicolons:
+\subsection{Basic Operators}
+
+OContract supports various basic operators:
+
+\begin{itemize}
+    \item Unary \texttt{not}
+    \item Arithmetic operators on \texttt{int}: \texttt{+}, \texttt{-}, \texttt{/}, \texttt{*}, \texttt{mod}
+    \item Arithmetic operators on \texttt{float}: \texttt{+.}, \texttt{-.}, \texttt{/.}, \texttt{*.}
+    \item Logical operators: \texttt{\&\&}, \texttt{||}
+    \item Binary comparison operators: \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==}, \texttt{!=}, \texttt{=}, \texttt{<>}
+    \item String concatenation operator: \texttt{\^}
+  \end{itemize}
+
+This is an example of a valid OContract program that uses basic operators:
 
 \begin{verbatim}
-10 * 2 > 21;;
+    > (1 + 2) - 3 * 4;;
+    - : int = -9
+    > (1 == 1) && (true || false);;
+    - : bool = true
 \end{verbatim}
 
-This statement can then be run as a program.
-The user expects that the programming system evaluates such programs, and returns the result.
+\subsection{If Statements}
 
-% TODO: Introduce contracts here
+OContract supports if statements in the form of \texttt{if} ... \texttt{then} ... \texttt{else} ... .
 
-\section{Syntax of OContract}
+An OContract program that uses if statements can be written like so:
 
+\begin{verbatim}
+    > if (1 > 2) then "seems wrong..." else "seems correct...";;
+    - : string = seems correct...
+\end{verbatim}
+
+\subsection{Lambda Expressions}
+
+Similar to OCaml, OContract allows users to define lambda expressions using the \texttt{fun} keyword.
+Note that \textbf{all of the input types and output type have to be clearly specified} for the program to be valid.
+
+To apply a lambda expression to some arguments, simply ensure that the arguments are whitespace-separated and comes after the lambda expression.
+
+Here is an example of an OContract program using lambda expressions:
+
+\begin{verbatim}
+    > (fun (x : int) : int -> x + 1) 1;;
+    - : int = 2
+    > (fun (x : int) (y : int) : bool -> x > y) 1 2;;
+    - : bool = false
+\end{verbatim}
+
+\subsection{Let Bindings}
+
+Similar to OCaml, OContract allows users to define bindings of the result of an expression to an identifier using the \texttt{let} keyword.
+Note that the type of the identifier must be clearly defined.
+
+The binding can be defined to be valid locally via the use of the \texttt{let ... in ...} syntax.
+
+Here is an example of some simple let binding:
+
+\begin{verbatim}
+    > let y : int = 10;;
+    val y : int = 10
+    > let x : int = 10 in x + 5;;
+    - : int = 15
+    > y;;
+    - : int = 10
+    > x;;
+    Uncaught Error: Line 1, Column 0: Unbound value x
+\end{verbatim}
+
+In addition to binding values to identifiers, lambda expressions are also allowed to be bound to identifiers.
+This offers a convenient way of reusing the lambda expression by referring to the identifier that is bound to that lambda expression.
+
+Let bindings also allows the user to define a function by defining symbols for the function arguments immediately after the identifier for the function.
+
+For example, the functions \texttt{f} and \texttt{g} as shown in the two separate programs below are semantically equivalent:
+
+\begin{verbatim}
+    > let f : int -> int = fun (x : int) : int -> x + 1;;
+    val f : int -> int = <fun>
+    > f 1;;
+    - : int = 2
+    > f 2;;
+    - : int = 3
+\end{verbatim}
+
+\begin{verbatim}
+    > let g (x : int) : int = x + 1;;
+    val g : int -> int = <fun>
+    > g 1;;
+    - : int = 2
+    > g 2;;
+    - : int = 3
+\end{verbatim}
+
+\subsection{Recursive Functions}
+
+OContract supports defining recursive function via the \texttt{let rec f ... = ... f ... } syntax.
+
+For example, the recursive factorial function can be defined as such:
+
+\begin{verbatim}
+    > let rec fact (x : int) : int = if x == 0 then 1 else x * (fact (x - 1));;
+    val fact : int -> int = <fun>
+    > fact 5;;
+    - : int = 120
+\end{verbatim}
+
+\subsection{Function Currying}
+
+OContract supports the partial application of a function.
+
+For example:
+
+\begin{verbatim}
+    > let f (x : int) (y : int) : int = x + y;;
+    val f : int -> int -> int = <fun>
+    > let g : int -> int = f 1;;
+    val g : int -> int = <fun>
+    > g 100;;
+    - : int = 101
+\end{verbatim}
+
+\subsection{Higher-Order Functions}
+
+As a functional programming language, OContracts allows the user to easily define and apply higher-order functions.
+
+For example, the program below defines a higher-order function \texttt{f} that takes in a function \texttt{g} and an integer \texttt{x}.
+
+\begin{verbatim}
+    > let f (g : int -> int) : int -> int = fun (x : int) : int -> g x;;
+    val f : int -> int -> int -> int = <fun>
+    > f (fun (x : int) : int -> x + 100) 10;;
+    - : int = 110
+\end{verbatim}
+
+\subsection{Contracts and Blame Assignment}
+
+The main feature of OContract is the ability for users to define assertion-based contracts and be notified of contract violations (if any) and the corresponding party to be blamed during runtime.
+
+A contract can be defined using the \texttt{contract} keyword, followed by the identifier to which the contract is defined on.
+
+For example, imagine there is a helper function \texttt{gt0} that takes in a integer and returns \texttt{true} if it is greater than 0 and \texttt{false} otherwise.
+Then the program below is an example of a contract stating that \texttt{x} must be holding a value that is greater than 0.
+
+\begin{verbatim}
+    > contract x = gt0;;
+    val x : int = <contract>
+\end{verbatim}
+
+Now if \texttt{x} is defined to be 2, there is no contract violation since 2 is greater than 0.
+However, if \texttt{x} is defined to be 0, then there is a contract violation and OContract will blame \texttt{main} since \texttt{main} supplied the wrong value to \texttt{x}.
+
+\begin{verbatim}
+    > let x : int = 0;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+\subsubsection{Predicate Contracts}
+
+\subsubsection{Function Contracts}
+
+\subsubsection{Dependent Contracts}
+
+\subsection{Static and Runtime Type Checker}
+
+\section{OContract Formal Specification}
+
+\subsection{Syntax Rules}
+
+\subsection{Typing Rules}
+
+\bibliographystyle{unsrt}
+\bibliography{ref}
 
 \end{document}
