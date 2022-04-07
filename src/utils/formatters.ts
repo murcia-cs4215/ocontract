@@ -34,6 +34,7 @@ export function formatFinishedForRepl(result: Finished): string {
 
   let value;
   if (
+    typeof result.value === 'object' &&
     'type' in result.value &&
     (result.value.type === 'FlatContract' ||
       result.value.type === 'FunctionContract')
