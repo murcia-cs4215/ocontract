@@ -432,6 +432,40 @@ Hence, in a sense, dependent contracts allows users to define ``stricter" contra
 
 \subsection{Static and Runtime Type Checker}
 
+OContract enforces types to be declared for all identifiers / arguments / return values.
+
+The strong type safety of OContract results in early detection of type errors and leads to faster development time.
+
+For example, the following program shows how OContract is able to detect static type errors.
+
+\begin{verbatim}
+    > let x : int = "not an integer" ;;
+    Uncaught:
+    Error: Line 1, Column 0: This expression has type string but an expression
+    was expected of type int
+    > let f (x : string) : int = x ^ "not an int" ;;
+    Uncaught:
+    Error: Line 1, Column 0: This expression has type string but an expression
+    was expected of type int
+\end{verbatim}
+
+In addition, OContract also enforces on type-checking on contracts and is able to detect type mismatch errors.
+
+For example, the following program shows how OContract is able to detect type mismatch errors with respect to contracts.
+
+\begin{verbatim}
+    > contract f = {x : int | x > 0} ;;
+    val f : int = <contract>
+    > let f : string = "not an int" ;;
+    Uncaught:
+    Error: Line 1, Column 0: This name has type string but its contract
+    was expecting type int
+    > contract g = {x : int | "not a bool"} ;;
+    Uncaught:
+    Error: Line 1, Column 13: This expression has type string but an expression
+    was expected of type bool
+\end{verbatim}
+
 \section{OContract Formal Specification}
 
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
