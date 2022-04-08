@@ -18,5 +18,5 @@ export function checkGlobalLetContract(
   if (contract == null || contract.type !== 'FlatContract') {
     return;
   }
-  checkFlatContract(node, result, contract, context, node.left.name);
+  checkFlatContract(node, result, contract, context, node.left.neg as string);
 }
