@@ -45,6 +45,7 @@ function monitorNode(node: Node, context: Context): void {
       break;
     }
     case 'LocalLetExpression': {
+      monitorNode(node.left, context);
       monitorNode(node.right, context);
       break;
     }
@@ -54,6 +55,7 @@ function monitorNode(node: Node, context: Context): void {
       break;
     }
     case 'GlobalLetStatement': {
+      monitorNode(node.left, context);
       pushContractEnvironment(context, {
         contractMap: new Map<string, Contract>(),
         currentScope: node.left.name,
