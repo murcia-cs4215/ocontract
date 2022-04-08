@@ -19,6 +19,28 @@
 % Rule Commands
 \newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
 \newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\Return}{\texttt{return}}
+\newcommand{\Recfun}{\texttt{recfun}}
+\newcommand{\If}{\texttt{if}}
+\newcommand{\Then}{\texttt{then}}
+\newcommand{\Else}{\texttt{else}}
+\newcommand{\End}{\texttt{end}}
+\newcommand{\Let}{\texttt{const}}
+\newcommand{\In}{\texttt{in}}
+\newcommand{\Rc}{\texttt{\}}}
+\newcommand{\Lc}{\texttt{\{}}
+\newcommand{\Times}{\texttt{*}}
+\newcommand{\Plus}{\texttt{+}}
+\newcommand{\TruE}{\texttt{true}}
+\newcommand{\FalsE}{\texttt{false}}
+\newcommand{\Int}{\texttt{number}}
+\newcommand{\Bool}{\texttt{bool}}
+\newcommand{\Undefined}{\texttt{undefined}}
+\newcommand{\X}{\texttt{x}}
+\newcommand{\F}{\texttt{f}}
+\newcommand{\LET}{\texttt{LET}}
+\newcommand{\END}{\texttt{END}}
+\newcommand{\IN}{\texttt{IN}}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
@@ -276,39 +298,151 @@ For example, the program below defines a higher-order function \texttt{f} that t
 
 The main feature of OContract is the ability for users to define assertion-based contracts and be notified of contract violations (if any) and the corresponding party to be blamed during runtime.
 
-A contract can be defined using the \texttt{contract} keyword, followed by the identifier to which the contract is defined on.
+\subsubsection{Predicate Contracts}
 
-For example, imagine there is a helper function \texttt{gt0} that takes in a integer and returns \texttt{true} if it is greater than 0 and \texttt{false} otherwise.
-Then the program below is an example of a contract stating that \texttt{x} must be holding a value that is greater than 0.
+A predicate contract is a contract that is defined on an identifier that holds a primitive value.
+
+Suppose that you wish to define a predicate contract on the identifier \texttt{x}, it can be done using the
 
 \begin{verbatim}
-    > contract x = gt0;;
-    val x : int = <contract>
+contract x = E1 ;;
 \end{verbatim}
 
-Now if \texttt{x} is defined to be 2, there is no contract violation since 2 is greater than 0.
-However, if \texttt{x} is defined to be 0, then there is a contract violation and OContract will blame \texttt{main} since \texttt{main} supplied the wrong value to \texttt{x}.
+syntax, where \texttt{E1} denotes an expression that evaluates to a function that takes in the value of \texttt{x} as input and returns a \texttt{bool}.
+During runtime, if the returned value is \texttt{false}, it would indicate a contract violation and the runtime system will notify the user of that.
+
+For example, the program below shows an example usage of predicate contracts. The contract on \texttt{x} only allows \texttt{x} to hold integers that are greater than 0.
+If \texttt{x} holds a value that is not greater than 0, a contract violation error will be thrown together with the blame party.
 
 \begin{verbatim}
+    > contract x = (fun (y : int) : bool -> y > 0);;
+    val x : int = <contract>
+    > let x : int = 1;;
+    val x : int = 1
     > let x : int = 0;;
     Uncaught Error: Line 1, Column 0: Contract violation!
     Blame: main
     Contract at: Line 1, Column 0
 \end{verbatim}
 
-\subsubsection{Predicate Contracts}
-
 \subsubsection{Function Contracts}
 
+A function contract is a contract that is defined on an identifier that refers to a function.
+
+To define a function contract on function \texttt{f} that takes in $k$ arguments, it can be done using the following syntax:
+
+\begin{verbatim}
+contract f = E1 -> E2 -> ... -> Ek -> Er ;;
+\end{verbatim}
+
+Each of the \texttt{Ei} ($1 \leq i \leq k$) is an expression that evaluates to a function which expects the $i$-th argument of \texttt{f} and returns a \texttt{bool}.
+Finally, the last term in the contract \texttt{Er} is an expression that evaluates to a function which expects the return value of fully evaluating the function \texttt{f} and returns a \texttt{bool}.
+
+Note that if the function takes in $k$ arguments, the contract that is defined on $f$ must have exactly $k + 1$ expressions that are separated by the "$\rightarrow$" on the right-hand-side.
+
+The following is an example of a function contract on a first-order function that takes in two integers and return their sum.
+For brevity, we excluded the definition of a helper function \texttt{gt0} that takes in an integer and returns a \texttt{bool} based on whether it is greater than 0 or not.
+
+\begin{verbatim}
+    > contract f = gt0 -> gt0 -> gt0;;
+    val f : int -> int -> int = <contract>
+    > let f (x : int) (y : int) : int = x + y;;
+    val f : int -> int -> int = <fun>
+    > f 1 1;;
+    - : int = 2
+    > f 0 1;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+\subsubsection{Contracts for Higher-Order Functions}
+
+Function contracts can also be used to define contracts for higher-order functions.
+
+For example, the following program defines a contract for a higher-order function \texttt{compose} that takes in two functions as input and returns a function that is a composition of the two functions.
+Again, we assume for brevity that there exists a helper function \texttt{gt0} that checks whether an integer is greater than 0.
+
+\begin{verbatim}
+    > contract compose = (gt0 -> gt0) -> (gt0 -> gt0) -> (gt0 -> gt0);;
+    val compose : int -> int -> int -> int -> int -> int = <contract>
+    > let compose (f : int -> int) (g : int -> int) : int -> int
+                  = fun (x : int) : int -> f (g x) ;;
+    val compose : int -> int -> int -> int -> int -> int = <fun>
+    > compose (fun (x : int) : int -> x + 1) (fun (y: int) : int -> y + 1) 0;;
+    Uncaught Error: Line 1, Column 61: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+OContract blames \texttt{main} in this case because a faulty value of 0 was supplied to \texttt{g} as \texttt{g} was expecting an input that is greater than 0.
+
+\subsubsection{Contract Set-Notation Syntax}
+
+For greater user flexibility, OContract allows a user to define a contract using an alternative Set-Notation syntax.
+
+For instance, predicate contracts can be defined as follows:
+
+\begin{verbatim}
+    > contract x = {a : int | a > 0} ;;
+    val x : int = <contract>
+\end{verbatim}
+
+This means that \texttt{x} should hold an integer that is greater than 0.
+
+More generally, each term on the right-hand-side of the contract declaration statement (i.e. after the ``=" sign), can be a set that first that contains two components separated by a ``$\vert$" symbol.
+The first component is a symbol that is used to identify the argument, and the second component is an expression (which could possibily involve the use of the symbol defined in the first component) that returns a \texttt{bool}.
+
+Note that it is possible to also use set notation syntax as well as the plain expressions interchangably in the declaration of a contract. See example below.
+
+\begin{verbatim}
+    > contract f = gt0 -> {y : int | y > 100};;
+    val f : int -> int = <contract>
+    > let f (x : int) : int = x + 100;;
+    val f : int -> int = <fun>
+    > f 0;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
 \subsubsection{Dependent Contracts}
+
+OContract allows the user to define dependent contracts, which refers having a predicate on arguments or the return value based on the values of the previous input values.
+
+Note that dependent contracts can only be defined using the set-notation contract syntax.
+
+For instance, consider the following program that defines an adder function.
+
+\begin{verbatim}
+    > contract adder = {x : int | x > 0} -> {y : int | y > 0} -> {z : int | z == x + y} ;;
+    val adder : int -> int -> int = <contract>
+    > let adder (x : int) (y : int) : int = x + 1;;
+    val adder : int -> int -> int = <fun>
+    > adder 1 2;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: adder
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+The contract of \texttt{adder} is violated due to wrong implementation of \texttt{adder}.
+Note that this contract violation error cannot be caught if one simply uses \texttt{gt0} as the last term in the contract of \texttt{adder}.
+
+Hence, in a sense, dependent contracts allows users to define ``stricter" contracts that provide stronger assertion guarentees.
 
 \subsection{Static and Runtime Type Checker}
 
 \section{OContract Formal Specification}
 
+In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
+
 \subsection{Syntax Rules}
 
 \subsection{Typing Rules}
+
+\subsection{Contracts Calculus}
+
+\subsection{Implementation Details}
 
 \bibliographystyle{unsrt}
 \bibliography{ref}
