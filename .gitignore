@@ -131,6 +131,3 @@ dist
 
 # Antlr4
 .antlr
-
-# Build
-build
