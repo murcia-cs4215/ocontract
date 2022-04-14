@@ -6,6 +6,7 @@ import {
   floatType,
   intType,
   makeFunctionType,
+  numericType,
   primitiveTypes,
   stringType,
 } from './utils';
@@ -50,6 +51,7 @@ const primitiveFuncs: [string, Type | Type[]][] = [
   ['/.', makeFunctionType(floatType, floatType, floatType)],
   ['**', makeFunctionType(floatType, floatType, floatType)],
   ['^', makeFunctionType(stringType, stringType, stringType)],
+  ['positive', makeFunctionType(numericType, boolType)],
 ];
 
 export function createInitialTypeEnvironments(): TypeEnvironment[] {
