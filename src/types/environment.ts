@@ -12,7 +12,10 @@ import {
   stringType,
 } from './utils';
 
-const predeclaredNames: [string, Type | Type[]][] = [];
+const predeclaredNames: [string, Type | Type[]][] = [
+  ['any', makeFunctionType(anyType, boolType)],
+  ['positive', makeFunctionType(numericType, boolType)],
+];
 
 // Name of Unary negative builtin operator
 export const NEGATIVE_OP = '-_1';
@@ -52,8 +55,6 @@ const primitiveFuncs: [string, Type | Type[]][] = [
   ['/.', makeFunctionType(floatType, floatType, floatType)],
   ['**', makeFunctionType(floatType, floatType, floatType)],
   ['^', makeFunctionType(stringType, stringType, stringType)],
-  ['any', makeFunctionType(anyType, boolType)],
-  ['positive', makeFunctionType(numericType, boolType)],
 ];
 
 export function createInitialTypeEnvironments(): TypeEnvironment[] {
