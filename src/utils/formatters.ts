@@ -1,3 +1,4 @@
+import { StringWrapper } from 'parser/wrappers';
 import { Type } from 'types/types';
 import { isJoinedType, isPrimitiveType } from 'types/utils';
 
@@ -33,6 +34,12 @@ export function formatFinishedForRepl(result: Finished): string {
     result.value = 'nan';
   } else if (type === 'float' && Math.floor(result.value) === result.value) {
     result.value = `${result.value}.`;
+  }
+  if (type === 'string' && result.value instanceof StringWrapper) {
+    result.value = `"${result.value.unwrap()}"`;
+  }
+  if (type === 'char') {
+    result.value = `'${result.value}'`;
   }
 
   let value;
