@@ -6,6 +6,8 @@ import { formatType } from 'utils/formatters';
 import {
   ContractType,
   FunctionType,
+  JoinedType,
+  JoinedValueType,
   PrimitiveType,
   PrimitiveValueType,
   Type,
@@ -14,6 +16,13 @@ import {
 export function makePrimitive(type: PrimitiveValueType): PrimitiveType {
   return {
     type: 'PrimitiveType',
+    valueType: type,
+  };
+}
+
+export function makeJoined(type: JoinedValueType): JoinedType {
+  return {
+    type: 'JoinedType',
     valueType: type,
   };
 }
@@ -30,6 +39,8 @@ export const boolType = makePrimitive('bool');
 export const stringType = makePrimitive('string');
 export const charType = makePrimitive('char');
 export const unitType = makePrimitive('unit');
+export const numericType = makeJoined('numeric');
+export const anyType = makeJoined('any');
 
 export const primitiveTypes = [
   intType,
@@ -56,6 +67,10 @@ export function isFunctionType(type: Type): type is FunctionType {
   return type.type === 'FunctionType';
 }
 
+export function isJoinedType(type: Type): type is JoinedType {
+  return type.type === 'JoinedType';
+}
+
 export function isInt(type: Type): boolean {
   return isEqual(type, intType);
 }
@@ -76,7 +91,24 @@ export function isChar(type: Type): boolean {
   return isEqual(type, charType);
 }
 
+export function isNumeric(type: Type): boolean {
+  return isEqual(type, numericType);
+}
+
+export function isAny(type: Type): boolean {
+  return isEqual(type, anyType);
+}
+
 export function isSameType(type1: Type, type2: Type): boolean {
+  if (isAny(type1) || isAny(type2)) {
+    return true;
+  }
+  if (isNumeric(type1)) {
+    return isNumeric(type2) || isInt(type2) || isFloat(type2);
+  }
+  if (isNumeric(type2)) {
+    return isNumeric(type1) || isInt(type1) || isFloat(type1);
+  }
   return isEqual(type1, type2);
 }
 
@@ -101,6 +133,9 @@ export function curryParamTypes(
 
 export function formatContractType(contractType: ContractType): string {
   if (contractType.type === 'FlatContractType') {
+    if (Array.isArray(contractType.contractType)) {
+      return formatType(contractType.contractType.map((t) => t.parameterType));
+    }
     return formatType(contractType.contractType.parameterType);
   }
   return `${formatContractType(
@@ -110,7 +145,7 @@ export function formatContractType(contractType: ContractType): string {
 
 export function getTypeOfContract(contract: Contract): Type {
   if (contract.type === 'FlatContract') {
-    return contract.contract.getType().parameterType;
+    return (contract.contract.getType() as FunctionType).parameterType;
   }
   return makeFunctionType(
     getTypeOfContract(contract.parameterContract),
