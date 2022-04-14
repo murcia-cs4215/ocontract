@@ -26,3 +26,20 @@ export class ContractViolationError extends RuntimeSourceError {
     return this.explain();
   }
 }
+
+export class DefaultFunctionContractNotSupportedError extends RuntimeSourceError {
+  public type = ErrorType.RUNTIME;
+  public severity = ErrorSeverity.ERROR;
+
+  constructor(node: Node) {
+    super(node);
+  }
+
+  public explain(): string {
+    return 'Contracts on in-built functions are currently not supported.';
+  }
+
+  public elaborate(): string {
+    return this.explain();
+  }
+}
