@@ -1,18 +1,20 @@
-import { ceil } from './ceil';
-import { floor } from './floor';
-import { round } from './round';
+import { is_nan } from './is_nan';
+import { mathDefaultFunctions } from './math';
+import { of_int } from './of_int';
+import { to_int } from './to_int';
 
 export const floatDefaultFunctions = {
-  ceil: {
-    value: ceil,
-    type: ceil.getType(),
+  ...mathDefaultFunctions,
+  is_nan: {
+    value: is_nan,
+    type: is_nan.getType(),
   },
-  floor: {
-    value: floor,
-    type: floor.getType(),
+  of_int: {
+    value: of_int,
+    type: of_int.getType(),
   },
-  round: {
-    value: round,
-    type: round.getType(),
+  to_int: {
+    value: to_int,
+    type: to_int.getType(),
   },
 };
