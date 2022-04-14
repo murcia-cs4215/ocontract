@@ -1,4 +1,5 @@
 import { anyFunction } from './any';
+import { ceil } from './ceil';
 import { length } from './length';
 import { negative } from './negative';
 import { positive } from './positive';
@@ -20,6 +21,10 @@ export const globalEnvironmentDefaultFunctions = {
   zero: {
     value: zero,
     type: zero.getType(),
+  },
+  ceil: {
+    value: ceil,
+    type: ceil.getType(),
   },
   length: {
     value: length,

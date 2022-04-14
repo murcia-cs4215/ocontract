@@ -12,11 +12,13 @@ import {
   stringType,
 } from './utils';
 
+// Note: We can only allow joined types in parameters, not return value
 const predeclaredNames: [string, Type | Type[]][] = [
   ['any', makeFunctionType(anyType, boolType)],
   ['positive', makeFunctionType(numericType, boolType)],
   ['negative', makeFunctionType(numericType, boolType)],
   ['zero', makeFunctionType(numericType, boolType)],
+  ['ceil', makeFunctionType(floatType, intType)],
   ['length', makeFunctionType(stringType, intType)],
 ];
 
