@@ -12,24 +12,30 @@ export function checkArgumentContract(
   arg: RuntimeResult, // Should be cloned
   context: Context,
 ): void {
-  if (verifyContractExists(closure.originalNode, context)) {
-    const originalContract = closure.originalNode.contract as FunctionContract;
-    if (isPrimitiveType(arg.type)) {
-      checkFlatContract(
-        closure.originalNode,
-        arg,
-        originalContract.parameterContract as FlatContract,
-        context,
-        closure.originalNode.neg as string,
-      );
-    } else {
-      // higher order function
-      wrapExpressionInMonitor(
-        (arg.value as Closure).originalNode,
-        originalContract.parameterContract as FunctionContract,
-        closure.originalNode.neg as string,
-        closure.originalNode.pos as string,
-      );
+  if (verifyContractExists(closure.originalNode)) {
+    for (let i = 0; i < closure.originalNode.contracts.length; i += 1) {
+      const contractDetails = closure.originalNode.contracts[i];
+      if (contractDetails.contract == null) {
+        return;
+      }
+      const contract = contractDetails.contract as FunctionContract;
+      if (isPrimitiveType(arg.type)) {
+        checkFlatContract(
+          closure.originalNode,
+          arg,
+          contract.parameterContract as FlatContract,
+          context,
+          contractDetails.neg,
+        );
+      } else {
+        // higher order function
+        wrapExpressionInMonitor(
+          (arg.value as Closure).originalNode,
+          contract.parameterContract as FunctionContract,
+          contractDetails.neg,
+          contractDetails.pos,
+        );
+      }
     }
   }
 }
@@ -39,23 +45,29 @@ export function checkReturnValueContract(
   result: RuntimeResult,
   context: Context,
 ): void {
-  if (verifyContractExists(closure.originalNode, context)) {
-    const contract = closure.originalNode.contract as FunctionContract;
-    if (isPrimitiveType(result.type)) {
-      checkFlatContract(
-        closure.originalNode,
-        result,
-        contract.returnContract as FlatContract,
-        context,
-        closure.originalNode.pos as string,
-      );
-    } else {
-      wrapExpressionInMonitor(
-        (result.value as Closure).originalNode,
-        contract.returnContract,
-        closure.originalNode.pos as string,
-        closure.originalNode.neg as string,
-      );
+  if (verifyContractExists(closure.originalNode)) {
+    for (let i = 0; i < closure.originalNode.contracts.length; i += 1) {
+      const contractDetails = closure.originalNode.contracts[i];
+      if (contractDetails.contract == null) {
+        return;
+      }
+      const contract = contractDetails.contract as FunctionContract;
+      if (isPrimitiveType(result.type)) {
+        checkFlatContract(
+          closure.originalNode,
+          result,
+          contract.returnContract as FlatContract,
+          context,
+          contractDetails.pos,
+        );
+      } else {
+        wrapExpressionInMonitor(
+          (result.value as Closure).originalNode,
+          contract.returnContract,
+          contractDetails.pos,
+          contractDetails.neg,
+        );
+      }
     }
   }
 }
