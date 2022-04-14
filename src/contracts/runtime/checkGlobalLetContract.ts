@@ -21,15 +21,15 @@ export function checkGlobalLetContract(
   result: RuntimeResult,
 ): void {
   const contract = lookupContract(node.left.name, context);
+  if (contract == null || contract.type !== 'FlatContract') {
+    return;
+  }
   // TODO: Support contracts for default closures in the future
   if (result.value instanceof DefaultClosure) {
     return handleRuntimeError(
       context,
       new DefaultFunctionContractNotSupportedError(context.runtime.nodes[0]),
     );
-  }
-  if (contract == null || contract.type !== 'FlatContract') {
-    return;
   }
   assert(node.left.contracts.length > 0);
   checkFlatContract(
