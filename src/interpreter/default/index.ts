@@ -4,6 +4,7 @@ import { anyFunction } from './any';
 import { floatDefaultFunctions } from './float';
 import { numericDefaultFunctions } from './numeric';
 import { stringDefaultFunctions } from './string';
+import { to_string } from './to_string';
 
 export const globalEnvironmentDefaultFunctions = {
   ...floatDefaultFunctions,
@@ -12,6 +13,10 @@ export const globalEnvironmentDefaultFunctions = {
   any: {
     value: anyFunction,
     type: anyFunction.getType(),
+  },
+  to_string: {
+    value: to_string,
+    type: to_string.getType(),
   },
 };
 
