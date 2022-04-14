@@ -1,7 +1,7 @@
 import { floatType, intType, makeFunctionType } from 'types/utils';
 
-import { RuntimeResult } from '../../runtimeTypes';
-import { DefaultClosure } from '../closure';
+import { RuntimeResult } from '../../../runtimeTypes';
+import { DefaultClosure } from '../../closure';
 
 export const ceil = new DefaultClosure(
   makeFunctionType(floatType, intType),

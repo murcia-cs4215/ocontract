@@ -1,7 +1,7 @@
 import { boolType, makeFunctionType, numericType } from 'types/utils';
 
-import { RuntimeResult } from '../../runtimeTypes';
-import { DefaultClosure } from '../closure';
+import { RuntimeResult } from '../../../runtimeTypes';
+import { DefaultClosure } from '../../closure';
 
 export const positive = new DefaultClosure(
   makeFunctionType(numericType, boolType),
