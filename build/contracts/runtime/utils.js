@@ -24,14 +24,11 @@ function checkFlatContract(node, val, contract, context, blame) {
     return (0, errors_1.handleRuntimeError)(context, new errors_2.ContractViolationError(node, contract, blame));
 }
 exports.checkFlatContract = checkFlatContract;
-function verifyContractExists(exp, context) {
-    if (exp.contract == null) {
+function verifyContractExists(exp) {
+    if (exp.contracts.length === 0) {
         return false;
     }
-    if (exp.pos == null || exp.neg == null) {
-        return (0, errors_1.handleRuntimeError)(context, new errors_2.ContractNotWellFormedError(exp, 'Expected contract, pos, neg to be well-defined'));
-    }
-    return true;
+    return exp.contracts[0].contract != null;
 }
 exports.verifyContractExists = verifyContractExists;
 function propagateLoc(contract, loc) {

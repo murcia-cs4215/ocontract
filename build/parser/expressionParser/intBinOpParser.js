@@ -11,6 +11,7 @@ const parseIntBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitSubtraction(ctx) {
@@ -20,6 +21,7 @@ const parseIntBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitMultiplication(ctx) {
@@ -29,6 +31,7 @@ const parseIntBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitDivision(ctx) {
@@ -38,6 +41,7 @@ const parseIntBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitModulus(ctx) {
@@ -47,6 +51,7 @@ const parseIntBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

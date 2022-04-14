@@ -133,8 +133,11 @@ const evaluators = {
         let result = evaluate(node.callee, context);
         let closure = result.value;
         const args = node.arguments.map((arg) => evaluate(arg, context));
-        // inherit neg because "scope" of closure is now callee's "neg" position
-        closure.originalNode.neg = node.callee.neg;
+        if (closure instanceof closure_1.Closure &&
+            closure.originalNode.contracts.length > 0) {
+            // inherit neg because "scope" of closure is now callee's "neg" position
+            closure.originalNode.contracts[0].neg = node.callee.contracts[0].neg;
+        }
         for (let i = 0; i < args.length; i++) {
             (0, errors_1.assertClosure)(closure, node, context);
             (0, runtime_2.checkArgumentType)(node, closure, args[i], context);
@@ -240,11 +243,12 @@ function apply(closure, arg, context) {
         type: 'LambdaExpression',
         params: originalNode.params.slice(1),
         body: originalNode.body,
-        contract: originalNode.contract
-            ? originalNode.contract.returnContract
-            : undefined,
-        pos: originalNode.pos,
-        neg: originalNode.neg,
+        contracts: originalNode.contracts.map((c) => {
+            if (c.contract == null) {
+                return c;
+            }
+            return Object.assign(Object.assign({}, c), { contract: c.contract.returnContract });
+        }),
         typeDeclaration: closure.getType().returnType,
         loc: originalNode.loc,
     }, context);
@@ -261,6 +265,7 @@ function convertGlobalLetFuncToLambda(node) {
         body: node.right,
         typeDeclaration: node.typeDeclaration,
         loc: node.loc,
+        contracts: [],
     };
 }
 function visitNode(context, node) {

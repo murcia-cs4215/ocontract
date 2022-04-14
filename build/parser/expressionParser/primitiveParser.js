@@ -11,6 +11,7 @@ const parsePrimitive = (BaseClass) => {
                 valueType: 'int',
                 value: parseInt(ctx.text, 10),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitFloat(ctx) {
@@ -19,6 +20,7 @@ const parsePrimitive = (BaseClass) => {
                 valueType: 'float',
                 value: parseFloat(ctx.text),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitBoolean(ctx) {
@@ -27,6 +29,7 @@ const parsePrimitive = (BaseClass) => {
                 valueType: 'bool',
                 value: ctx.text.trim().toLowerCase() === 'true',
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitChar(ctx) {
@@ -35,6 +38,7 @@ const parsePrimitive = (BaseClass) => {
                 valueType: 'char',
                 value: ctx.text.trim().charAt(1),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitString(ctx) {
@@ -45,6 +49,7 @@ const parsePrimitive = (BaseClass) => {
                 valueType: 'string',
                 value: wrappedValue,
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

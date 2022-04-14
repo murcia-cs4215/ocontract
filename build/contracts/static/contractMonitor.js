@@ -30,7 +30,7 @@ function monitorNode(node, context) {
         case 'Identifier': {
             // We don't need the exact contract now. The goal is to assign a pos and neg
             // so that we know who to blame when things go wrong.
-            (0, utils_1.wrapExpressionInMonitor)(node, undefined, node.name, (0, environment_1.getCurrentContractScope)(context));
+            (0, utils_1.wrapExpressionInFirstLevelMonitor)(node, node.name, (0, environment_1.getCurrentContractScope)(context));
             break;
         }
         case 'LocalLetExpression': {

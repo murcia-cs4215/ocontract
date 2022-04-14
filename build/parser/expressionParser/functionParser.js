@@ -16,6 +16,7 @@ const parseFunction = (BaseClass) => {
                 callee: callee,
                 arguments: args.map((arg) => this.visit(arg)),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitLambda(ctx) {
@@ -38,6 +39,7 @@ const parseFunction = (BaseClass) => {
                 body: this.visit(ctx._body),
                 loc: (0, utils_1.contextToLocation)(ctx),
                 typeDeclaration: type,
+                contracts: [],
             };
         }
     };
