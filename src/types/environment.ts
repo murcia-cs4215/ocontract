@@ -14,12 +14,21 @@ import {
 
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames: [string, Type | Type[]][] = [
-  ['any', makeFunctionType(anyType, boolType)],
+  // Float library
+  ['ceil', makeFunctionType(floatType, intType)],
+  ['floor', makeFunctionType(floatType, intType)],
+  ['round', makeFunctionType(floatType, intType)],
+
+  // Numeric library
   ['positive', makeFunctionType(numericType, boolType)],
   ['negative', makeFunctionType(numericType, boolType)],
   ['zero', makeFunctionType(numericType, boolType)],
-  ['ceil', makeFunctionType(floatType, intType)],
+
+  // String library
   ['length', makeFunctionType(stringType, intType)],
+
+  // General library
+  ['any', makeFunctionType(anyType, boolType)],
 ];
 
 // Name of Unary negative builtin operator
