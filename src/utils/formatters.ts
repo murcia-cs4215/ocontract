@@ -29,7 +29,9 @@ export function formatFinishedForRepl(result: Finished): string {
   if (type === 'unit') {
     result.value = '()';
   }
-  if (type === 'float' && Math.floor(result.value) === result.value) {
+  if (Number.isNaN(result.value)) {
+    result.value = 'nan';
+  } else if (type === 'float' && Math.floor(result.value) === result.value) {
     result.value = `${result.value}.`;
   }
 

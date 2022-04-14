@@ -1,34 +1,20 @@
+import { globalEnvironmentDefaultFunctionTypes } from 'interpreter/default';
+
 import { Context, TypeEnvironment } from '../runtimeTypes';
 
 import { ContractType, Type } from './types';
 import {
-  anyType,
   boolType,
   floatType,
   intType,
   makeFunctionType,
-  numericType,
   primitiveTypes,
   stringType,
 } from './utils';
 
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames: [string, Type | Type[]][] = [
-  // Float library
-  ['ceil', makeFunctionType(floatType, intType)],
-  ['floor', makeFunctionType(floatType, intType)],
-  ['round', makeFunctionType(floatType, intType)],
-
-  // Numeric library
-  ['positive', makeFunctionType(numericType, boolType)],
-  ['negative', makeFunctionType(numericType, boolType)],
-  ['zero', makeFunctionType(numericType, boolType)],
-
-  // String library
-  ['length', makeFunctionType(stringType, intType)],
-
-  // General library
-  ['any', makeFunctionType(anyType, boolType)],
+  ...globalEnvironmentDefaultFunctionTypes,
 ];
 
 // Name of Unary negative builtin operator

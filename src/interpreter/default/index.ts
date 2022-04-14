@@ -1,3 +1,5 @@
+import { Type } from 'types/types';
+
 import { anyFunction } from './any';
 import { floatDefaultFunctions } from './float';
 import { numericDefaultFunctions } from './numeric';
@@ -12,3 +14,8 @@ export const globalEnvironmentDefaultFunctions = {
     type: anyFunction.getType(),
   },
 };
+
+export const globalEnvironmentDefaultFunctionTypes: [string, Type][] =
+  Object.entries(globalEnvironmentDefaultFunctions).map(([key, value]) => {
+    return [key, value.type];
+  });
