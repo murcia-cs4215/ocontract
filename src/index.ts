@@ -6,7 +6,6 @@ import { monitorProgram } from 'contracts/static/contractMonitor';
 import { SourceError } from 'errors/types';
 import { evaluate } from 'interpreter/interpreter';
 import { parse } from 'parser/parser';
-import { StringWrapper } from 'parser/wrappers';
 import { typeCheck } from 'types/static';
 import { formatErroredForRepl, formatFinishedForRepl } from 'utils/formatters';
 
@@ -31,10 +30,7 @@ export function run(code: string, context: Context): Result {
     return {
       ...result,
       status: 'finished',
-      value:
-        result.value instanceof StringWrapper
-          ? result.value.unwrap()
-          : result.value,
+      value: result.value,
     };
   } catch (error) {
     cleanUpContextAfterRun(context);
