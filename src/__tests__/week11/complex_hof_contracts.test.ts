@@ -61,7 +61,7 @@ f g;;`);
 });
 
 test("function with hof contract that returns a result violating this function's return value contract", () => {
-  // f expects z > 0 from its hof arg but g gives z < 0
+  // f's argument contract is not strict enough to ensure that its return value contract is fulfilled.
   const res =
     runTest(`contract f = ({x : int | x > 0} -> {y : int | true}) -> {z : int | z > 0};;
 let f (a : int -> int) : int  = a 10;;
@@ -71,6 +71,6 @@ let g (a : int) : int = -a;;
 
 f g;;`);
 
-  // Blame main for passing in a function with a different contract to us.
-  expectContractViolation(res, 'main', 1, 0);
+  // Blame f for not having sufficiently strict conditions
+  expectContractViolation(res, 'f', 1, 0);
 });
