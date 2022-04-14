@@ -15,6 +15,7 @@ import {
 const predeclaredNames: [string, Type | Type[]][] = [
   ['any', makeFunctionType(anyType, boolType)],
   ['positive', makeFunctionType(numericType, boolType)],
+  ['negative', makeFunctionType(numericType, boolType)],
 ];
 
 // Name of Unary negative builtin operator
