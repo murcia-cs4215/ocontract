@@ -1,4 +1,5 @@
 import { Type } from 'types/types';
+import { isJoinedType, isPrimitiveType } from 'types/utils';
 
 import { Errored, Finished } from '../runtimeTypes';
 
@@ -54,7 +55,7 @@ export function formatType(type: Type | Type[]): string {
   if (Array.isArray(type)) {
     return type.map(formatType).join(' or ');
   }
-  if (type.type === 'PrimitiveType') {
+  if (isPrimitiveType(type) || isJoinedType(type)) {
     return type.valueType;
   }
   return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;
