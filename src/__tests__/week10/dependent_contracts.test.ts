@@ -151,14 +151,11 @@ test('dependent contract cannot be dependent on names only in hof contracts', ()
 });
 
 test('dependent contract correctly assigns blame when currying func', () => {
-  const res = runTest(`
-  contract f = {x : int | x > 1} ->
-             {y : int | y > x} ->
-             {z : int | z > 2*x};;
+  const res =
+    runTest(`contract f = {x : int | x > 1} -> {y : int | y > x} -> {z : int | z > 2 * x};;
 let f (x : int) (y: int) : int = x + y;;
 let g : int -> int = f 5;;
 
-g 4;;
-  `);
-  expectContractViolation(res, 'main', 2, 2);
+g 4;;`);
+  expectContractViolation(res, 'main', 1, 0);
 });

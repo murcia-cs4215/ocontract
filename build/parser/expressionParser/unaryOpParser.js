@@ -10,6 +10,7 @@ const parseUnaryOp = (BaseClass) => {
                 operator: '-',
                 argument: this.visit(ctx._argument),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitNot(ctx) {
@@ -18,6 +19,7 @@ const parseUnaryOp = (BaseClass) => {
                 operator: 'not',
                 argument: this.visit(ctx._argument),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

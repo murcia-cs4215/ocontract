@@ -71,6 +71,7 @@ export class ContractParser
           },
         },
         loc: contextToLocation(ctx),
+        contracts: [],
       },
       isSetNotation: true,
     });

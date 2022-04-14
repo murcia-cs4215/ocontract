@@ -11,6 +11,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitLessThanOrEqual(ctx) {
@@ -20,6 +21,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitGreaterThan(ctx) {
@@ -29,6 +31,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitGreaterThanOrEqual(ctx) {
@@ -38,6 +41,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitEqualStructural(ctx) {
@@ -47,6 +51,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitNotEqualStructural(ctx) {
@@ -56,6 +61,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitEqualPhysical(ctx) {
@@ -65,6 +71,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitNotEqualPhysical(ctx) {
@@ -74,6 +81,7 @@ const parseComparator = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

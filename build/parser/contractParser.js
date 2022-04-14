@@ -47,6 +47,7 @@ class ContractParser extends AbstractParseTreeVisitor_1.AbstractParseTreeVisitor
                     },
                 },
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             },
             isSetNotation: true,
         });

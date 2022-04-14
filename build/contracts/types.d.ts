@@ -1,10 +1,13 @@
 import { Closure } from '../interpreter/closure';
 import { SourceLocation } from '../parser/types';
 export declare type Contract = FlatContract | FunctionContract;
-export interface BaseContractMonitor {
+export interface ContractDetails {
     contract?: Contract;
-    pos?: string;
-    neg?: string;
+    pos: string;
+    neg: string;
+}
+export interface BaseContractMonitor {
+    contracts: ContractDetails[];
 }
 export interface FunctionContract {
     type: 'FunctionContract';

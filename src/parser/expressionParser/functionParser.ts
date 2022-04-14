@@ -20,6 +20,7 @@ export const parseFunction = <T extends Constructable>(
         callee: callee,
         arguments: args.map((arg) => this.visit(arg)),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -48,6 +49,7 @@ export const parseFunction = <T extends Constructable>(
         body: this.visit(ctx._body),
         loc: contextToLocation(ctx),
         typeDeclaration: type,
+        contracts: [],
       };
     }
   };

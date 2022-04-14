@@ -21,6 +21,7 @@ class BaseParser extends AbstractParseTreeVisitor_1.AbstractParseTreeVisitor {
     defaultResult() {
         return {
             type: 'EmptyExpression',
+            contracts: [],
         };
     }
     visitParenthesesExpression(ctx) {
@@ -33,6 +34,7 @@ class BaseParser extends AbstractParseTreeVisitor_1.AbstractParseTreeVisitor {
             consequent: this.visit(ctx._consequent),
             alternate: this.visit(ctx._alternate),
             loc: (0, utils_1.contextToLocation)(ctx),
+            contracts: [],
         };
     }
     visitErrorNode(node) {

@@ -14,6 +14,7 @@ const parseBinding = (BaseClass) => {
                 type: 'Identifier',
                 name: ctx.IDENTIFIER().text,
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitIdentifierWithTypeParen(ctx) {
@@ -25,6 +26,7 @@ const parseBinding = (BaseClass) => {
                 name: ctx.identifier().IDENTIFIER().text,
                 typeDeclaration: new typeParser_1.TypeParser().visit(ctx._idType),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitLetLocalBinding(ctx) {
@@ -33,6 +35,7 @@ const parseBinding = (BaseClass) => {
                 left: new statementParser_1.StatementParser().visitLetGlobalBinding(ctx.letGlobalBinding()),
                 right: this.visit(ctx._exp2),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

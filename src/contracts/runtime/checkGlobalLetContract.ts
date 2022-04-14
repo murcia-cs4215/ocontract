@@ -1,3 +1,6 @@
+import assert from 'assert';
+
+import { FlatContract } from 'contracts/types';
 import { GlobalLetStatement } from 'parser/types';
 
 import { Context, RuntimeResult } from '../../runtimeTypes';
@@ -18,5 +21,12 @@ export function checkGlobalLetContract(
   if (contract == null || contract.type !== 'FlatContract') {
     return;
   }
-  checkFlatContract(node, result, contract, context, node.left.neg as string);
+  assert(node.left.contracts.length > 0);
+  checkFlatContract(
+    node,
+    result,
+    contract as FlatContract,
+    context,
+    node.left.contracts[0].neg as string,
+  );
 }

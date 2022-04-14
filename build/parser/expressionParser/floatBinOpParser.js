@@ -11,6 +11,7 @@ const parseFloatBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitSubtractionFloat(ctx) {
@@ -20,6 +21,7 @@ const parseFloatBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitMultiplicationFloat(ctx) {
@@ -29,6 +31,7 @@ const parseFloatBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitDivisionFloat(ctx) {
@@ -38,6 +41,7 @@ const parseFloatBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitPower(ctx) {
@@ -47,6 +51,7 @@ const parseFloatBinOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };

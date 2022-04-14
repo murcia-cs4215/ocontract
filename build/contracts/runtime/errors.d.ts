@@ -11,12 +11,4 @@ export declare class ContractViolationError extends RuntimeSourceError {
     explain(): string;
     elaborate(): string;
 }
-export declare class ContractNotWellFormedError extends RuntimeSourceError {
-    message: string;
-    type: ErrorType;
-    severity: ErrorSeverity;
-    constructor(node: Node, message: string);
-    explain(): string;
-    elaborate(): string;
-}
 //# sourceMappingURL=errors.d.ts.map

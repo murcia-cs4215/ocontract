@@ -11,6 +11,7 @@ const parseLogicalOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
         visitOr(ctx) {
@@ -20,6 +21,7 @@ const parseLogicalOp = (BaseClass) => {
                 left: this.visit(ctx._left),
                 right: this.visit(ctx._right),
                 loc: (0, utils_1.contextToLocation)(ctx),
+                contracts: [],
             };
         }
     };
