@@ -49,7 +49,7 @@ export interface TypeEnvironment {
 }
 
 export interface ContractEnvironment {
-  contractMap: Map<string, Contract>;
+  contractMap: Map<string, Contract>; // each name will only have at most one contract
   currentScope: string; // used for assigning blame
 }
 

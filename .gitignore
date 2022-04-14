@@ -436,6 +436,3 @@ TSWLatexianTemp*
 
 # PDF compiled
 *.pdf
-
-# Build
-build

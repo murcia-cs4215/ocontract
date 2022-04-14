@@ -28,6 +28,7 @@ class BaseParser
   protected defaultResult(): Expression {
     return {
       type: 'EmptyExpression',
+      contracts: [],
     };
   }
 
@@ -42,6 +43,7 @@ class BaseParser
       consequent: this.visit(ctx._consequent),
       alternate: this.visit(ctx._alternate),
       loc: contextToLocation(ctx),
+      contracts: [],
     };
   }
 

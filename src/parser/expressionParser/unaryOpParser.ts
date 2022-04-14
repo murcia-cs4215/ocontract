@@ -12,6 +12,7 @@ export const parseUnaryOp = <T extends Constructable>(
         operator: '-',
         argument: this.visit(ctx._argument),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -21,6 +22,7 @@ export const parseUnaryOp = <T extends Constructable>(
         operator: 'not',
         argument: this.visit(ctx._argument),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
   };

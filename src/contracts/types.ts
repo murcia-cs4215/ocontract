@@ -3,10 +3,14 @@ import { SourceLocation } from 'parser/types';
 
 export type Contract = FlatContract | FunctionContract;
 
-export interface BaseContractMonitor {
+export interface ContractDetails {
   contract?: Contract;
-  pos?: string;
-  neg?: string;
+  pos: string;
+  neg: string;
+}
+
+export interface BaseContractMonitor {
+  contracts: ContractDetails[];
 }
 
 export interface FunctionContract {

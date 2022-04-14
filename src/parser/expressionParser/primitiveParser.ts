@@ -19,6 +19,7 @@ export const parsePrimitive = <T extends Constructable>(
         valueType: 'int',
         value: parseInt(ctx.text, 10),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -28,6 +29,7 @@ export const parsePrimitive = <T extends Constructable>(
         valueType: 'float',
         value: parseFloat(ctx.text),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -37,6 +39,7 @@ export const parsePrimitive = <T extends Constructable>(
         valueType: 'bool',
         value: ctx.text.trim().toLowerCase() === 'true',
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -46,6 +49,7 @@ export const parsePrimitive = <T extends Constructable>(
         valueType: 'char',
         value: ctx.text.trim().charAt(1),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -59,6 +63,7 @@ export const parsePrimitive = <T extends Constructable>(
         valueType: 'string',
         value: wrappedValue,
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
   };
