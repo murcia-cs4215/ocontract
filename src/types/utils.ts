@@ -30,6 +30,9 @@ export function makeJoined(type: JoinedValueType): JoinedType {
 export function makeFunctionType(...types: Type[]): FunctionType {
   const parameterTypes = types.slice(0, -1);
   const returnType = types[types.length - 1];
+  if (isJoinedType(returnType)) {
+    throw new Error('Return type cannot be a joined type!');
+  }
   return curryParamTypes(parameterTypes, returnType);
 }
 
