@@ -13,6 +13,7 @@ export const parseLogicalOp = <T extends Constructable>(
         left: this.visit(ctx._left),
         right: this.visit(ctx._right),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -23,6 +24,7 @@ export const parseLogicalOp = <T extends Constructable>(
         left: this.visit(ctx._left),
         right: this.visit(ctx._right),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
   };

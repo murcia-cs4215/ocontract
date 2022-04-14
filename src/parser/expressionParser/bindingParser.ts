@@ -23,6 +23,7 @@ export const parseBinding = <T extends Constructable>(
         type: 'Identifier',
         name: ctx.IDENTIFIER().text,
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -38,6 +39,7 @@ export const parseBinding = <T extends Constructable>(
         name: ctx.identifier().IDENTIFIER().text,
         typeDeclaration: new TypeParser().visit(ctx._idType),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
 
@@ -49,6 +51,7 @@ export const parseBinding = <T extends Constructable>(
         ),
         right: this.visit(ctx._exp2),
         loc: contextToLocation(ctx),
+        contracts: [],
       };
     }
   };
