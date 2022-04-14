@@ -1,0 +1,7 @@
+contract myHash = ( { a : int | a >= 0 } -> { b : int | b >= 0 && b <= 1000 } )
+                -> { v : int | v >= 0 }
+                -> { res : int | res >= 0 && res <= 500 };;
+
+let myHash (hashFunc: int -> int) (value : int) : int = (hashFunc value) / 2;;
+
+myHash (fun (x : int) : int -> 1000) 10;;

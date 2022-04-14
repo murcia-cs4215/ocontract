@@ -5,10 +5,10 @@ contract sqrt = nonNeg -> nonNeg;;
 
 let sqrt (x : float) : float =
     let rec aux (lo : float) (hi : float) : float =
-        let z : float = (lo +. hi) /. 2. in
-            if z *. z -. x > 0.01 then aux lo z
-            else if x -. z *. z > 0.01 then aux z hi
-            else z
+        let mid : float = (lo +. hi) /. 2. in
+            if mid *. mid -. x > 0.01 then aux lo mid
+            else if x -. mid *. mid > 0.01 then aux mid hi
+            else mid
     in aux 0. x
     ;;
 
