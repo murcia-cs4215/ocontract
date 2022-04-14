@@ -2,6 +2,7 @@ import { Context, TypeEnvironment } from '../runtimeTypes';
 
 import { ContractType, Type } from './types';
 import {
+  anyType,
   boolType,
   floatType,
   intType,
@@ -51,6 +52,7 @@ const primitiveFuncs: [string, Type | Type[]][] = [
   ['/.', makeFunctionType(floatType, floatType, floatType)],
   ['**', makeFunctionType(floatType, floatType, floatType)],
   ['^', makeFunctionType(stringType, stringType, stringType)],
+  ['any', makeFunctionType(anyType, boolType)],
   ['positive', makeFunctionType(numericType, boolType)],
 ];
 
