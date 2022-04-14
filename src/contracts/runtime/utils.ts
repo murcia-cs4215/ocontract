@@ -10,7 +10,7 @@ import { isBool } from 'types/utils';
 import { Context, Environment, RuntimeResult } from '../../runtimeTypes';
 import { Contract, FlatContract } from '../types';
 
-import { ContractNotWellFormedError, ContractViolationError } from './errors';
+import { ContractViolationError } from './errors';
 
 export function checkFlatContract(
   node: Node,
@@ -37,23 +37,11 @@ export function checkFlatContract(
   );
 }
 
-export function verifyContractExists(
-  exp: Expression,
-  context: Context,
-): boolean {
-  if (exp.contract == null) {
+export function verifyContractExists(exp: Expression): boolean {
+  if (exp.contracts.length === 0) {
     return false;
   }
-  if (exp.pos == null || exp.neg == null) {
-    return handleRuntimeError(
-      context,
-      new ContractNotWellFormedError(
-        exp,
-        'Expected contract, pos, neg to be well-defined',
-      ),
-    );
-  }
-  return true;
+  return exp.contracts[0].contract != null;
 }
 
 export function propagateLoc(
