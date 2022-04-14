@@ -1,0 +1,16 @@
+let nonNeg (x : float) : bool = x >= 0.;;
+let fabs (x : float) : float = if x < 0. then -x else x;;
+
+contract sqrt = {x : float | x >= 0.} -> {y : float | y >= 0. && fabs (y *. y -. x) <= 0.01};;
+
+let sqrt (x : float) : float =
+    let rec aux (lo : float) (hi : float) : float =
+        let z : float = (lo +. hi) /. 2. in
+            if z *. z -. x > 0.01 then aux lo z
+            else if x -. z *. z > 0.01 then aux z hi
+            else z
+    in aux 0. x
+    ;;
+
+sqrt 4.0;;
+
