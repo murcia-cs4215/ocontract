@@ -1,4 +1,5 @@
 import { anyFunction } from './any';
+import { length } from './length';
 import { negative } from './negative';
 import { positive } from './positive';
 import { zero } from './zero';
@@ -19,5 +20,9 @@ export const globalEnvironmentDefaultFunctions = {
   zero: {
     value: zero,
     type: zero.getType(),
+  },
+  length: {
+    value: length,
+    type: length.getType(),
   },
 };

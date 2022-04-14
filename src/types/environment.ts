@@ -17,6 +17,7 @@ const predeclaredNames: [string, Type | Type[]][] = [
   ['positive', makeFunctionType(numericType, boolType)],
   ['negative', makeFunctionType(numericType, boolType)],
   ['zero', makeFunctionType(numericType, boolType)],
+  ['length', makeFunctionType(stringType, intType)],
 ];
 
 // Name of Unary negative builtin operator
