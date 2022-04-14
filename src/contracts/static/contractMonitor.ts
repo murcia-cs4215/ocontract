@@ -4,7 +4,7 @@ import {
   pushContractEnvironment,
 } from 'contracts/environment';
 import { Contract } from 'contracts/types';
-import { wrapExpressionInMonitor } from 'contracts/utils';
+import { wrapExpressionInFirstLevelMonitor } from 'contracts/utils';
 import { Node, Program } from 'parser/types';
 
 import { Context } from '../../runtimeTypes';
@@ -36,9 +36,8 @@ function monitorNode(node: Node, context: Context): void {
     case 'Identifier': {
       // We don't need the exact contract now. The goal is to assign a pos and neg
       // so that we know who to blame when things go wrong.
-      wrapExpressionInMonitor(
+      wrapExpressionInFirstLevelMonitor(
         node,
-        undefined,
         node.name,
         getCurrentContractScope(context),
       );
