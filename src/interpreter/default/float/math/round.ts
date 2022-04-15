@@ -7,7 +7,11 @@ export const round = new DefaultClosure(
   makeFunctionType(floatType, floatType),
   1,
   (args: RuntimeResult[]): RuntimeResult => {
-    if (Number.isNaN(args[0].value) || !Number.isFinite(args[0].value)) {
+    if (
+      Number.isNaN(args[0].value) ||
+      args[0].value === Infinity ||
+      args[0].value === -Infinity
+    ) {
       return args[0].value;
     }
     return { value: Math.round(args[0].value), type: floatType };
