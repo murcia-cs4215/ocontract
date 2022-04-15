@@ -2,6 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanUpContextAfterRun = exports.prepareContextForRun = exports.createContext = void 0;
 const environment_1 = require("./contracts/environment");
+const default_1 = require("./interpreter/default");
 const environment_2 = require("./types/environment");
 const constants_1 = require("./constants");
 const createEmptyRuntime = () => ({
@@ -24,7 +25,7 @@ const createEmptyContext = (externalSymbols, externalContext) => {
 const createGlobalEnvironment = () => ({
     tail: null,
     name: 'global',
-    head: {},
+    head: Object.assign({}, default_1.globalEnvironmentDefaultFunctions),
     id: '-1',
 });
 const ensureGlobalEnvironmentExist = (context) => {

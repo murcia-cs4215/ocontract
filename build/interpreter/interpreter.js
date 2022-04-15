@@ -170,7 +170,8 @@ const evaluators = {
         }
         if (node.contract.type === 'FlatContractExpression') {
             const result = evaluate(node.contract.contract, context);
-            (0, assert_1.default)(result.value instanceof closure_1.Closure);
+            (0, assert_1.default)(result.value instanceof closure_1.Closure ||
+                result.value instanceof closure_1.DefaultClosure);
             const contract = {
                 type: 'FlatContract',
                 contract: result.value,
@@ -221,6 +222,9 @@ function evaluate(node, context) {
 }
 exports.evaluate = evaluate;
 function apply(closure, arg, context) {
+    if (closure instanceof closure_1.DefaultClosure) {
+        return applyDefault(closure, arg, context);
+    }
     const copyArg = (0, lodash_clonedeep_1.default)(arg);
     (0, runtime_1.checkArgumentContract)(closure, copyArg, context);
     // Replace context environments with function environments
@@ -257,6 +261,14 @@ function apply(closure, arg, context) {
     return { value: curriedClosure, type: curriedClosure.getType() };
 }
 exports.apply = apply;
+function applyDefault(closure, arg, context) {
+    const copyArg = (0, lodash_clonedeep_1.default)(arg);
+    const newClosure = closure.addArg(copyArg);
+    if (newClosure.canCompute()) {
+        return newClosure.compute(context);
+    }
+    return { value: newClosure, type: newClosure.getType() };
+}
 // HELPER FUNCTIONS
 function convertGlobalLetFuncToLambda(node) {
     return {
