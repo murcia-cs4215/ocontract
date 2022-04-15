@@ -2,10 +2,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createLocalTypeEnvironment = exports.setContractType = exports.getContractType = exports.setType = exports.getType = exports.popTypeEnvironment = exports.pushTypeEnvironment = exports.createInitialTypeEnvironments = exports.NEGATIVE_OP = void 0;
 const default_1 = require("../interpreter/default");
+const constants_1 = require("../interpreter/default/constants");
 const utils_1 = require("./utils");
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames = [
     ...default_1.globalEnvironmentDefaultFunctionTypes,
+    ...constants_1.globalEnvironmentDefaultConstantTypes,
 ];
 // Name of Unary negative builtin operator
 exports.NEGATIVE_OP = '-_1';

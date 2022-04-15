@@ -3,8 +3,9 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanUpContextAfterRun = exports.prepareContextForRun = exports.createContext = void 0;
 const environment_1 = require("./contracts/environment");
 const default_1 = require("./interpreter/default");
+const constants_1 = require("./interpreter/default/constants");
 const environment_2 = require("./types/environment");
-const constants_1 = require("./constants");
+const constants_2 = require("./constants");
 const createEmptyRuntime = () => ({
     isRunning: false,
     environments: [],
@@ -25,7 +26,7 @@ const createEmptyContext = (externalSymbols, externalContext) => {
 const createGlobalEnvironment = () => ({
     tail: null,
     name: 'global',
-    head: Object.assign({}, default_1.globalEnvironmentDefaultFunctions),
+    head: Object.assign(Object.assign({}, default_1.globalEnvironmentDefaultFunctions), constants_1.globalEnvironmentDefaultConstants),
     id: '-1',
 });
 const ensureGlobalEnvironmentExist = (context) => {
@@ -56,7 +57,7 @@ const defineSymbol = (context, name, value) => {
 const importExternalSymbols = (context, externalSymbols) => {
     ensureGlobalEnvironmentExist(context);
     externalSymbols.forEach((symbol) => {
-        defineSymbol(context, symbol, constants_1.GLOBAL[symbol]);
+        defineSymbol(context, symbol, constants_2.GLOBAL[symbol]);
     });
 };
 function createContext(externalSymbols = [], externalContext) {
