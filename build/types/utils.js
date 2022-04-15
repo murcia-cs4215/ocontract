@@ -125,7 +125,11 @@ function formatContractType(contractType) {
         }
         return (0, formatters_1.formatType)(contractType.contractType.parameterType);
     }
-    return `${formatContractType(contractType.parameterType)} -> ${formatContractType(contractType.returnType)}`;
+    let parameterType = formatContractType(contractType.parameterType);
+    if (contractType.parameterType.type === 'FunctionContractType') {
+        parameterType = `(${parameterType})`;
+    }
+    return `${parameterType} -> ${formatContractType(contractType.returnType)}`;
 }
 exports.formatContractType = formatContractType;
 function getTypeOfContract(contract) {
