@@ -1,6 +1,8 @@
 import assert from 'assert';
 
+import { StringWrapper } from 'parser/wrappers';
 import { Type } from 'types/types';
+import { stringType } from 'types/utils';
 
 import { createContext } from '../context';
 import { run } from '../index';
@@ -11,6 +13,16 @@ import { formatType } from './formatters';
 export function runTest(code: string): Result {
   const context = createContext();
   return run(code, context);
+}
+
+export function expectString(result: Result, str: string): void {
+  expect(result).toMatchObject({
+    status: 'finished',
+    type: stringType,
+  });
+  assert('value' in result);
+  assert(result.value instanceof StringWrapper);
+  expect(result.value.unwrap()).toBe(str);
 }
 
 export function expectError(

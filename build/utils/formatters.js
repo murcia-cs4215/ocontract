@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.formatType = exports.formatFinishedForRepl = exports.formatErroredForRepl = void 0;
+const wrappers_1 = require("../parser/wrappers");
+const utils_1 = require("../types/utils");
 const verboseErrors = false;
 function formatErroredForRepl(result, verbose = verboseErrors) {
     const error = result.error;
@@ -23,8 +25,17 @@ function formatFinishedForRepl(result) {
     if (type === 'unit') {
         result.value = '()';
     }
-    if (type === 'float' && Math.floor(result.value) === result.value) {
+    if (Number.isNaN(result.value)) {
+        result.value = 'nan';
+    }
+    else if (type === 'float' && Math.floor(result.value) === result.value) {
         result.value = `${result.value}.`;
+    }
+    if (type === 'string' && result.value instanceof wrappers_1.StringWrapper) {
+        result.value = `"${result.value.unwrap()}"`;
+    }
+    if (type === 'char') {
+        result.value = `'${result.value}'`;
     }
     let value;
     if (typeof result.value === 'object' &&
@@ -46,7 +57,7 @@ function formatType(type) {
     if (Array.isArray(type)) {
         return type.map(formatType).join(' or ');
     }
-    if (type.type === 'PrimitiveType') {
+    if ((0, utils_1.isPrimitiveType)(type) || (0, utils_1.isJoinedType)(type)) {
         return type.valueType;
     }
     return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;

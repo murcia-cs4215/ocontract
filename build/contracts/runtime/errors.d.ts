@@ -11,4 +11,11 @@ export declare class ContractViolationError extends RuntimeSourceError {
     explain(): string;
     elaborate(): string;
 }
+export declare class DefaultFunctionContractNotSupportedError extends RuntimeSourceError {
+    type: ErrorType;
+    severity: ErrorSeverity;
+    constructor(node: Node);
+    explain(): string;
+    elaborate(): string;
+}
 //# sourceMappingURL=errors.d.ts.map

@@ -1,5 +1,9 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
+const assert_1 = __importDefault(require("assert"));
 const utils_1 = require("../../types/utils");
 const tests_1 = require("../../utils/tests");
 const values = {
@@ -14,6 +18,11 @@ for (const [type1, value1] of Object.entries(values)) {
         test(`declared ${type1}, actually ${type2}`, () => {
             const res = (0, tests_1.runTest)(`let x : ${type1} = ${value2[0]};;`);
             if (type1 === type2) {
+                if (value2[1] === utils_1.stringType) {
+                    (0, assert_1.default)(typeof value2[0] === 'string');
+                    (0, tests_1.expectString)(res, value2[0].substring(1, value2[0].length - 1));
+                    return;
+                }
                 expect(res).toEqual({
                     status: 'finished',
                     value: typeof value2[0] === 'string'

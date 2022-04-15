@@ -57,7 +57,7 @@ function checkGlobalLetStatement(node, context) {
 }
 exports.checkGlobalLetStatement = checkGlobalLetStatement;
 function matchesContractType(type, contractType) {
-    if ((0, utils_1.isPrimitiveType)(type)) {
+    if ((0, utils_1.isPrimitiveType)(type) || (0, utils_1.isJoinedType)(type)) {
         if (contractType.type !== 'FlatContractType') {
             return false;
         }

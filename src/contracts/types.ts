@@ -1,4 +1,4 @@
-import { Closure } from 'interpreter/closure';
+import { Closure, DefaultClosure } from 'interpreter/closure';
 import { SourceLocation } from 'parser/types';
 
 export type Contract = FlatContract | FunctionContract;
@@ -22,7 +22,7 @@ export interface FunctionContract {
 
 export interface FlatContract {
   type: 'FlatContract';
-  contract: Closure;
+  contract: Closure | DefaultClosure;
   isSetNotation: boolean;
   loc?: SourceLocation; // Where the contract was first defined
 }

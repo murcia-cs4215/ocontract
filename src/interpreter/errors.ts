@@ -4,7 +4,7 @@ import { Node } from 'parser/types';
 import { ErrorSeverity, ErrorType } from '../errors/types';
 import { Context } from '../runtimeTypes';
 
-import { Closure } from './closure';
+import { Closure, DefaultClosure } from './closure';
 
 export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
@@ -40,7 +40,7 @@ export function assertClosure(
   node: Node,
   context: Context,
 ): closure is Closure {
-  if (!(closure instanceof Closure)) {
+  if (!(closure instanceof Closure || closure instanceof DefaultClosure)) {
     return handleRuntimeError(
       context,
       new InterpreterError(

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ContractViolationError = void 0;
+exports.DefaultFunctionContractNotSupportedError = exports.ContractViolationError = void 0;
 const runtimeSourceError_1 = require("../../errors/runtimeSourceError");
 const types_1 = require("../../errors/types");
 const constants_1 = require("../../constants");
@@ -24,4 +24,18 @@ class ContractViolationError extends runtimeSourceError_1.RuntimeSourceError {
     }
 }
 exports.ContractViolationError = ContractViolationError;
+class DefaultFunctionContractNotSupportedError extends runtimeSourceError_1.RuntimeSourceError {
+    constructor(node) {
+        super(node);
+        this.type = types_1.ErrorType.RUNTIME;
+        this.severity = types_1.ErrorSeverity.ERROR;
+    }
+    explain() {
+        return 'Contracts on in-built functions are currently not supported.';
+    }
+    elaborate() {
+        return this.explain();
+    }
+}
+exports.DefaultFunctionContractNotSupportedError = DefaultFunctionContractNotSupportedError;
 //# sourceMappingURL=errors.js.map

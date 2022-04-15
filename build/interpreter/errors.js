@@ -26,7 +26,7 @@ function handleRuntimeError(context, error) {
 }
 exports.handleRuntimeError = handleRuntimeError;
 function assertClosure(closure, node, context) {
-    if (!(closure instanceof closure_1.Closure)) {
+    if (!(closure instanceof closure_1.Closure || closure instanceof closure_1.DefaultClosure)) {
         return handleRuntimeError(context, new InterpreterError(node, 'A non-function was called, which should have been caught by the type checker'));
     }
     return true;

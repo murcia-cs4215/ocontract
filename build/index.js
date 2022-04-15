@@ -7,7 +7,6 @@ const util_1 = require("util");
 const contractMonitor_1 = require("./contracts/static/contractMonitor");
 const interpreter_1 = require("./interpreter/interpreter");
 const parser_1 = require("./parser/parser");
-const wrappers_1 = require("./parser/wrappers");
 const static_1 = require("./types/static");
 const formatters_1 = require("./utils/formatters");
 const context_1 = require("./context");
@@ -20,9 +19,7 @@ function run(code, context) {
         (0, context_1.prepareContextForRun)(context);
         const result = (0, interpreter_1.evaluate)(program, context);
         (0, context_1.cleanUpContextAfterRun)(context);
-        return Object.assign(Object.assign({}, result), { status: 'finished', value: result.value instanceof wrappers_1.StringWrapper
-                ? result.value.unwrap()
-                : result.value });
+        return Object.assign(Object.assign({}, result), { status: 'finished', value: result.value });
     }
     catch (error) {
         (0, context_1.cleanUpContextAfterRun)(context);

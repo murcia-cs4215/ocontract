@@ -1,4 +1,4 @@
-export type Type = PrimitiveType | FunctionType;
+export type Type = PrimitiveType | FunctionType | JoinedType;
 
 export type PrimitiveValueType =
   | 'int'
@@ -17,6 +17,13 @@ export interface FunctionType {
   type: 'FunctionType';
   parameterType: Type; // If multiple params, it's curried in types as well
   returnType: Type;
+}
+
+export type JoinedValueType = 'numeric' | 'any';
+
+export interface JoinedType {
+  type: 'JoinedType';
+  valueType: JoinedValueType;
 }
 
 export type ContractType = FlatContractType | FunctionContractType;

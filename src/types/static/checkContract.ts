@@ -12,7 +12,7 @@ import {
   setType,
 } from '../environment';
 import { ContractType, Type } from '../types';
-import { isBool, isPrimitiveType, unitType } from '../utils';
+import { isBool, isJoinedType, isPrimitiveType, unitType } from '../utils';
 
 import { InvalidContractReturnTypeError, NotAFunctionError } from './errors';
 import { typeCheck } from './index';
@@ -36,7 +36,7 @@ function checkContractExpression(
   }
   if (contract.type === 'FlatContractExpression') {
     const closureType = typeCheck(contract.contract, context);
-    if (isPrimitiveType(closureType)) {
+    if (isPrimitiveType(closureType) || isJoinedType(closureType)) {
       throw new NotAFunctionError(formatType(closureType), node);
     }
     if (!isBool(closureType.returnType)) {

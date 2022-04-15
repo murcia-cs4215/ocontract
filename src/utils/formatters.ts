@@ -1,4 +1,6 @@
+import { StringWrapper } from 'parser/wrappers';
 import { Type } from 'types/types';
+import { isJoinedType, isPrimitiveType } from 'types/utils';
 
 import { Errored, Finished } from '../runtimeTypes';
 
@@ -28,8 +30,16 @@ export function formatFinishedForRepl(result: Finished): string {
   if (type === 'unit') {
     result.value = '()';
   }
-  if (type === 'float' && Math.floor(result.value) === result.value) {
+  if (Number.isNaN(result.value)) {
+    result.value = 'nan';
+  } else if (type === 'float' && Math.floor(result.value) === result.value) {
     result.value = `${result.value}.`;
+  }
+  if (type === 'string' && result.value instanceof StringWrapper) {
+    result.value = `"${result.value.unwrap()}"`;
+  }
+  if (type === 'char') {
+    result.value = `'${result.value}'`;
   }
 
   let value;
@@ -54,7 +64,7 @@ export function formatType(type: Type | Type[]): string {
   if (Array.isArray(type)) {
     return type.map(formatType).join(' or ');
   }
-  if (type.type === 'PrimitiveType') {
+  if (isPrimitiveType(type) || isJoinedType(type)) {
     return type.valueType;
   }
   return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;

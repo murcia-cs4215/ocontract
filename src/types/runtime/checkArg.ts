@@ -1,6 +1,7 @@
-import { Closure } from 'interpreter/closure';
+import { Closure, DefaultClosure } from 'interpreter/closure';
 import { handleRuntimeError } from 'interpreter/errors';
 import { Node } from 'parser/types';
+import { FunctionType } from 'types/types';
 import { isSameType } from 'types/utils';
 import { formatType } from 'utils/formatters';
 
@@ -10,11 +11,11 @@ import { RuntimeTypeError } from './errors';
 
 export const checkArgumentType = (
   node: Node,
-  closure: Closure,
+  closure: Closure | DefaultClosure,
   arg: RuntimeResult,
   context: Context,
 ): void => {
-  const expectedType = closure.getType().parameterType;
+  const expectedType = (closure.getType() as FunctionType).parameterType;
   if (!isSameType(expectedType, arg.type)) {
     return handleRuntimeError(
       context,

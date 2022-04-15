@@ -1,4 +1,4 @@
-export declare type Type = PrimitiveType | FunctionType;
+export declare type Type = PrimitiveType | FunctionType | JoinedType;
 export declare type PrimitiveValueType = 'int' | 'float' | 'string' | 'char' | 'bool' | 'unit';
 export interface PrimitiveType {
     type: 'PrimitiveType';
@@ -8,6 +8,11 @@ export interface FunctionType {
     type: 'FunctionType';
     parameterType: Type;
     returnType: Type;
+}
+export declare type JoinedValueType = 'numeric' | 'any';
+export interface JoinedType {
+    type: 'JoinedType';
+    valueType: JoinedValueType;
 }
 export declare type ContractType = FlatContractType | FunctionContractType;
 export interface FlatContractType {

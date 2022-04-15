@@ -4,19 +4,11 @@ const utils_1 = require("../../types/utils");
 const tests_1 = require("../../utils/tests");
 test('string', () => {
     const res = (0, tests_1.runTest)('"bro";;');
-    expect(res).toEqual({
-        status: 'finished',
-        value: 'bro',
-        type: utils_1.stringType,
-    });
+    (0, tests_1.expectString)(res, 'bro');
 });
 test('string concatenation', () => {
     const res = (0, tests_1.runTest)('"Hello " ^ "World";;');
-    expect(res).toEqual({
-        status: 'finished',
-        value: 'Hello World',
-        type: utils_1.stringType,
-    });
+    (0, tests_1.expectString)(res, 'Hello World');
 });
 test('string greaterthan', () => {
     const res = (0, tests_1.runTest)('"A" > "b";;');
@@ -108,10 +100,6 @@ test('integer physical inequality', () => {
 });
 test('parenthesized expression', () => {
     const res = (0, tests_1.runTest)('("abc" ^ "xyz") ^ "hello";;');
-    expect(res).toEqual({
-        status: 'finished',
-        value: 'abcxyzhello',
-        type: utils_1.stringType,
-    });
+    (0, tests_1.expectString)(res, 'abcxyzhello');
 });
 //# sourceMappingURL=string_expressions.test.js.map
