@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.assertClosure = exports.handleRuntimeError = exports.InterpreterError = void 0;
+exports.assertClosure = exports.handleRuntimeError = exports.DivisionByZeroError = exports.InterpreterError = void 0;
 const runtimeSourceError_1 = require("../errors/runtimeSourceError");
 const types_1 = require("../errors/types");
 const closure_1 = require("./closure");
@@ -20,6 +20,22 @@ class InterpreterError extends runtimeSourceError_1.RuntimeSourceError {
     }
 }
 exports.InterpreterError = InterpreterError;
+class DivisionByZeroError extends runtimeSourceError_1.RuntimeSourceError {
+    constructor(node, message = 'Division by zero') {
+        super(node);
+        this.node = node;
+        this.message = message;
+        this.type = types_1.ErrorType.SYNTAX;
+        this.severity = types_1.ErrorSeverity.ERROR;
+    }
+    explain() {
+        return this.message;
+    }
+    elaborate() {
+        return this.message;
+    }
+}
+exports.DivisionByZeroError = DivisionByZeroError;
 function handleRuntimeError(context, error) {
     context.runtime.environments = context.runtime.environments.slice(-context.numberOfOuterEnvironments);
     throw error;

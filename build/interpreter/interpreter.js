@@ -48,6 +48,9 @@ const evaluators = {
         const left = evaluate(node.left, context);
         const right = evaluate(node.right, context);
         (0, runtime_2.checkBinaryExpressionType)(node, node.operator, left, right, context);
+        if (node.operator === '/' && right.value === 0) {
+            return (0, errors_1.handleRuntimeError)(context, new errors_1.DivisionByZeroError(node));
+        }
         return (0, operators_1.evaluateBinaryExpression)(node.operator, left, right);
     },
     LogicalExpression: (node, context) => {

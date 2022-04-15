@@ -16,7 +16,6 @@ export function pushEnvironment(
   environment: Environment,
 ): void {
   context.runtime.environments.unshift(environment);
-  // TODO: See if we need the environment tree here
 }
 
 export function popEnvironment(context: Context): Environment | null {
