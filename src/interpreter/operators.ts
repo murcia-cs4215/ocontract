@@ -21,7 +21,6 @@ export function evaluateUnaryExpression(
 
 const physicalEqualityOperators = ['==', '!='];
 
-// TODO: Handle float binary operators + check comparisons
 // Assumes that type checking has been done prior, i.e. all operations
 // should succeed
 export function evaluateBinaryExpression(

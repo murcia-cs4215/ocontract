@@ -33,7 +33,12 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import { assertClosure, handleRuntimeError, InterpreterError } from './errors';
+import {
+  assertClosure,
+  DivisionByZeroError,
+  handleRuntimeError,
+  InterpreterError,
+} from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -76,6 +81,9 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
     checkBinaryExpressionType(node, node.operator, left, right, context);
+    if (node.operator === '/' && right.value === 0) {
+      return handleRuntimeError(context, new DivisionByZeroError(node));
+    }
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
