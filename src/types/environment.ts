@@ -1,4 +1,5 @@
 import { globalEnvironmentDefaultFunctionTypes } from 'interpreter/default';
+import { globalEnvironmentDefaultConstantTypes } from 'interpreter/default/constants';
 
 import { Context, TypeEnvironment } from '../runtimeTypes';
 
@@ -15,6 +16,7 @@ import {
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames: [string, Type | Type[]][] = [
   ...globalEnvironmentDefaultFunctionTypes,
+  ...globalEnvironmentDefaultConstantTypes,
 ];
 
 // Name of Unary negative builtin operator
