@@ -76,11 +76,7 @@ test('integer division', () => {
 });
 test('integer division by 0', () => {
     const res = (0, tests_1.runTest)('100 / 0;;');
-    expect(res).toEqual({
-        status: 'finished',
-        value: Infinity,
-        type: utils_1.intType,
-    });
+    (0, tests_1.expectError)(res, 'Division by zero');
 });
 test('integer modulo', () => {
     const res = (0, tests_1.runTest)('100 mod 30;;');
