@@ -19,7 +19,7 @@ function run(code, context) {
         (0, context_1.prepareContextForRun)(context);
         const result = (0, interpreter_1.evaluate)(program, context);
         (0, context_1.cleanUpContextAfterRun)(context);
-        return Object.assign(Object.assign({}, result), { status: 'finished', value: result.value });
+        return Object.assign(Object.assign({}, result), { status: 'finished' });
     }
     catch (error) {
         (0, context_1.cleanUpContextAfterRun)(context);

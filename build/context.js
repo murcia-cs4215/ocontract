@@ -2,9 +2,9 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.cleanUpContextAfterRun = exports.prepareContextForRun = exports.createContext = void 0;
 const environment_1 = require("./contracts/environment");
+const environment_2 = require("./types/environment");
 const default_1 = require("./interpreter/default");
 const constants_1 = require("./interpreter/default/constants");
-const environment_2 = require("./types/environment");
 const constants_2 = require("./constants");
 const createEmptyRuntime = () => ({
     isRunning: false,
