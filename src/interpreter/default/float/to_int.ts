@@ -7,7 +7,11 @@ export const to_int = new DefaultClosure(
   makeFunctionType(floatType, intType),
   1,
   (args: RuntimeResult[]): RuntimeResult => {
-    if (Number.isNaN(args[0].value) || !Number.isFinite(args[0].value)) {
+    if (
+      Number.isNaN(args[0].value) ||
+      args[0].value === Infinity ||
+      args[0].value === -Infinity
+    ) {
       return { value: 0, type: intType };
     }
     return { value: Math.trunc(args[0].value), type: intType };

@@ -43,7 +43,11 @@ export function formatFinishedForRepl(result: Finished): string {
       }
       break;
     case 'int':
-      if (Number.isNaN(result.value) || !Number.isFinite(result.value)) {
+      if (
+        Number.isNaN(result.value) ||
+        result.value === Infinity ||
+        result.value === -Infinity
+      ) {
         result.value = 0;
       }
       break;
@@ -53,7 +57,9 @@ export function formatFinishedForRepl(result: Finished): string {
       }
       break;
     case 'char':
-      result.value = `'${result.value}'`;
+      if (typeof result.value === 'string') {
+        result.value = `'${result.value}'`;
+      }
       break;
   }
 
@@ -82,5 +88,9 @@ export function formatType(type: Type | Type[]): string {
   if (isPrimitiveType(type) || isJoinedType(type)) {
     return type.valueType;
   }
-  return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;
+  let parameterType = formatType(type.parameterType);
+  if (type.parameterType.type === 'FunctionType') {
+    parameterType = `(${parameterType})`;
+  }
+  return `${parameterType} -> ${formatType(type.returnType)}`;
 }
