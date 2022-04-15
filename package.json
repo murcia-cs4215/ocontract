@@ -1,6 +1,6 @@
 {
   "name": "ocontract",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "main": "index.ts",
   "scripts": {
     "antlr4ts": "antlr4ts -visitor ./src/lang/Grammar.g4",
