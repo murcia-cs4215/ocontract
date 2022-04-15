@@ -1,22 +1,14 @@
-import { boolType, stringType } from 'types/utils';
-import { runTest } from 'utils/tests';
+import { boolType } from 'types/utils';
+import { expectString, runTest } from 'utils/tests';
 
 test('string', () => {
   const res = runTest('"bro";;');
-  expect(res).toEqual({
-    status: 'finished',
-    value: 'bro',
-    type: stringType,
-  });
+  expectString(res, 'bro');
 });
 
 test('string concatenation', () => {
   const res = runTest('"Hello " ^ "World";;');
-  expect(res).toEqual({
-    status: 'finished',
-    value: 'Hello World',
-    type: stringType,
-  });
+  expectString(res, 'Hello World');
 });
 
 test('string greaterthan', () => {
@@ -117,9 +109,5 @@ test('integer physical inequality', () => {
 
 test('parenthesized expression', () => {
   const res = runTest('("abc" ^ "xyz") ^ "hello";;');
-  expect(res).toEqual({
-    status: 'finished',
-    value: 'abcxyzhello',
-    type: stringType,
-  });
+  expectString(res, 'abcxyzhello');
 });

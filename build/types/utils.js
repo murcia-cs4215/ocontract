@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getTypeOfContract = exports.formatContractType = exports.curryParamTypes = exports.isSameType = exports.isChar = exports.isString = exports.isBool = exports.isFloat = exports.isInt = exports.isFunctionType = exports.isPrimitiveType = exports.valueTypeToPrimitive = exports.primitiveTypes = exports.unitType = exports.charType = exports.stringType = exports.boolType = exports.floatType = exports.intType = exports.makeFunctionType = exports.makePrimitive = void 0;
+exports.getTypeOfContract = exports.formatContractType = exports.curryParamTypes = exports.isSameType = exports.isAny = exports.isNumeric = exports.isChar = exports.isString = exports.isBool = exports.isFloat = exports.isInt = exports.isJoinedType = exports.isFunctionType = exports.isPrimitiveType = exports.valueTypeToPrimitive = exports.primitiveTypes = exports.anyType = exports.numericType = exports.unitType = exports.charType = exports.stringType = exports.boolType = exports.floatType = exports.intType = exports.makeFunctionType = exports.makeJoined = exports.makePrimitive = void 0;
 const lodash_isequal_1 = __importDefault(require("lodash.isequal"));
 const formatters_1 = require("../utils/formatters");
 function makePrimitive(type) {
@@ -13,6 +13,13 @@ function makePrimitive(type) {
     };
 }
 exports.makePrimitive = makePrimitive;
+function makeJoined(type) {
+    return {
+        type: 'JoinedType',
+        valueType: type,
+    };
+}
+exports.makeJoined = makeJoined;
 function makeFunctionType(...types) {
     const parameterTypes = types.slice(0, -1);
     const returnType = types[types.length - 1];
@@ -25,6 +32,8 @@ exports.boolType = makePrimitive('bool');
 exports.stringType = makePrimitive('string');
 exports.charType = makePrimitive('char');
 exports.unitType = makePrimitive('unit');
+exports.numericType = makeJoined('numeric');
+exports.anyType = makeJoined('any');
 exports.primitiveTypes = [
     exports.intType,
     exports.floatType,
@@ -48,6 +57,10 @@ function isFunctionType(type) {
     return type.type === 'FunctionType';
 }
 exports.isFunctionType = isFunctionType;
+function isJoinedType(type) {
+    return type.type === 'JoinedType';
+}
+exports.isJoinedType = isJoinedType;
 function isInt(type) {
     return (0, lodash_isequal_1.default)(type, exports.intType);
 }
@@ -68,7 +81,24 @@ function isChar(type) {
     return (0, lodash_isequal_1.default)(type, exports.charType);
 }
 exports.isChar = isChar;
+function isNumeric(type) {
+    return (0, lodash_isequal_1.default)(type, exports.numericType);
+}
+exports.isNumeric = isNumeric;
+function isAny(type) {
+    return (0, lodash_isequal_1.default)(type, exports.anyType);
+}
+exports.isAny = isAny;
 function isSameType(type1, type2) {
+    if (isAny(type1) || isAny(type2)) {
+        return true;
+    }
+    if (isNumeric(type1)) {
+        return isNumeric(type2) || isInt(type2) || isFloat(type2);
+    }
+    if (isNumeric(type2)) {
+        return isNumeric(type1) || isInt(type1) || isFloat(type1);
+    }
     return (0, lodash_isequal_1.default)(type1, type2);
 }
 exports.isSameType = isSameType;
@@ -90,6 +120,9 @@ function curryParamTypes(paramTypes, returnType) {
 exports.curryParamTypes = curryParamTypes;
 function formatContractType(contractType) {
     if (contractType.type === 'FlatContractType') {
+        if (Array.isArray(contractType.contractType)) {
+            return (0, formatters_1.formatType)(contractType.contractType.map((t) => t.parameterType));
+        }
         return (0, formatters_1.formatType)(contractType.contractType.parameterType);
     }
     return `${formatContractType(contractType.parameterType)} -> ${formatContractType(contractType.returnType)}`;

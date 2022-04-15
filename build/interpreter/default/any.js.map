@@ -1,0 +1,1 @@
+{"version":3,"file":"any.js","sourceRoot":"","sources":["../../../src/interpreter/default/any.ts"],"names":[],"mappings":";;;AAAA,uCAAkE;AAGlE,wCAA4C;AAE/B,QAAA,WAAW,GAAG,IAAI,wBAAc,CAC3C,IAAA,wBAAgB,EAAC,eAAO,EAAE,gBAAQ,CAAC,EACnC,CAAC,EACD,CAAC,KAAsB,EAAiB,EAAE;IACxC,OAAO,EAAE,KAAK,EAAE,IAAI,EAAE,IAAI,EAAE,gBAAQ,EAAE,CAAC;AACzC,CAAC,CACF,CAAC"}

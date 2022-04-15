@@ -1,3 +1,5 @@
+import assert from 'assert';
+
 import { Type } from 'types/types';
 import {
   boolType,
@@ -6,7 +8,7 @@ import {
   intType,
   stringType,
 } from 'types/utils';
-import { expectTypeError, runTest } from 'utils/tests';
+import { expectString, expectTypeError, runTest } from 'utils/tests';
 
 const values = {
   int: [10, intType],
@@ -23,6 +25,11 @@ for (const [type1, value1] of Object.entries(values)) {
         `let x : ${type1} = ${value2[0] as string | number | boolean};;`,
       );
       if (type1 === type2) {
+        if (value2[1] === stringType) {
+          assert(typeof value2[0] === 'string');
+          expectString(res, value2[0].substring(1, value2[0].length - 1));
+          return;
+        }
         expect(res).toEqual({
           status: 'finished',
           value:

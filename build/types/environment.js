@@ -1,8 +1,14 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createLocalTypeEnvironment = exports.setContractType = exports.getContractType = exports.setType = exports.getType = exports.popTypeEnvironment = exports.pushTypeEnvironment = exports.createInitialTypeEnvironments = exports.NEGATIVE_OP = void 0;
+const default_1 = require("../interpreter/default");
+const constants_1 = require("../interpreter/default/constants");
 const utils_1 = require("./utils");
-const predeclaredNames = [];
+// Note: We can only allow joined types in parameters, not return value
+const predeclaredNames = [
+    ...constants_1.globalEnvironmentDefaultConstantTypes,
+    ...default_1.globalEnvironmentDefaultFunctionTypes,
+];
 // Name of Unary negative builtin operator
 exports.NEGATIVE_OP = '-_1';
 function makeComparableTypes() {

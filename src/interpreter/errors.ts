@@ -4,7 +4,7 @@ import { Node } from 'parser/types';
 import { ErrorSeverity, ErrorType } from '../errors/types';
 import { Context } from '../runtimeTypes';
 
-import { Closure } from './closure';
+import { Closure, DefaultClosure } from './closure';
 
 export class InterpreterError extends RuntimeSourceError {
   public type = ErrorType.SYNTAX;
@@ -25,6 +25,23 @@ export class InterpreterError extends RuntimeSourceError {
   }
 }
 
+export class DivisionByZeroError extends RuntimeSourceError {
+  public type = ErrorType.SYNTAX;
+  public severity = ErrorSeverity.ERROR;
+
+  public constructor(public node: Node, public message = 'Division by zero') {
+    super(node);
+  }
+
+  public explain(): string {
+    return this.message;
+  }
+
+  public elaborate(): string {
+    return this.message;
+  }
+}
+
 export function handleRuntimeError(
   context: Context,
   error: RuntimeSourceError,
@@ -40,7 +57,7 @@ export function assertClosure(
   node: Node,
   context: Context,
 ): closure is Closure {
-  if (!(closure instanceof Closure)) {
+  if (!(closure instanceof Closure || closure instanceof DefaultClosure)) {
     return handleRuntimeError(
       context,
       new InterpreterError(

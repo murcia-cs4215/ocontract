@@ -29,7 +29,7 @@ export function typeCheck(node: Node, context: Context): Type {
       return checkContractDeclarationStatement(node, context);
     case 'ContractExpression':
     case 'EmptyExpression':
-      return unitType; // We won't type contract stuff for now
+      return unitType; // We won't type contract expression for now
     case 'ExpressionStatement':
       return typeCheck(node.expression, context);
     case 'GlobalLetStatement':
@@ -37,7 +37,7 @@ export function typeCheck(node: Node, context: Context): Type {
     case 'Identifier':
       return checkIdentifier(node, context);
     case 'LambdaExpression':
-      return checkLambdaExpression(node, context); // TODO
+      return checkLambdaExpression(node, context);
     case 'Literal':
       return valueTypeToPrimitive[node.valueType];
     case 'LocalLetExpression':

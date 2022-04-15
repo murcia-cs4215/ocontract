@@ -1,5 +1,5 @@
 import { boolType, intType } from 'types/utils';
-import { runTest } from 'utils/tests';
+import { expectError, runTest } from 'utils/tests';
 
 test('integer', () => {
   const res = runTest('1;;');
@@ -81,11 +81,7 @@ test('integer division', () => {
 
 test('integer division by 0', () => {
   const res = runTest('100 / 0;;');
-  expect(res).toEqual({
-    status: 'finished',
-    value: Infinity,
-    type: intType,
-  });
+  expectError(res, 'Division by zero');
 });
 
 test('integer modulo', () => {

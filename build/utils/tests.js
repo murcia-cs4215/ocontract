@@ -3,8 +3,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.expectNotAFunction = exports.expectContractViolation = exports.expectContractTypeError = exports.expectContractReturnTypeError = exports.expectTypeError = exports.expectError = exports.runTest = void 0;
+exports.expectNotAFunction = exports.expectContractViolation = exports.expectContractTypeError = exports.expectContractReturnTypeError = exports.expectTypeError = exports.expectError = exports.expectString = exports.runTest = void 0;
 const assert_1 = __importDefault(require("assert"));
+const wrappers_1 = require("../parser/wrappers");
+const utils_1 = require("../types/utils");
 const context_1 = require("../context");
 const index_1 = require("../index");
 const formatters_1 = require("./formatters");
@@ -13,6 +15,16 @@ function runTest(code) {
     return (0, index_1.run)(code, context);
 }
 exports.runTest = runTest;
+function expectString(result, str) {
+    expect(result).toMatchObject({
+        status: 'finished',
+        type: utils_1.stringType,
+    });
+    (0, assert_1.default)('value' in result);
+    (0, assert_1.default)(result.value instanceof wrappers_1.StringWrapper);
+    expect(result.value.unwrap()).toBe(str);
+}
+exports.expectString = expectString;
 function expectError(result, explainMessage, elaborateMessage) {
     expect(result.status).toBe('errored');
     (0, assert_1.default)('error' in result);

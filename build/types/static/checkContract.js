@@ -23,7 +23,7 @@ function checkContractExpression(node, context) {
     }
     if (contract.type === 'FlatContractExpression') {
         const closureType = (0, index_1.typeCheck)(contract.contract, context);
-        if ((0, utils_1.isPrimitiveType)(closureType)) {
+        if ((0, utils_1.isPrimitiveType)(closureType) || (0, utils_1.isJoinedType)(closureType)) {
             throw new errors_1.NotAFunctionError((0, formatters_1.formatType)(closureType), node);
         }
         if (!(0, utils_1.isBool)(closureType.returnType)) {

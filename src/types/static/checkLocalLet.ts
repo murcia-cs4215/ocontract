@@ -17,7 +17,7 @@ export function checkLocalLetExpression(
   const localLetEnvironment = createLocalTypeEnvironment();
   pushTypeEnvironment(context, localLetEnvironment);
   typeCheck(node.left, context); // let the global bindings happen
-  const type = typeCheck(node.right, context); // TODO: Check if we should return this type
+  const type = typeCheck(node.right, context);
   popTypeEnvironment(context);
   return type;
 }

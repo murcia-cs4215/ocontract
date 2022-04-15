@@ -15,7 +15,6 @@ function currentEnvironment(context) {
 exports.currentEnvironment = currentEnvironment;
 function pushEnvironment(context, environment) {
     context.runtime.environments.unshift(environment);
-    // TODO: See if we need the environment tree here
 }
 exports.pushEnvironment = pushEnvironment;
 function popEnvironment(context) {

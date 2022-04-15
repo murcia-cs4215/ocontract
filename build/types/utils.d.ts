@@ -1,6 +1,7 @@
 import { Contract } from '../contracts/types';
-import { ContractType, FunctionType, PrimitiveType, PrimitiveValueType, Type } from './types';
+import { ContractType, FunctionType, JoinedType, JoinedValueType, PrimitiveType, PrimitiveValueType, Type } from './types';
 export declare function makePrimitive(type: PrimitiveValueType): PrimitiveType;
+export declare function makeJoined(type: JoinedValueType): JoinedType;
 export declare function makeFunctionType(...types: Type[]): FunctionType;
 export declare const intType: PrimitiveType;
 export declare const floatType: PrimitiveType;
@@ -8,17 +9,22 @@ export declare const boolType: PrimitiveType;
 export declare const stringType: PrimitiveType;
 export declare const charType: PrimitiveType;
 export declare const unitType: PrimitiveType;
+export declare const numericType: JoinedType;
+export declare const anyType: JoinedType;
 export declare const primitiveTypes: PrimitiveType[];
 export declare const valueTypeToPrimitive: {
     [valueType: string]: PrimitiveType;
 };
 export declare function isPrimitiveType(type: Type): type is PrimitiveType;
 export declare function isFunctionType(type: Type): type is FunctionType;
+export declare function isJoinedType(type: Type): type is JoinedType;
 export declare function isInt(type: Type): boolean;
 export declare function isFloat(type: Type): boolean;
 export declare function isBool(type: Type): boolean;
 export declare function isString(type: Type): boolean;
 export declare function isChar(type: Type): boolean;
+export declare function isNumeric(type: Type): boolean;
+export declare function isAny(type: Type): boolean;
 export declare function isSameType(type1: Type, type2: Type): boolean;
 /**
  * Curries a function with type of format x -> x -> x -> x

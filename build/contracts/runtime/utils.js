@@ -16,7 +16,7 @@ function checkFlatContract(node, val, contract, context, blame) {
     (0, assert_1.default)((0, utils_1.isBool)(check.type)); // should have been validated by the type checker
     if (check.value) {
         // Contract successfully asserted
-        if (contract.isSetNotation) {
+        if (contract.isSetNotation && contract.contract instanceof closure_1.Closure) {
             contract.contract.clonedEnvironments[0].head[contract.contract.originalNode.params[0].name] = val;
         }
         return;
@@ -46,8 +46,8 @@ function propagateEnvironment(contract, context) {
 exports.propagateEnvironment = propagateEnvironment;
 function _propagateEnvironment(contract, environments) {
     if (contract.type === 'FlatContract') {
-        if (!contract.isSetNotation) {
-            return; // We don't touch non-set notation contracts
+        if (!contract.isSetNotation || !(contract.contract instanceof closure_1.Closure)) {
+            return; // We don't touch non-set notation contracts and default closures
         }
         contract.contract.clonedEnvironments = [...environments];
         return;

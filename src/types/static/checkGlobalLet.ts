@@ -14,6 +14,7 @@ import {
 import { ContractType, FunctionType, Type } from '../types';
 import {
   formatContractType,
+  isJoinedType,
   isPrimitiveType,
   isSameType,
   unitType,
@@ -91,7 +92,7 @@ export function checkGlobalLetStatement(
 }
 
 function matchesContractType(type: Type, contractType: ContractType): boolean {
-  if (isPrimitiveType(type)) {
+  if (isPrimitiveType(type) || isJoinedType(type)) {
     if (contractType.type !== 'FlatContractType') {
       return false;
     }

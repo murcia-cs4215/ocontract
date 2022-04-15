@@ -1,6 +1,8 @@
 import { createInitialContractEnvironments } from 'contracts/environment';
 import { createInitialTypeEnvironments } from 'types/environment';
 
+import { globalEnvironmentDefaultFunctions } from './interpreter/default';
+import { globalEnvironmentDefaultConstants } from './interpreter/default/constants';
 import { GLOBAL } from './constants';
 import { Context, Environment, Value } from './runtimeTypes';
 
@@ -29,7 +31,10 @@ const createEmptyContext = <T>(
 const createGlobalEnvironment = (): Environment => ({
   tail: null,
   name: 'global',
-  head: {},
+  head: {
+    ...globalEnvironmentDefaultConstants,
+    ...globalEnvironmentDefaultFunctions,
+  },
   id: '-1',
 });
 

@@ -1,4 +1,6 @@
+import { StringWrapper } from 'parser/wrappers';
 import { Type } from 'types/types';
+import { isJoinedType, isPrimitiveType } from 'types/utils';
 
 import { Errored, Finished } from '../runtimeTypes';
 
@@ -25,11 +27,34 @@ export function formatErroredForRepl(
 
 export function formatFinishedForRepl(result: Finished): string {
   const type = formatType(result.type);
-  if (type === 'unit') {
-    result.value = '()';
-  }
-  if (type === 'float' && Math.floor(result.value) === result.value) {
-    result.value = `${result.value}.`;
+  switch (type) {
+    case 'unit':
+      result.value = '()';
+      break;
+    case 'float':
+      if (Number.isNaN(result.value)) {
+        result.value = 'nan';
+      } else if (result.value === Infinity) {
+        result.value = 'infinity';
+      } else if (result.value === -Infinity) {
+        result.value = 'neg_infinity';
+      } else if (Number.isInteger(result.value)) {
+        result.value = `${result.value}.`;
+      }
+      break;
+    case 'int':
+      if (Number.isNaN(result.value) || !Number.isFinite(result.value)) {
+        result.value = 0;
+      }
+      break;
+    case 'string':
+      if (result.value instanceof StringWrapper) {
+        result.value = `"${result.value.unwrap()}"`;
+      }
+      break;
+    case 'char':
+      result.value = `'${result.value}'`;
+      break;
   }
 
   let value;
@@ -54,7 +79,7 @@ export function formatType(type: Type | Type[]): string {
   if (Array.isArray(type)) {
     return type.map(formatType).join(' or ');
   }
-  if (type.type === 'PrimitiveType') {
+  if (isPrimitiveType(type) || isJoinedType(type)) {
     return type.valueType;
   }
   return `${formatType(type.parameterType)} -> ${formatType(type.returnType)}`;

@@ -24,7 +24,7 @@ import { getTypeOfContract, unitType, valueTypeToPrimitive } from 'types/utils';
 
 import { Context, RuntimeResult } from '../runtimeTypes';
 
-import { Closure } from './closure';
+import { Closure, DefaultClosure } from './closure';
 import {
   createFunctionEnvironment,
   createLocalEnvironment,
@@ -33,7 +33,12 @@ import {
   pushEnvironment,
   setVariable,
 } from './environment';
-import { assertClosure, handleRuntimeError, InterpreterError } from './errors';
+import {
+  assertClosure,
+  DivisionByZeroError,
+  handleRuntimeError,
+  InterpreterError,
+} from './errors';
 import {
   evaluateBinaryExpression,
   evaluateLogicalExpression,
@@ -76,6 +81,9 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     const left = evaluate(node.left, context);
     const right = evaluate(node.right, context);
     checkBinaryExpressionType(node, node.operator, left, right, context);
+    if (node.operator === '/' && right.value === 0) {
+      return handleRuntimeError(context, new DivisionByZeroError(node));
+    }
     return evaluateBinaryExpression(node.operator, left, right);
   },
   LogicalExpression: (node: Node, context: Context): RuntimeResult => {
@@ -216,7 +224,10 @@ const evaluators: { [nodeType: string]: Evaluator } = {
     }
     if (node.contract.type === 'FlatContractExpression') {
       const result = evaluate(node.contract.contract, context);
-      assert(result.value instanceof Closure);
+      assert(
+        result.value instanceof Closure ||
+          result.value instanceof DefaultClosure,
+      );
 
       const contract = {
         type: 'FlatContract',
@@ -272,10 +283,13 @@ export function evaluate(node: Node, context: Context): RuntimeResult {
 }
 
 export function apply(
-  closure: Closure,
+  closure: Closure | DefaultClosure,
   arg: RuntimeResult,
   context: Context,
 ): RuntimeResult {
+  if (closure instanceof DefaultClosure) {
+    return applyDefault(closure, arg, context);
+  }
   const copyArg = cloneDeep(arg);
   checkArgumentContract(closure, copyArg, context);
 
@@ -322,6 +336,19 @@ export function apply(
   // Restore context environments
   context.runtime.environments = originalEnvironments;
   return { value: curriedClosure, type: curriedClosure.getType() };
+}
+
+function applyDefault(
+  closure: DefaultClosure,
+  arg: RuntimeResult,
+  context: Context,
+): RuntimeResult {
+  const copyArg = cloneDeep(arg);
+  const newClosure = closure.addArg(copyArg);
+  if (newClosure.canCompute()) {
+    return newClosure.compute(context);
+  }
+  return { value: newClosure, type: newClosure.getType() };
 }
 
 // HELPER FUNCTIONS
