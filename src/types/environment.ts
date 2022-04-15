@@ -1,6 +1,5 @@
-import { globalEnvironmentDefaultFunctionTypes } from 'interpreter/default';
-import { globalEnvironmentDefaultConstantTypes } from 'interpreter/default/constants';
-
+import { globalEnvironmentDefaultFunctionTypes } from '../interpreter/default';
+import { globalEnvironmentDefaultConstantTypes } from '../interpreter/default/constants';
 import { Context, TypeEnvironment } from '../runtimeTypes';
 
 import { ContractType, Type } from './types';
@@ -14,7 +13,7 @@ import {
 } from './utils';
 
 // Note: We can only allow joined types in parameters, not return value
-const predeclaredNames: [string, Type | Type[]][] = [
+const predeclaredNames: [string, Type][] = [
   ...globalEnvironmentDefaultConstantTypes,
   ...globalEnvironmentDefaultFunctionTypes,
 ];

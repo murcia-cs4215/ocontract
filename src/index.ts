@@ -30,7 +30,6 @@ export function run(code: string, context: Context): Result {
     return {
       ...result,
       status: 'finished',
-      value: result.value,
     };
   } catch (error) {
     cleanUpContextAfterRun(context);

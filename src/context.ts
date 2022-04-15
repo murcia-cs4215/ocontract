@@ -1,8 +1,8 @@
 import { createInitialContractEnvironments } from 'contracts/environment';
-import { globalEnvironmentDefaultFunctions } from 'interpreter/default';
-import { globalEnvironmentDefaultConstants } from 'interpreter/default/constants';
 import { createInitialTypeEnvironments } from 'types/environment';
 
+import { globalEnvironmentDefaultFunctions } from './interpreter/default';
+import { globalEnvironmentDefaultConstants } from './interpreter/default/constants';
 import { GLOBAL } from './constants';
 import { Context, Environment, Value } from './runtimeTypes';
 
