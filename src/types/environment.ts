@@ -15,8 +15,8 @@ import {
 
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames: [string, Type | Type[]][] = [
-  ...globalEnvironmentDefaultFunctionTypes,
   ...globalEnvironmentDefaultConstantTypes,
+  ...globalEnvironmentDefaultFunctionTypes,
 ];
 
 // Name of Unary negative builtin operator

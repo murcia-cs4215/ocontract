@@ -6,8 +6,8 @@ const constants_1 = require("../interpreter/default/constants");
 const utils_1 = require("./utils");
 // Note: We can only allow joined types in parameters, not return value
 const predeclaredNames = [
-    ...default_1.globalEnvironmentDefaultFunctionTypes,
     ...constants_1.globalEnvironmentDefaultConstantTypes,
+    ...default_1.globalEnvironmentDefaultFunctionTypes,
 ];
 // Name of Unary negative builtin operator
 exports.NEGATIVE_OP = '-_1';

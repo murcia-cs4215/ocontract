@@ -32,8 +32,8 @@ const createGlobalEnvironment = (): Environment => ({
   tail: null,
   name: 'global',
   head: {
-    ...globalEnvironmentDefaultFunctions,
     ...globalEnvironmentDefaultConstants,
+    ...globalEnvironmentDefaultFunctions,
   },
   id: '-1',
 });

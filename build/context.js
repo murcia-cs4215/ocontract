@@ -26,7 +26,7 @@ const createEmptyContext = (externalSymbols, externalContext) => {
 const createGlobalEnvironment = () => ({
     tail: null,
     name: 'global',
-    head: Object.assign(Object.assign({}, default_1.globalEnvironmentDefaultFunctions), constants_1.globalEnvironmentDefaultConstants),
+    head: Object.assign(Object.assign({}, constants_1.globalEnvironmentDefaultConstants), default_1.globalEnvironmentDefaultFunctions),
     id: '-1',
 });
 const ensureGlobalEnvironmentExist = (context) => {
