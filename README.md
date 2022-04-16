@@ -11,8 +11,8 @@ OContract also serves as a proof-of-concept of the ideas as described in the lan
 Follow the following steps:
 
 ```bash
-git clone https://github.com/zhuhanming/cs4215-murcia.git
-cd cs4215-murcia
+git clone https://github.com/murcia-cs4215/ocontract.git
+cd ocontract
 yarn install
 yarn start
 ```
