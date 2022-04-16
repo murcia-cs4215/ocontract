@@ -9,6 +9,7 @@
 \usepackage{listings, lstautogobble}
 \usepackage{xcolor}
 \usepackage{url}
+\usepackage{hyperref}
 \usepackage{multirow}
 
 % For code listing %
@@ -19,7 +20,11 @@
 
 % Rule Commands
 \newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
+\newcommand{\Rulee}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
 \newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\transition}{\rightrightarrows_s}
+\newcommand{\translate}{\twoheadrightarrow}
+\newcommand{\translateaux}{\hookrightarrow}
 \newcommand{\Return}{\texttt{return}}
 \newcommand{\Recfun}{\texttt{recfun}}
 \newcommand{\If}{\texttt{if}}
@@ -158,6 +163,9 @@ The second main section, Section \ref{developer}, will be on developer documenta
 
 This section lists the various features that OContract offers.
 For a complete technical specification of OContract, please refer to the developer documentation in Section \ref{developer}.
+
+It is recommended that users run OContract programs on the dedicated online code editor at \url{https://murcia-cs4215.github.io/frontend/}.
+Alternatively, one can find the latest tagged release of OContract at \url{https://github.com/murcia-cs4215/ocontract/releases}, and follow the instructions in the README to setup OContract to run locally.
 
 Note that the example programs in this section is displayed as if the program was executed one statement at a time using the interactive Read-Eval-Print-Loop(REPL) shell.
 For more information regarding how to set up and run OContract programs, please refer to the README of the OContract repo.
@@ -580,6 +588,10 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
+As mentioned in the user-level documentation,
+it is recommended that users run OContract programs on the dedicated online code editor at \url{https://murcia-cs4215.github.io/frontend/}.
+Alternatively, one can find the latest tagged release of OContract at \url{https://github.com/murcia-cs4215/ocontract/releases}, and follow the instructions in the README to setup OContract to run locally.
+
 \subsection{Syntax and Typing Rules}
 Since the treatment of syntax rules are not so different from the treatment of the typing rules, the syntax and typing rules will be described in this section.
 
@@ -595,19 +607,19 @@ The following describes the rules for primitive values and symbols in OContract.
 Note that $x$ refers to all symbol names, $n$ refers to all integers, $f$ refers to all floats,
 $c$ refers to all characters and $s$ refers to all strings.
 
-$\Rule{}{x : t}$
+$\Rule{}{\Gamma \vdash x : \Gamma \Lp x \Rp}$
 \hfill
-$\Rule{}{n : \Int}$
+$\Rule{}{\Gamma \vdash n : \Int}$
 \hfill
-$\Rule{}{f : \Float}$
+$\Rule{}{\Gamma \vdash f : \Float}$
 \hfill
-$\Rule{}{c : \Char}$
+$\Rule{}{\Gamma \vdash c : \Char}$
 \hfill
-$\Rule{}{s : \String}$
+$\Rule{}{\Gamma \vdash s : \String}$
 \hfill
-$\Rule{}{\TruE : \Bool}$
+$\Rule{}{\Gamma \vdash \TruE : \Bool}$
 \hfill
-$\Rule{}{\FalsE : \Bool}$
+$\Rule{}{\Gamma \vdash \FalsE : \Bool}$
 
 \subsubsection{Expressions}
 
@@ -620,19 +632,20 @@ $p_2$ denotes the set of binary operators: $\{$
 \verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,
 \verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#$\}$.
 
-$\Rule{E\ :\ \Bool}{\texttt{not}\ E\ :\ \Bool}$
+$\Rule{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \texttt{not}\ E\ :\ \Bool}$
 \hfill
-$\Rule{E\ :\ \Num}{- E\ :\ \Num}$
+$\Rule{\Gamma \vdash E\ :\ \Num}{\Gamma \vdash - E\ :\ \Num}$
 \hfill
-$\Rule{E_1\ :\ t_1\ \quad E_2\ :\ t_2}{p_2[E_1, E_2]\ :\ t}$ [BinOp]
+$\Rule{\Gamma \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{\Gamma \vdash p_2[E_1, E_2]\ :\ t}$ [BinOp]
 
-$\Rule{E\ :\ \Bool \qquad E_1\ :\ t\ \qquad E_2\ :\ t}{\texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}$
+$\Rule{\Gamma \vdash E\ :\ \Bool \qquad \Gamma \vdash E_1\ :\ t\ \qquad \Gamma \vdash E_2\ :\ t}{\Gamma \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}$
 \hfill
-$\Rule{E_1\ :\ t_1\ \qquad E_2\ :\ t_2}{\texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}$
+$\Rule{\Gamma \vdash E_1\ :\ t_1\ \qquad \Gamma [x \leftarrow t_1] \vdash E_2\ :\ t_2}{\Gamma \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}$
 
-$\Rule{E\ :\ t_1\ \rightarrow t_2\ \quad E_1\ :\ t_1}{E\ E_1\ :\ t_2}$ [Function Application]
-\hfill
-$\Rule{E\ :\ t}{\texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t}$
+$\Rule{\Gamma \vdash E\ :\ t_1\ \rightarrow t_2\ \quad \Gamma \vdash E_1\ :\ t_1}{\Gamma \vdash E\ E_1\ :\ t_2}$ [Function Application]
+
+$\Rule{\Gamma [x_1 \leftarrow t_1] \cdots [x_n \leftarrow t_n] \vdash E\ :\ t}
+{\Gamma \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
 
 For the BinOp rule, the types $t_1, t_2, t$ are given by the following table.
 
@@ -652,11 +665,11 @@ $p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
 
 First we define a term $T$ in a contract declaration statement via the following rules, where $E$ refers to the set of expressions.
 
-$\Rule{}{E\ :\ \Contract\ t}$ [where $E\ :\ t \rightarrow \Bool$]
+$\Rule{}{\Gamma \vdash E\ :\ \Contract\ t}$ [where $\Gamma \vdash E\ :\ t \rightarrow \Bool$]
 
 This rule means that a single predicate expression, used in the context of contract declaration statements, has the contract type of the type of its argument.
 
-$\Rule{E\ :\ \Bool}{\Lb x\ :\ t\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
+$\Rule{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \Lb x\ :\ t\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
 
 The following rules describes the set of contract declaration statements, where $T$ refers to a term as defined above.
 
@@ -677,7 +690,59 @@ $\Rule{}{C}$
 \hfill
 $\Rule{E}{\texttt{let } x \texttt{ = } E\ ;;}$ [Let Global Binding]
 
-\subsection{Contracts Calculus}
+\subsection{Semantic Rules}
+
+This section covers the denotational semantic rules that specifies the correctness of an OContract program.
+Note that this section will not cover rules regarding the contract semantics as that will be covered in the next section.
+
+For brevity, types are omitted from certain rules if they are not essential for understanding those rules.
+In addition, we only consider well-typed OContract programs as per the typing rules in the previous section.
+
+$\Rule{\Delta \under E \eval \TruE}{\Delta \under \texttt{not}\ E \eval \FalsE}$
+\hfill
+$\Rule{\Delta \under E \eval \FalsE}{\Delta \under \texttt{not}\ E \eval \TruE}$
+\hfill
+$\Rule{\Delta \under E \eval v\ :\ \Num}{\Delta \under -E \eval -v\ :\ \Num}$
+\hfill
+$\Rule{\Delta \under E_1 \eval v_1 \qquad \Delta \under E_2 \eval v_2}{\Delta \under p_2[E_1, E_2]\ \eval v}$ [BinOp]
+
+$\Rule{\Delta \under E \eval \TruE \qquad \Delta \under E_1 \eval v}{\Delta \under \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ \eval v}$
+\hfill
+$\Rule{\Delta \under E \eval \FalsE \qquad \Delta \under E_2 \eval v}{\Delta \under \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ \eval v}$
+
+$\Rule{\Delta \under E_1 \eval v_1 \qquad \Delta[x \leftarrow v_1] \under E_2 \eval v_2}{\Delta \under \texttt{let}\ x\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ \eval v_2}$
+
+$\Rule{\Delta \under E \eval (f, \Delta') \quad \Delta \under E_1 \eval v_1}
+{\Delta \under E\ E_1\ \eval \Delta' \under f\ v_1}$ [Function Application]
+
+For the Function Application rule above, $(f, \Delta')$ is a closure representing the lambda function $f$ and environment $\Delta'$.
+
+$\Rule{}{\Delta \under \texttt{fun}\ x_1 \cdots x_n \rightarrow E \eval (f, \Delta)}$
+
+For the lambda function definition rule above, $f$ is defined to be such that $f\ v_1 \cdots v_n$ yields a result that is
+equivalent to evaluating $\Delta[x_1 \leftarrow v_1] \cdots [x_n \leftarrow v_n] \under E$.
+
+$\Rule{\Delta \under E \eval v \qquad \Delta[x \leftarrow v] \under S \eval v'}
+{\Delta \under \texttt{let}\ x \texttt{ = } E\ ;;\ S \eval v'}$ [Let Global Binding]
+
+For the BinOp rule, the value $v$ is given by the following table.
+The symbol ``op'' in the table refers to any of the binary operation in the same row.
+
+Most of the operations should be self-explanatory, such as $v_1\ \texttt{op}_{\Int}\ v_2$, when $\texttt{op}_{\Int}$ is ``+'', then $v = v_1 + v_2$.
+
+\begin{tabular}{|l||l|l|l|} \hline
+$p$ & $v$ \\ \hline \hline
+\verb#+,-,*,/,mod# & $v_1\ \texttt{op}_{\Int}\ v_2$ \\ \hline
+\verb#+.,-.,*.,/.,**# & $v_1\ \texttt{op}_{\Float}\ v_2$ \\ \hline
+\verb#&&,||#  & $v_1\ \texttt{op}_{\Bool}\ v_2$ \\ \hline
+\verb#<=,<,>=,># & $v_1\ \texttt{op}_{\Int \_ \texttt{comparison}}\ v_2$ \\ \hline
+\verb#<=,<,>=,># & $v_1\ \texttt{op}_{\Float \_ \texttt{comparison}}\ v_2$  \\ \hline
+\verb#==,!=,=,<># & $v_1\ \texttt{op}_{\texttt{equality\_check}}\ v_2$ \\ \hline
+\verb#^# & $v_1\ \texttt{op}_{\texttt{string\_concatenation}}\ v_2$ \\ \hline
+\end{tabular}
+\vspace{3mm}
+
+\subsection{Contract Semantics}
 
 $\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \FalsE}
 {(\flatCon, p, n, \Delta) \under E \eval \blame p}$
