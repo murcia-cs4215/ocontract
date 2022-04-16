@@ -42,6 +42,17 @@
 \newcommand{\LET}{\texttt{LET}}
 \newcommand{\END}{\texttt{END}}
 \newcommand{\IN}{\texttt{IN}}
+\newcommand{\eval}{\rightarrowtail}
+\newcommand{\evaL}{\rightarrowtail}
+\newcommand{\partfun}{\rightsquigarrow}
+\newcommand{\under}{\Vdash}
+\newcommand{\ErroR}{\bot}
+\newcommand{\blame}{\texttt{blame }}
+\newcommand{\flatCon}{\texttt{con}}
+\newcommand{\funCon}{\texttt{con1} \rightarrow \texttt{con2}}
+\newcommand{\isFlat}{\texttt{flat}}
+\newcommand{\conA}{\texttt{con1}}
+\newcommand{\conB}{\texttt{con2}}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
@@ -565,6 +576,18 @@ In this section, we define the formal semantics of OContract and describe the im
 \subsection{Typing Rules}
 
 \subsection{Contracts Calculus}
+
+$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \FalsE}
+{(\flatCon, p, n, \Delta) \under E \eval \blame p}$
+
+$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \TruE}
+{(\flatCon, p, n, \Delta) \under E \eval v}$
+
+$\Rule{\Delta \under E_1 \eval f \quad (\conA, n, p, \Delta) \under E_2 \eval e_2}
+{(\funCon, p, n, \Delta) \under E_1 \texttt{ } E_2 \eval e_2}$ if $e_2$ \texttt{is a blame}
+
+$\Rule{\Delta \under E_1 \eval f \quad (\conA, n, p, \Delta) \under E_2 \eval e_2 \quad (\conB, p, n, \Delta) \under f \texttt{ } e_2 \eval v }
+{(\funCon, p, n, \Delta) \under E_1 \texttt{ } E_2 \eval v}$ if $e_2$ \texttt{is not a blame}
 
 \subsection{Implementation Details}
 
