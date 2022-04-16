@@ -17,9 +17,9 @@ yarn install
 yarn start
 ```
 
-This will launch an interactive shell for you to enter OContract code.
+This will launch an interactive shell (REPL) for you to enter OContract code line by line.
 
-Alternatively, you can OContract out in a code editor environment at <https://murcia-cs4215.github.io/frontend/>.
+Alternatively, you can try out OContract in a code editor environment at <https://murcia-cs4215.github.io/frontend/>.
 
 ## Sample Program
 
