@@ -1,0 +1,578 @@
+\documentclass[a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage{amstext}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{color,soul}
+\usepackage{tikz}
+\usepackage{listings, lstautogobble}
+\usepackage{xcolor}
+\usepackage{url}
+\usepackage{multirow}
+
+% For code listing %
+\definecolor{codegreen}{rgb}{0,0.6,0}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+
+% Rule Commands
+\newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
+\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\Return}{\texttt{return}}
+\newcommand{\Recfun}{\texttt{recfun}}
+\newcommand{\If}{\texttt{if}}
+\newcommand{\Then}{\texttt{then}}
+\newcommand{\Else}{\texttt{else}}
+\newcommand{\End}{\texttt{end}}
+\newcommand{\Let}{\texttt{const}}
+\newcommand{\In}{\texttt{in}}
+\newcommand{\Rc}{\texttt{\}}}
+\newcommand{\Lc}{\texttt{\{}}
+\newcommand{\Times}{\texttt{*}}
+\newcommand{\Plus}{\texttt{+}}
+\newcommand{\TruE}{\texttt{true}}
+\newcommand{\FalsE}{\texttt{false}}
+\newcommand{\Int}{\texttt{number}}
+\newcommand{\Bool}{\texttt{bool}}
+\newcommand{\Undefined}{\texttt{undefined}}
+\newcommand{\X}{\texttt{x}}
+\newcommand{\F}{\texttt{f}}
+\newcommand{\LET}{\texttt{LET}}
+\newcommand{\END}{\texttt{END}}
+\newcommand{\IN}{\texttt{IN}}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{backcolour},
+    commentstyle=\color{codegreen},
+    keywordstyle=\color{magenta},
+    numberstyle=\tiny\color{codegray},
+    stringstyle=\color{codepurple},
+    basicstyle=\ttfamily\footnotesize,
+    breakatwhitespace=false,
+    breaklines=false,
+    captionpos=b,
+    keepspaces=false,
+    showspaces=false,
+    showstringspaces=false,
+    showtabs=false,
+    tabsize=2,
+    autogobble=true
+}
+
+\lstset{style=mystyle}
+
+\evensidemargin 35pt % Align even and odd numbered pages
+\setlength{\parindent}{0in} % Paragraph Indentation
+\setlength{\parskip}{\medskipamount} % Spaces between paragraphs
+
+% Horizontal Margins
+\setlength{\oddsidemargin}{-0.25in} % Left margin 1 inch (0 + 1)
+\setlength{\textwidth}{6.75in} % Text width 6.5 inch (so right margin 1 inch).
+
+% Vertical Margins
+\setlength{\topmargin}{-0.75in} % Top margin 0.5 inch (-0.5 + 1)
+\setlength{\headheight}{0.25in} % Head height 0.25 inch (where page headers go)
+\setlength{\headsep}{0.25in} % Head separation 0.25 inch (between header and top line of text)
+\setlength{\textheight}{10.25in} % Text height 8.5 inch (so bottom margin 1.5 in)
+
+\title{OContract}
+\author{Rayson Koh (A0149884J), Zhu Hanming (A0196737L)}
+\date{March 2022}
+
+% Generate diagram using https://www.mathcha.io/editor %
+
+\begin{document}
+\pagenumbering{gobble}% Remove page numbers (and reset to 1)
+
+% Cover Page %
+\begin{titlepage}
+    \begin{center}
+        \vspace*{1cm}
+
+        \Huge
+        \textbf{OContract}
+
+        \vspace{0.5cm}
+        \LARGE
+        Assertion-Based Contracts and Blame Passing for OCaml
+
+        \vspace{1.5cm}
+
+
+        \vfill
+
+        A paper presented for \textbf{CS4215}
+
+        \vspace{0.8cm}
+
+        \includegraphics[width=0.4\textwidth]{nus-logo.jpg}
+
+        \Large
+        \textbf{Rayson Koh (A0149884J),\\Zhu Hanming (A0196737L)}\\
+        School of Computing\\
+        National University of Singapore\\
+        March 2022
+
+    \end{center}
+\end{titlepage}
+
+\tableofcontents
+\newpage
+
+\pagenumbering{arabic}
+\section{Introduction}
+
+Assertions as a programming language construct have great practical significance as it has been shown to be very useful in making robust software systems \cite{rosen}.
+Also, as functional programming languages becomes increasingly more popular, there is a greater need for such languages to support assertion-based contracts in a higher-order world.
+
+As such, we will be discussing about the design and implementation of OContract, a spin-off of OCaml that supports higher-order contract-based assertions.
+We hope that OContract would serve as a proof-of-concept of the ideas as described in the landmark paper \emph{Contracts for Higher-Order Functions} \cite{contracts}.
+
+The first main section, Section \ref{user}, will largely be on user-level documentation. This would include high-level descriptions of OContract's features as well as some example programs.
+The second main section, Section \ref{developer}, will be on developer documentation which would include detailed technical specifications and implementation details of OContract.
+
+\section{OContract Features}
+\label{user}
+
+This section lists the various features that OContract offers.
+For a complete technical specification of OContract, please refer to the developer documentation in Section \ref{developer}.
+
+Note that the example programs in this section is displayed as if the program was executed one statement at a time using the interactive Read-Eval-Print-Loop(REPL) shell.
+For more information regarding how to set up and run OContract programs, please refer to the README of the OContract repo.
+
+\subsection{Primitive Types}
+
+OContract supports the following primitive types: \texttt{int}, \texttt{float}, \texttt{string}, \texttt{char} and \texttt{bool}.
+
+A basic expression is simply a primitive value. We can turn such expressions into statements by appending two semicolons:
+
+\begin{verbatim}
+    > 10;;
+    - : int = 10
+    > 10.5;;
+    - : float = 10.5
+    > "abc";;
+    - : string = "abc"
+    > '1';;
+    - : char = '1'
+    > true;;
+    - : bool = true
+\end{verbatim}
+
+\subsection{Basic Operators}
+
+OContract supports various basic operators:
+
+\begin{itemize}
+    \item Unary \texttt{not}
+    \item Arithmetic operators on \texttt{int}: \texttt{+}, \texttt{-}, \texttt{/}, \texttt{*}, \texttt{mod}
+    \item Arithmetic operators on \texttt{float}: \texttt{+.}, \texttt{-.}, \texttt{/.}, \texttt{*.}, \texttt{**} (power)
+    \item Logical operators: \texttt{\&\&}, \texttt{||}
+    \item Binary comparison operators: \texttt{<}, \texttt{>}, \texttt{<=}, \texttt{>=}, \texttt{==}, \texttt{!=}, \texttt{=}, \texttt{<>}
+    \item String concatenation operator: \texttt{\^}
+  \end{itemize}
+
+This is an example of a valid OContract program that uses basic operators:
+
+\begin{verbatim}
+    > (1 + 2) - 3 * 4;;
+    - : int = -9
+    > (1 == 1) && (true || false);;
+    - : bool = true
+\end{verbatim}
+
+Note that \texttt{=} and \texttt{<>} check for structural equality, whereas \texttt{==} and \texttt{!=} check for physical equality.
+The latter describes the equality of the address of an object.
+This is best exemplified via the following example program:
+
+\begin{verbatim}
+    > let x : string = "hello";;
+    val x : string = "hello"
+    > x = "hello";;
+    - : bool = true
+    > x == "hello";;
+    - : bool = false
+    > x == x;;
+    - : bool = true
+\end{verbatim}
+
+\subsection{If Statements}
+
+OContract supports if statements in the form of \texttt{if} ... \texttt{then} ... \texttt{else} ... .
+
+An OContract program that uses if statements can be written like so:
+
+\begin{verbatim}
+    > if (1 > 2) then "seems wrong..." else "seems correct...";;
+    - : string = "seems correct..."
+\end{verbatim}
+
+\subsection{Lambda Expressions}
+
+Similar to OCaml, OContract allows users to define lambda expressions using the \texttt{fun} keyword.
+Note that \textbf{all of the input types and output type have to be clearly specified} for the program to be valid.
+
+To apply a lambda expression to some arguments, simply ensure that the arguments are whitespace-separated and comes after the lambda expression.
+
+Here is an example of an OContract program using lambda expressions:
+
+\begin{verbatim}
+    > (fun (x : int) : int -> x + 1) 1;;
+    - : int = 2
+    > (fun (x : int) (y : int) : bool -> x > y) 1 2;;
+    - : bool = false
+\end{verbatim}
+
+\subsection{Let Bindings}
+
+Similar to OCaml, OContract allows users to define bindings of the result of an expression to an identifier using the \texttt{let} keyword.
+Note that \textbf{the type of the identifier must be clearly defined}.
+
+The binding can be defined to be valid locally via the use of the \texttt{let ... in ...} syntax.
+
+Here is an example of some simple let bindings:
+
+\begin{verbatim}
+    > let y : int = 10;;
+    val y : int = 10
+    > let x : int = 10 in x + 5;;
+    - : int = 15
+    > y;;
+    - : int = 10
+    > x;;
+    Uncaught Error: Line 1, Column 0: Unbound value x
+\end{verbatim}
+
+In addition to binding values to identifiers, lambda expressions are also allowed to be bound to identifiers.
+This offers a convenient way of reusing the lambda expression by referring to the identifier that is bound to that lambda expression.
+
+Let bindings also allows the user to define a function by defining symbols for the function arguments immediately after the identifier for the function.
+
+For example, the functions \texttt{f} and \texttt{g} as shown in the two separate programs below are semantically equivalent:
+
+\begin{verbatim}
+    > let f : int -> int = fun (x : int) : int -> x + 1;;
+    val f : int -> int = <fun>
+    > f 1;;
+    - : int = 2
+    > f 2;;
+    - : int = 3
+\end{verbatim}
+
+\begin{verbatim}
+    > let g (x : int) : int = x + 1;;
+    val g : int -> int = <fun>
+    > g 1;;
+    - : int = 2
+    > g 2;;
+    - : int = 3
+\end{verbatim}
+
+\subsection{Recursive Functions}
+
+OContract supports defining recursive function via the \texttt{let rec f ... = ... f ... } syntax.
+
+For example, the recursive factorial function can be defined as such:
+
+\begin{verbatim}
+    > let rec fact (x : int) : int = if x == 0 then 1 else x * (fact (x - 1));;
+    val fact : int -> int = <fun>
+    > fact 5;;
+    - : int = 120
+\end{verbatim}
+
+Note that without the \texttt{rec}, the function name will not be bound.
+
+\begin{verbatim}
+    > let fact (x : int) : int = if x == 0 then 1 else x * (fact (x - 1));;
+    Uncaught Error: Line 1, Column 54: Unbound value fact
+\end{verbatim}
+
+\subsection{Function Currying}
+
+OContract supports the partial application of a function.
+
+For example:
+
+\begin{verbatim}
+    > let f (x : int) (y : int) : int = x + y;;
+    val f : int -> int -> int = <fun>
+    > let g : int -> int = f 1;;
+    val g : int -> int = <fun>
+    > g 100;;
+    - : int = 101
+\end{verbatim}
+
+\subsection{Higher-Order Functions}
+
+As a functional programming language, OContract allows the user to easily define and apply higher-order functions.
+
+For example, the program below defines a higher-order function \texttt{f} that takes in a function \texttt{g} and an integer \texttt{x}.
+
+\begin{verbatim}
+    > let f (g : int -> int) : int -> int = fun (x : int) : int -> g x;;
+    val f : (int -> int) -> int -> int = <fun>
+    > f (fun (x : int) : int -> x + 100) 10;;
+    - : int = 110
+\end{verbatim}
+
+\subsection{Contracts and Blame Assignment}
+
+The main feature of OContract is the ability for users to define assertion-based contracts and be notified of contract violations (if any) and the corresponding party to be blamed during runtime.
+
+Not only does this aid in debugging, but it also gives user the reassurance that pre-conditions and post-conditions will be adhered to, regardless of how functions are passed around in the program.
+
+\subsubsection{Predicate Contracts}
+
+A predicate contract is a contract that is defined on an identifier that holds a primitive value.
+
+Suppose that you wish to define a predicate contract on the identifier \texttt{x}, it can be done using the
+
+\begin{verbatim}
+contract x = E1;;
+\end{verbatim}
+
+syntax, where \texttt{E1} denotes an expression that evaluates to a function that takes in the value of \texttt{x} as input and returns a \texttt{bool}.
+During runtime, if the returned value is \texttt{false}, it would indicate a contract violation and the runtime system will notify the user of that.
+
+For example, the program below shows an example usage of predicate contracts.
+The contract on \texttt{x} only allows \texttt{x} to hold integers that are greater than 0.
+If \texttt{x} holds a value that is not greater than 0, a contract violation error will be thrown together with the party to be blamed (also termed the ``blame party").
+
+\begin{verbatim}
+    > contract x = (fun (y : int) : bool -> y > 0);;
+    val x : int = <contract>
+    > let x : int = 1;;
+    val x : int = 1
+    > let x : int = 0;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+Note that in a REPL context, each line would have a line number of 1, hence the above identical locations for both the violation and the violated contract.
+
+\subsubsection{Function Contracts}
+
+A function contract is a contract that is defined on an identifier that refers to a function.
+
+To define a function contract on function \texttt{f} that takes in $k$ arguments, it can be done using the following syntax:
+
+\begin{verbatim}
+contract f = E1 -> E2 -> ... -> Ek -> Er ;;
+\end{verbatim}
+
+Each of the \texttt{Ei} ($1 \leq i \leq k$) is an expression that evaluates to a function which expects the $i$-th argument of \texttt{f} and returns a \texttt{bool}.
+Finally, the last term in the contract \texttt{Er} is an expression that evaluates to a function which expects the return value of fully evaluating the function \texttt{f} and returns a \texttt{bool}.
+
+Note that if the function takes in $k$ arguments, the contract that is defined on $f$ must have exactly $k + 1$ expressions that are separated by ``$\rightarrow$".
+
+The following is an example of a function contract on a first-order function that takes in two integers and return their sum.
+For brevity, we excluded the definition of a helper function \texttt{gt0} that takes in an integer and returns a \texttt{bool} based on whether it is greater than 0 or not.
+
+\begin{verbatim}
+    > contract f = gt0 -> gt0 -> gt0;;
+    val f : int -> int -> int = <contract>
+    > let f (x : int) (y : int) : int = x + y;;
+    val f : int -> int -> int = <fun>
+    > f 1 1;;
+    - : int = 2
+    > f 0 1;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+\subsubsection{Contracts for Higher-Order Functions}
+
+Function contracts can also be used to define contracts for higher-order functions.
+
+For example, the following program defines a contract for a higher-order function \texttt{compose} that takes in two functions as input and returns a function that is a composition of the two functions.
+Again, we assume for brevity that there exists a helper function \texttt{gt0} that checks whether an integer is greater than 0.
+
+\begin{verbatim}
+    > contract compose = (gt0 -> gt0) -> (gt0 -> gt0) -> (gt0 -> gt0);;
+    val compose : (int -> int) -> (int -> int) -> int -> int = <contract>
+    > let compose (f : int -> int) (g : int -> int) : int -> int
+                  = fun (x : int) : int -> f (g x);;
+    val compose : (int -> int) -> (int -> int) -> int -> int = <fun>
+    > compose (fun (x : int) : int -> x + 1) (fun (y: int) : int -> y + 1) 0;;
+    Uncaught Error: Line 1, Column 61: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+OContract blames \texttt{main} in this case because a faulty value of 0 was supplied to \texttt{g} as \texttt{g} was expecting an input that is greater than 0.
+
+\subsubsection{Contract Set-Notation Syntax}
+
+For greater user flexibility, OContract allows a user to define a contract using an alternative Set-Notation syntax.
+
+For instance, predicate contracts can be defined as follows:
+
+\begin{verbatim}
+    > contract x = {a : int | a > 0};;
+    val x : int = <contract>
+\end{verbatim}
+
+This means that \texttt{x} should hold an integer that is greater than 0.
+
+More generally, each term on the right-hand-side of the contract declaration statement (i.e. after the ``=" sign) contains two components separated by a ``$\vert$" symbol.
+The first component is a symbol that is used to identify the argument, and the second component is an expression (which could possibly involve the use of the symbol defined in the first component) that returns a \texttt{bool}.
+
+Note that it is also possible to use set notation syntax as well as the plain expressions interchangeably in the declaration of a contract.
+See the following example below:
+
+\begin{verbatim}
+    > contract f = gt0 -> {y : int | y > 100};;
+    val f : int -> int = <contract>
+    > let f (x : int) : int = x + 100;;
+    val f : int -> int = <fun>
+    > f 0;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: main
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+\subsubsection{Dependent Contracts}
+
+OContract allows the user to define dependent contracts, which refers having a predicate on parameters or the return value based on the values of the previous arguments.
+
+Note that dependent contracts can only be defined using the set-notation contract syntax.
+
+For instance, consider the following program that defines an adder function.
+
+\begin{verbatim}
+    > contract adder = {x : int | x > 0} -> {y : int | y > 0} -> {z : int | z = x + y};;
+    val adder : int -> int -> int = <contract>
+    > let adder (x : int) (y : int) : int = x + 1;;
+    val adder : int -> int -> int = <fun>
+    > adder 1 2;;
+    Uncaught Error: Line 1, Column 0: Contract violation!
+    Blame: adder
+    Contract at: Line 1, Column 0
+\end{verbatim}
+
+The contract of \texttt{adder} is violated due to the incorrect implementation of \texttt{adder}.
+Note that this contract violation error cannot be caught if one simply uses \texttt{gt0} as the last term in the contract of \texttt{adder}.
+
+Hence, in a sense, dependent contracts allow users to define ``stricter" contracts that provide stronger assertion guarantees.
+
+\subsection{Static and Runtime Type Checker}
+
+OContract enforces types to be declared for all identifiers, arguments and return values.
+
+The strong type safety of OContract results in the early detection of type errors and leads to faster development time.
+A more rigorous exploration on OContract's type safety will be done in the following Section \ref{developer}.
+
+For example, the following program shows how OContract is able to detect static type errors.
+
+\begin{verbatim}
+    > let x : int = "not an integer";;
+    Uncaught:
+    Error: Line 1, Column 0: This expression has type string but an expression
+    was expected of type int
+    > let f (x : float) : int = x + 5;;
+    Uncaught:
+    Error: Line 1, Column 26: This expression has type float but an expression
+    was expected of type int
+\end{verbatim}
+
+In addition, OContract also has type-checking on contracts and is able to detect type mismatch errors.
+
+For example, the following program shows how OContract is able to detect type mismatch errors with respect to contracts.
+
+\begin{verbatim}
+    > contract f = {x : int | x > 0};;
+    val f : int = <contract>
+    > let f : string = "not an int";;
+    Uncaught:
+    Error: Line 1, Column 0: This name has type string but its contract
+    was expecting type int
+    > contract g = {x : int | "not a bool"};;
+    Uncaught:
+    Error: Line 1, Column 13: This expression has type string but an expression
+    was expected of type bool
+\end{verbatim}
+
+\subsection{In-Built Functions and Predicates}
+
+To enhance the user experience, OContract comes packaged with a subset of OCaml's library functions and constants.
+These primarily come from OCaml's \texttt{Float} and \texttt{String} libraries.
+
+\begin{center}
+\begin{tabular}{|l|l|l|l|l|}
+    \hline
+    \multicolumn{3}{|c|}{\texttt{Float}} & \texttt{String} & Others \\ \hline
+    \texttt{infinity} & \texttt{neg\_infinity} & \texttt{nan} & \texttt{empty} & \texttt{positive} \\
+    \texttt{pi} & \texttt{is\_nan} & \texttt{of\_int} & \texttt{make} & \texttt{negative} \\
+    \texttt{to\_int} & \texttt{sqrt} & \texttt{cbrt} & \texttt{length} & \texttt{zero} \\
+    \texttt{exp} & \texttt{exp2} & \texttt{log} & \texttt{get} & \texttt{any} \\
+    \texttt{log10} & \texttt{log2} & \texttt{expm1} & \texttt{starts\_with} & \texttt{to\_string} \\
+    \texttt{log1p} & \texttt{cos} & \texttt{sin} & \texttt{ends\_with} & \\
+    \texttt{tan} & \texttt{acos} & \texttt{asin} & \texttt{contains} & \\
+    \texttt{atan} & \texttt{atan2} & \texttt{hypot} & \texttt{substring} & \\
+    \texttt{cosh} & \texttt{sinh} & \texttt{tanh} & \texttt{uppercase} & \\
+    \texttt{acosh} & \texttt{asinh} & \texttt{atanh} & \texttt{lowercase} & \\
+    \texttt{round} & \texttt{ceil} & \texttt{floor} & \texttt{capitalize} & \\ \hline
+\end{tabular}
+\end{center}
+
+There are four predicates introduced to make writing contracts easier --- \texttt{positive}, \texttt{negative}, \texttt{zero}, and \texttt{any}.
+The first three predicates do as their names suggest.
+\texttt{positive} checks that a value is positive, \texttt{negative} checks that a value is negative, and \texttt{zero} checks that a value is zero.
+
+What is interesting about them, however, is that they work with a new type called \texttt{numeric}.
+
+\begin{verbatim}
+    > positive;;
+    - : numeric -> bool = <fun>
+    > positive 10;;
+    - : bool = true
+    > positive (-0.5);;
+    - : bool = false
+\end{verbatim}
+
+In other words, these three functions are able to take in both \texttt{int} and \texttt{float} values.
+But do note that this new type \texttt{numeric} is only for internal usage, and cannot be used explicitly for type declarations.
+
+Similarly, \texttt{any} uses a new internal type called \texttt{any}, that accepts all types.
+\texttt{any} thus takes in any value and returns \texttt{true}, serving as an effective ``empty'' predicate for contracts.
+The example below uses this property to avoid any checks on the return value of \texttt{f}.
+
+\begin{verbatim}
+    > any;;
+    - : any -> bool = <fun>
+    > contract f = positive -> any;;
+    val f : numeric -> any = <contract>
+    > let f (x : int) : string = to_string x;;
+    val f : int -> string = <fun>
+    > f 20;;
+    - : string = "20"
+\end{verbatim}
+
+Do note that, though convenient, excessive usage of \texttt{any} defeats the purpose of assertions as a whole.
+
+\section{OContract Formal Specification}
+\label{developer}
+
+In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
+
+\subsection{Syntax Rules}
+
+\subsection{Typing Rules}
+
+\subsection{Contracts Calculus}
+
+\subsection{Implementation Details}
+
+\subsection{Future Work}
+
+\subsubsection{Type Inference}
+
+\bibliographystyle{unsrt}
+\bibliography{ref}
+
+\end{document}
