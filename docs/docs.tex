@@ -34,7 +34,12 @@
 \newcommand{\Plus}{\texttt{+}}
 \newcommand{\TruE}{\texttt{true}}
 \newcommand{\FalsE}{\texttt{false}}
-\newcommand{\Int}{\texttt{number}}
+\newcommand{\Int}{\texttt{int}}
+\newcommand{\Float}{\texttt{float}}
+\newcommand{\String}{\texttt{string}}
+\newcommand{\Char}{\texttt{char}}
+\newcommand{\Num}{\texttt{numeric}}
+\newcommand{\Contract}{\texttt{contract}}
 \newcommand{\Bool}{\texttt{bool}}
 \newcommand{\Undefined}{\texttt{undefined}}
 \newcommand{\X}{\texttt{x}}
@@ -575,10 +580,14 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
-\subsection{Syntax Rules}
+\subsection{Syntax and Typing Rules}
+Since the treatment of syntax rules are not so different from the treatment of the typing rules, the syntax and typing rules will be described in this section.
 
-An OContract program is essentially a sequence of OContract statements. In order to have a rigorous definition of OContract statements,
-we will first define the set primitive values and symbols, followed by expressions and contract declaration statements.
+An OContract program is essentially a sequence of OContract statements. In order to rigorously define OContract statements,
+this section will start off by first defining some basic sets such as Primitive Values and Symbols, and incrementally build upon
+previous definitions to ultimately provide the rules that make up an OContract statement.
+
+For all of the rules in this section, let $t$ be an arbitrary type.
 
 \subsubsection{Primitive Values and Symbols}
 
@@ -586,57 +595,72 @@ The following describes the rules for primitive values and symbols in OContract.
 Note that $x$ refers to all symbol names, $n$ refers to all integers, $f$ refers to all floats,
 $c$ refers to all characters and $s$ refers to all strings.
 
-$\Rule{}{x}$
+$\Rule{}{x : t}$
 \hfill
-$\Rule{}{n}$
+$\Rule{}{n : \Int}$
 \hfill
-$\Rule{}{f}$
+$\Rule{}{f : \Float}$
 \hfill
-$\Rule{}{c}$
+$\Rule{}{c : \Char}$
 \hfill
-$\Rule{}{s}$
+$\Rule{}{s : \String}$
 \hfill
-$\Rule{}{\TruE}$
+$\Rule{}{\TruE : \Bool}$
 \hfill
-$\Rule{}{\FalsE}$
+$\Rule{}{\FalsE : \Bool}$
 
 \subsubsection{Expressions}
 
 The following rules describes the set of expressions in OContract,
-where
-$p_1 = \{$\verb#not#$\}$ and
+where we define the type of \Num\ to denote \Int\ or \Float\ and
 
-$p_2 = \{$
+$p_2$ denotes the set of binary operators: $\{$
 \verb@||@,\verb#&&#,
 \verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
 \verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,
 \verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#$\}$.
 
-$\Rule{E}{p_1[E]}$
+$\Rule{E\ :\ \Bool}{\texttt{not}\ E\ :\ \Bool}$
 \hfill
-$\Rule{E_1\quad E_2}{p_2[E_1, E_2]}$
+$\Rule{E\ :\ \Num}{- E\ :\ \Num}$
 \hfill
-$\Rule{E \qquad E_1 \qquad E_2}{\texttt{if } E\ \texttt{ then }\ E_1\ \texttt{ else } E_2}$
-\hfill
-$\Rule{E_1 \qquad E_2}{\texttt{let } x\ \texttt{ = }\ E_1\ \texttt{ in } E_2}$
+$\Rule{E_1\ :\ t_1\ \quad E_2\ :\ t_2}{p_2[E_1, E_2]\ :\ t}$ [BinOp]
 
-$\Rule{E\quad E_1}{E\ E_1}$ [Function Application]
-\hspace{2cm}
-$\Rule{E}{\texttt{fun } (x_1 : t_1) \texttt{ } \cdots \texttt{ } (x_n : t_n) : t_{n+1} \rightarrow E}$
+$\Rule{E\ :\ \Bool \qquad E_1\ :\ t\ \qquad E_2\ :\ t}{\texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}$
+\hfill
+$\Rule{E_1\ :\ t_1\ \qquad E_2\ :\ t_2}{\texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}$
+
+$\Rule{E\ :\ t_1\ \rightarrow t_2\ \quad E_1\ :\ t_1}{E\ E_1\ :\ t_2}$ [Function Application]
+\hfill
+$\Rule{E\ :\ t}{\texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t}$
+
+For the BinOp rule, the types $t_1, t_2, t$ are given by the following table.
+
+\begin{tabular}{|l||l|l|l|} \hline
+$p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
+\verb#+,-,*,/,mod# & \Int & \Int & \Int \\ \hline
+\verb#+.,-.,*.,/.,**# & \Float & \Float & \Float \\ \hline
+\verb#&&,||#  & \Bool & \Bool & \Bool \\ \hline
+\verb#<=,<,>=,># & \Int & \Int & \Bool \\ \hline
+\verb#<=,<,>=,># & \Float & \Float & \Bool \\ \hline
+\verb#==,!=,=,<># & t' & t' & t' \\ \hline
+\verb#^# & \String & \String & \String \\ \hline
+\end{tabular}
+\vspace{3mm}
 
 \subsubsection{Contracts Declaration}
 
 First we define a term $T$ in a contract declaration statement via the following rules, where $E$ refers to the set of expressions.
 
-$\Rule{}{E}$
+$\Rule{}{E\ :\ \Contract\ t}$
 \hspace{2cm}
-$\Rule{E}{\Lb x\ :\ t_1\ |\ E\ \Rb}$ [Set Notation Syntax]
+$\Rule{E\ :\ t}{\Lb x\ :\ t_1\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
 
 The following rules describes the set of contract declaration statements, where $T$ refers to a term as defined above.
 
-$\Rule{T}{\texttt{contract } x\ \texttt{ = }\ T\ ;;}$ [Predicate Contracts]
+$\Rule{T}{\Contract\ x\ \texttt{=}\ T\ ;;}$ [Predicate Contracts]
 \hfill
-$\Rule{T_1 \qquad \cdots \qquad T_n}{\texttt{contract } f\ \texttt{ = }\ T_1\ \rightarrow \cdots \rightarrow T_n\ ;;}$ [Function Contracts]
+$\Rule{T_1 \qquad \cdots \qquad T_n}{\texttt{contract } f\ \texttt{=}\ T_1\ \rightarrow \cdots \rightarrow T_n\ ;;}$ [Function Contracts]
 
 $\Rule{T_{1,1} \qquad \cdots \qquad T_{1,k_1} \qquad \cdots \qquad T_{n,1} \qquad \cdots \qquad T_{n,k_n}}
 {\texttt{contract } f\ \texttt{ = }\ (T_{1,1}\ \rightarrow \cdots \rightarrow T_{1,k_1}) \rightarrow \cdots \rightarrow (T_{n,1}\ \rightarrow \cdots \rightarrow T_{n,k_n})\ ;;}$ [Higher-Order Function Contracts]
@@ -650,8 +674,6 @@ $\Rule{E}{E\ ;;}$
 $\Rule{}{C}$
 \hfill
 $\Rule{E}{\texttt{let } x \texttt{ = } E\ ;;}$ [Let Global Binding]
-
-\subsection{Typing Rules}
 
 \subsection{Contracts Calculus}
 
