@@ -652,9 +652,11 @@ $p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
 
 First we define a term $T$ in a contract declaration statement via the following rules, where $E$ refers to the set of expressions.
 
-$\Rule{}{E\ :\ \Contract\ t}$
-\hspace{2cm}
-$\Rule{E\ :\ t}{\Lb x\ :\ t_1\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
+$\Rule{}{E\ :\ \Contract\ t}$ [where $E\ :\ t \rightarrow \Bool$]
+
+This rule means that a single predicate expression, used in the context of contract declaration statements, has the contract type of the type of its argument.
+
+$\Rule{E\ :\ \Bool}{\Lb x\ :\ t\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
 
 The following rules describes the set of contract declaration statements, where $T$ refers to a term as defined above.
 
