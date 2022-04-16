@@ -47,6 +47,10 @@
 \newcommand{\partfun}{\rightsquigarrow}
 \newcommand{\under}{\Vdash}
 \newcommand{\ErroR}{\bot}
+\newcommand{\Rp}{\texttt{)}}
+\newcommand{\Lp}{\texttt{(}}
+\newcommand{\Rb}{\texttt{\}}}
+\newcommand{\Lb}{\texttt{\{}}
 \newcommand{\blame}{\texttt{blame }}
 \newcommand{\flatCon}{\texttt{con}}
 \newcommand{\funCon}{\texttt{con1} \rightarrow \texttt{con2}}
@@ -572,6 +576,80 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
 \subsection{Syntax Rules}
+
+An OContract program is essentially a sequence of OContract statements. In order to have a rigorous definition of OContract statements,
+we will first define the set primitive values and symbols, followed by expressions and contract declaration statements.
+
+\subsubsection{Primitive Values and Symbols}
+
+The following describes the rules for primitive values and symbols in OContract.
+Note that $x$ refers to all symbol names, $n$ refers to all integers, $f$ refers to all floats,
+$c$ refers to all characters and $s$ refers to all strings.
+
+$\Rule{}{x}$
+\hfill
+$\Rule{}{n}$
+\hfill
+$\Rule{}{f}$
+\hfill
+$\Rule{}{c}$
+\hfill
+$\Rule{}{s}$
+\hfill
+$\Rule{}{\TruE}$
+\hfill
+$\Rule{}{\FalsE}$
+
+\subsubsection{Expressions}
+
+The following rules describes the set of expressions in OContract,
+where
+$p_1 = \{$\verb#not#$\}$ and
+
+$p_2 = \{$
+\verb@||@,\verb#&&#,
+\verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
+\verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,
+\verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#$\}$.
+
+$\Rule{E}{p_1[E]}$
+\hfill
+$\Rule{E_1\quad E_2}{p_2[E_1, E_2]}$
+\hfill
+$\Rule{E \qquad E_1 \qquad E_2}{\texttt{if } E\ \texttt{ then }\ E_1\ \texttt{ else } E_2}$
+\hfill
+$\Rule{E_1 \qquad E_2}{\texttt{let } x\ \texttt{ = }\ E_1\ \texttt{ in } E_2}$
+
+$\Rule{E\quad E_1}{E\ E_1}$ [Function Application]
+\hspace{2cm}
+$\Rule{E}{\texttt{fun } (x_1 : t_1) \texttt{ } \cdots \texttt{ } (x_n : t_n) : t_{n+1} \rightarrow E}$
+
+\subsubsection{Contracts Declaration}
+
+First we define a term $T$ in a contract declaration statement via the following rules, where $E$ refers to the set of expressions.
+
+$\Rule{}{E}$
+\hspace{2cm}
+$\Rule{E}{\Lb x\ :\ t_1\ |\ E\ \Rb}$ [Set Notation Syntax]
+
+The following rules describes the set of contract declaration statements, where $T$ refers to a term as defined above.
+
+$\Rule{T}{\texttt{contract } x\ \texttt{ = }\ TE\ ;;}$ [Predicate Contracts]
+\hfill
+$\Rule{T_1 \qquad \cdots \qquad T_n}{\texttt{contract } f\ \texttt{ = }\ T_1\ \rightarrow \cdots \rightarrow T_n\ ;;}$ [Function Contracts]
+
+$\Rule{T_{1,1} \qquad \cdots \qquad T_{1,k_1} \qquad \cdots \qquad T_{n,1} \qquad \cdots \qquad T_{n,k_n}}
+{\texttt{contract } f\ \texttt{ = }\ (T_{1,1}\ \rightarrow \cdots \rightarrow T_{1,k_1}) \rightarrow \cdots \rightarrow (T_{n,1}\ \rightarrow \cdots \rightarrow T_{n,k_n})\ ;;}$ [Higher-Order Function Contracts]
+
+\subsubsection{Statements}
+
+The following rules describes the set of statements in OContract, where $C$ ranges over the set of contract declaration statements.
+
+$\Rule{E}{E\ ;;}$
+\hfill
+$\Rule{}{C}$
+\hfill
+$\Rule{E}{\texttt{let } x \texttt{ = } E\ ;;}$ [Let Global Binding]
 
 \subsection{Typing Rules}
 
