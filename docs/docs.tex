@@ -9,6 +9,7 @@
 \usepackage{listings, lstautogobble}
 \usepackage{xcolor}
 \usepackage{url}
+\usepackage{hyperref}
 \usepackage{multirow}
 
 % For code listing %
@@ -19,7 +20,11 @@
 
 % Rule Commands
 \newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
-\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\Rulee}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[\text{#3}]}
+\newcommand{\transition}{\rightrightarrows_s}
+\newcommand{\translate}{\twoheadrightarrow}
+\newcommand{\translateaux}{\hookrightarrow}
 \newcommand{\Return}{\texttt{return}}
 \newcommand{\Recfun}{\texttt{recfun}}
 \newcommand{\If}{\texttt{if}}
@@ -34,7 +39,12 @@
 \newcommand{\Plus}{\texttt{+}}
 \newcommand{\TruE}{\texttt{true}}
 \newcommand{\FalsE}{\texttt{false}}
-\newcommand{\Int}{\texttt{number}}
+\newcommand{\Int}{\texttt{int}}
+\newcommand{\Float}{\texttt{float}}
+\newcommand{\String}{\texttt{string}}
+\newcommand{\Char}{\texttt{char}}
+\newcommand{\Num}{\texttt{numeric}}
+\newcommand{\Contract}{\texttt{contract}}
 \newcommand{\Bool}{\texttt{bool}}
 \newcommand{\Undefined}{\texttt{undefined}}
 \newcommand{\X}{\texttt{x}}
@@ -42,6 +52,21 @@
 \newcommand{\LET}{\texttt{LET}}
 \newcommand{\END}{\texttt{END}}
 \newcommand{\IN}{\texttt{IN}}
+\newcommand{\eval}{\rightarrowtail}
+\newcommand{\evaL}{\rightarrowtail}
+\newcommand{\partfun}{\rightsquigarrow}
+\newcommand{\under}{\Vdash}
+\newcommand{\ErroR}{\bot}
+\newcommand{\Rp}{\texttt{)}}
+\newcommand{\Lp}{\texttt{(}}
+\newcommand{\Rb}{\texttt{\}}}
+\newcommand{\Lb}{\texttt{\{}}
+\newcommand{\blame}{\texttt{blame }}
+\newcommand{\flatCon}{\texttt{con}}
+\newcommand{\funCon}{\texttt{con1} \rightarrow \texttt{con2}}
+\newcommand{\isFlat}{\texttt{flat}}
+\newcommand{\conA}{\texttt{con1}}
+\newcommand{\conB}{\texttt{con2}}
 
 \lstdefinestyle{mystyle}{
     backgroundcolor=\color{backcolour},
@@ -138,6 +163,9 @@ The second main section, Section \ref{developer}, will be on developer documenta
 
 This section lists the various features that OContract offers.
 For a complete technical specification of OContract, please refer to the developer documentation in Section \ref{developer}.
+
+It is recommended that users run OContract programs on the dedicated online code editor at \url{https://murcia-cs4215.github.io/frontend/}.
+Alternatively, one can find the latest tagged release of OContract at \url{https://github.com/murcia-cs4215/ocontract/releases}, and follow the instructions in the README to setup OContract to run locally.
 
 Note that the example programs in this section is displayed as if the program was executed one statement at a time using the interactive Read-Eval-Print-Loop(REPL) shell.
 For more information regarding how to set up and run OContract programs, please refer to the README of the OContract repo.
@@ -460,7 +488,7 @@ Note that this contract violation error cannot be caught if one simply uses \tex
 
 Hence, in a sense, dependent contracts allow users to define ``stricter" contracts that provide stronger assertion guarantees.
 
-\subsection{Static and Runtime Type Checker}
+\subsection{Static Type Checker}
 
 OContract enforces types to be declared for all identifiers, arguments and return values.
 
@@ -496,6 +524,9 @@ For example, the following program shows how OContract is able to detect type mi
     Error: Line 1, Column 13: This expression has type string but an expression
     was expected of type bool
 \end{verbatim}
+
+Although there is also runtime type checking occurring in OContract, it serves more as a safety net from a programming point of view.
+The runtime type checking would never find errors should the program pass the static type checker.
 
 \subsection{In-Built Functions and Predicates}
 
@@ -560,17 +591,460 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
-\subsection{Syntax Rules}
+For steps on running an OContract program, please refer to Section \ref{user}.
+Once again, you can find the latest tagged release of OContract at \url{https://github.com/murcia-cs4215/ocontract/releases}, and follow the instructions in the README to setup OContract to run locally.
 
-\subsection{Typing Rules}
+We first begin by defining the syntax of OContract.
+We then bring in the type system and define it using static semantics.
+This is then synergised with how our interpreter behaves, described using the framework of denotational semantics.
 
-\subsection{Contracts Calculus}
+\subsection{Syntax of OContract}
 
-\subsection{Implementation Details}
+We divide the syntax of OContract into three categories, \textit{expressions}, \textit{contracts} and \textit{statements}.
+
+\subsubsection*{Expressions}
+
+The set of expressions $E$ is the least set that satisfies the following rules, where $x$ ranges over a set of names $V$,
+$n$ ranges over the set of expressible integers, $f$ ranges over the set of expressible floats, $c$ ranges over the
+set of all characters and $s$ ranges over the set of expressible strings.
+
+We also define $p_1$ ranging over the set of unary primitive operations $P_1=\{\verb|not|\}$
+and $p_2$ ranging over the set of binary primitive operations $P_2=\{\verb@||@,\verb#&&#, \verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
+\verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,\verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#\}$.
+
+Lastly, we define $t$ to represent an arbitrary type.
+We will further formalise the set of types later.
+
+$\Rule{}{x}$
+\hfill
+$\Rule{}{n}$
+\hfill
+$\Rule{}{f}$
+\hfill
+$\Rule{}{c}$
+\hfill
+$\Rule{}{s}$
+\hfill
+$\Rule{}{\TruE}$
+\hfill
+$\Rule{}{\FalsE}$
+
+$\RuleWithName{E}{p_1[E]}{UnaryOp}$
+\hfill
+$\RuleWithName{E_1\quad E_2}{p_2[E_1, E_2]}{BinaryOp}$
+\hfill
+$\RuleWithName{E\qquad E_1\qquad E_2}{\texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2}{CondExp}$
+\hfill
+$\RuleWithName{E\quad E_1}{E\ E_1}{FuncApp}$
+
+$\RuleWithName{E_1\quad E_2}{\texttt{let}\ x\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2}{LocalLet}$
+\hfill
+$\RuleWithName{E_1\quad E_2}{\texttt{let}\ x\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2}{LocalLetFunc}$
+
+$\RuleWithName{E}{\texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E}{LambdaExp}$
+
+It may seem counter-intuitive that a local let ``statement'' is actually an expression.
+We can see why this is the case using the following example:
+
+\begin{verbatim}
+    > 40 = (let n : int = 2 in n + n) * 10;;
+    - : bool = true
+\end{verbatim}
+
+\subsubsection*{Contracts}
+
+The set of contracts $C$ is the least set that satisfies the following rules:
+
+$\Rule{E}{E}$
+\hfill
+$\RuleWithName{E}{\{x\ :\ t\ |\ E\}}{SetNotation}$
+\hfill
+$\RuleWithName{C_1\quad\cdots\quad C_n}{(C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n)}{FuncContract}$
+
+\subsubsection*{Statements}
+
+Finally, the set of statements $S$ is the least set that satisfies the following rules:
+
+$\Rule{E}{E\texttt{;;}}$
+\hfill
+$\RuleWithName{S_1\quad S_2}{S_1\ S_2}{Sequence}$
+\hfill
+$\RuleWithName{C}{\texttt{contract}\ x\ \texttt{=}\ C\texttt{;;}}{ContractDecl}$
+\hfill
+$\RuleWithName{E}{\texttt{let}\ x\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLet}$
+\hfill
+$\RuleWithName{E}{\texttt{let}\ x\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLetFunc}$
+
+For completeness, let us formally define the set of types $t$ as well.
+
+$\Rule{}{\texttt{int}}$
+\hfill
+$\Rule{}{\texttt{float}}$
+\hfill
+$\Rule{}{\texttt{char}}$
+\hfill
+$\Rule{}{\texttt{string}}$
+\hfill
+$\Rule{}{\texttt{bool}}$
+\hfill
+$\RuleWithName{t_1\quad t_2}{t_1\ \texttt{->}\ t_2}{FuncType}$
+
+\subsection{Syntactic Conventions}
+
+We introduce the syntactic conventions to follow:
+
+\begin{itemize}
+    \item We can use parentheses in order to group expressions and types together.
+    \item We use the usual infix and prefix notation for operators.
+    \item The type constructor \verb|->| is right-associative, so that the type
+\begin{verbatim}
+    int -> int -> int
+\end{verbatim}
+    is equivalent to:
+\begin{verbatim}
+    int -> (int -> int)
+\end{verbatim}
+\end{itemize}
+
+Thus, the function
+
+\begin{verbatim}
+    > let f : int -> int -> int = fun (x : int) (y : int) : int -> x + y;;
+    val f : int -> int -> int = <fun>
+\end{verbatim}
+
+takes in an integer \verb|x| and returns a function (due to currying), whereas the function
+
+\begin{verbatim}
+    > let h : (int -> int) -> int = fun (f : int -> int) : int -> f 10;;
+    val h : (int -> int) -> int = <fun>
+\end{verbatim}
+
+takes a function \verb|f| as an argument and returns an integer.
+
+\subsection{Static Semantics of OContract's Type System}
+
+Not all statements in OContract make sense. For example,
+
+\begin{verbatim}
+    contract x = 5;;
+\end{verbatim}
+
+does not make sense, because we expect some form of callable function for contract checking, while \verb|5| is just an integer.
+We thus say that this statement is \textit{ill-typed}, because a typing condition is not met.
+Statements that meet these conditions are what we call \textit{well-typed} in OContract.
+
+An expression \verb|x + 5| within a statement may or may not be well-typed, depending on the type of \verb|x|.
+For the following parts, we define $\Gamma$ to denote the type environment.
+$\Gamma$ effectively serves as a partial function from names to types, with which a name $x$ is associated with type $\Gamma(x)$.
+
+We further define a relation $\Gamma[x\leftarrow t]\Gamma'$, which constructs a new type environment where $\Gamma'(y)$ is $t$ if $y=x$ and $\Gamma(y)$ otherwise.
+The set of names, on which a type environment $\Gamma$ is defined is called the domain of $\Gamma$, denoted by $dom(\Gamma)$.
+We define the empty type environment $\Gamma=\emptyset$.
+
+Lastly, to contract declaration, we will need to define a separate contract type environment $\Gamma_c$, which specifically stores contract types and otherwise works much like the normal environment.
+This is due to the name conflict when a name has both a contract type and its actual type.
+
+The full environment is thus a pair $(\Gamma, \Gamma_c)$.
+
+\subsubsection{Primitive Values and Symbols}
+
+We define the typing relation inductively with the following rules.
+
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash x : \Gamma \Lp x \Rp}{Var1T}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash_c x : \Gamma_c \Lp x \Rp}{Var2T}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash n : \Int}{IntT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash f : \Float}{FloatT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash c : \Char}{CharT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash s : \String}{StringT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash \TruE : \Bool}{TrueT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash \FalsE : \Bool}{FalseT}$
+
+If $\Gamma(x)$ is not defined, then the first rule is not applicable.
+If $\Gamma_c(x)$ is not defined, then the second rule is not applicable.
+In this case, we say that there is no type for $x$ derivable from the assumptions $\Gamma$.
+
+\subsubsection{Expressions}
+
+The following rules describes the set of expressions in OContract,
+where we define the type of \Num\ to denote \Int\ or \Float\ for convenience.
+
+$\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Bool}{(\Gamma, \Gamma_c) \vdash \texttt{not}\ E\ :\ \Bool}{NotT}$
+\hfill
+$\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Num}{(\Gamma, \Gamma_c) \vdash - E\ :\ \Num}{NegativeT}$
+
+For each binary primitive operation $p_2$, we have a rule of the following form:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash p_2[E_1, E_2]\ :\ t}{BinOpT}$
+\end{center}
+
+where the types $t_1, t_2, t$ are given by the following table.
+
+\begin{tabular}{|l||l|l|l|} \hline
+    $p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
+    \verb#+,-,*,/,mod# & \Int & \Int & \Int \\ \hline
+    \verb#+.,-.,*.,/.,**# & \Float & \Float & \Float \\ \hline
+    \verb#&&,||#  & \Bool & \Bool & \Bool \\ \hline
+    \verb#<=,<,>=,># & \Int & \Int & \Bool \\ \hline
+    \verb#<=,<,>=,># & \Float & \Float & \Bool \\ \hline
+    \verb#==,!=,=,<># & t' & t' & t' \\ \hline
+    \verb#^# & \String & \String & \String \\ \hline
+\end{tabular}
+\vspace{3mm}
+
+For conditional expressions, we also enforce that the consequent and alternative expressions have the same type:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Bool \qquad (\Gamma, \Gamma_c) \vdash E_1\ :\ t\ \qquad (\Gamma, \Gamma_c) \vdash E_2\ :\ t}{(\Gamma, \Gamma_c) \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}{IfT}$
+\end{center}
+
+For local let bindings, the type of the expression is the type of the right hand side, after the type of the left hand side has been bound..
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E_1\ :\ t_1\ \qquad (\Gamma, \Gamma_c) [x \leftarrow t_1](\Gamma', \Gamma_c) \vdash E_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}{LocalLetT}$
+
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E_1\ :\ t\ \quad (\Gamma, \Gamma_c) [f \leftarrow t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t] \vdash E_2\ :\ t_r}
+    {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_r}$
+    [LocalLetFuncT]
+\end{center}
+
+
+We have a similar rule for lambda expressions:
+
+\begin{center}
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1](\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c)[x_n \leftarrow t_n](\Gamma_n, \Gamma_c) \vdash E\ :\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
+\end{center}
+
+Lastly, for function application:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t_1\ \rightarrow\  t_2\ \quad (\Gamma, \Gamma_c) \vdash E_1\ :\ t_1}{(\Gamma, \Gamma_c) \vdash E\ E_1\ :\ t_2}{FuncAppT}$
+\end{center}
+
+Note that as OContract supports function currying out-of-the-box, the above rule can be extended to work for expressions such as \verb|f 1 2 3|.
+
+\subsubsection{Contracts}
+
+There are two main types of contracts --- predicate contracts (or flat contracts), which work on primitives, and function contracts, which work on functions.
+
+There are two possible syntaxes for predicate contracts:
+
+$\Rule{(\Gamma, \Gamma_c) \vdash E\ :\ t\ \rightarrow\ \texttt{bool}}{(\Gamma, \Gamma_c) \vdash E\ :\ \texttt{contract}\ t}$
+\hfill
+$\RuleWithName{(\Gamma, \Gamma_c) [x \leftarrow t] (\Gamma', \Gamma_c) \vdash E\ :\ t\ \rightarrow\ \texttt{bool}}{(\Gamma, \Gamma_c) \vdash \{x\ :\ t\ |\ E\}\ :\ \texttt{contract}\ t}{SetNotationT}$
+
+where \verb|contract| $t$ is defined as the type of a contract that takes in type $t$.
+
+For function contracts, we thus have:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash C_1\ :\ \texttt{contract}\ t_1\ \cdots\ (\Gamma, \Gamma_c) \vdash C_n\ :\ \texttt{contract}\ t_n}{(\Gamma, \Gamma_c) \vdash C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n\ :\ \texttt{contract}\ t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n}{FuncContractT}$
+\end{center}
+
+\subsubsection{Statements}
+
+The following rules applies for statements in OContract:
+
+$\Rule{(\Gamma, \Gamma_c) \vdash E\ :\ t}{\Gamma \vdash E;;\ :\ t}$
+\hfill
+$\RuleWithName{(\Gamma, \Gamma_c)[x\leftarrow t](\Gamma', \Gamma_c)\quad(\Gamma', \Gamma_c) \vdash S\ :\ t'}{(\Gamma, \Gamma_c) \vdash \texttt{let}\ (x\ :\ t)\ =\ E;;\ S\ :\ t'}{Sequence1T}$
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash S_1\ :\ t_1\quad (\Gamma, \Gamma_c)\vdash S_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash S_1\ S_2\ :\ t_2}{Sequence2T}$
+    where $S_1$ is not a global let nor contract declaration statement.
+\end{center}
+
+Contract declarations, by themselves, more or less work like other statements:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash C\ :\ \texttt{contract}\ t}{(\Gamma, \Gamma_c) \vdash \texttt{contract}\ (x\ :\ t)\ =\ C;;\ :\ \texttt{unit}}{ContractDeclT}$
+\end{center}
+
+where \verb|unit| is a special type, which is used when the statement does not possess any type.
+Do note that the type here is not the same as the output you see when you do a contract declaration on the REPL, which is printed out more for usability purposes.
+
+Contract declarations do have the following effect on sequences, however:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c)\vdash C\ :\ \texttt{contract}\ t\quad (\Gamma, \Gamma_c)[x\leftarrow \texttt{contract}\ t](\Gamma, \Gamma_c')\quad(\Gamma, \Gamma_c') \vdash S\ :\ t'}{(\Gamma, \Gamma_c)\vdash \texttt{contract}\ x\ =\ C;;\ S\ :\ t'}{Sequence3T}$
+\end{center}
+
+This mainly affects bindings, since type checking is performed when a binding is done to a name that already has a contract.
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t}{(\Gamma, \Gamma_c) \vdash \texttt{let } (x\ :\ t)\ \texttt{ = } E;;\ :\ \texttt{unit}}{GlobalLet1T}$
+    if $x \notin dom(\Gamma_c)$
+
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t\quad (\Gamma, \Gamma_c)\vdash_c x\ :\ \texttt{contract}\ t}{(\Gamma, \Gamma_c) \vdash \texttt{let } (x\ :\ t)\ \texttt{ = } E;;\ :\ \texttt{unit}}{GlobalLet2T}$
+    if $x \in dom(\Gamma_c)$
+\end{center}
+
+
+Similarly for functions:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E\ :\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E;;\ :\ \texttt{unit}}{GlobalLetFunc1T}$
+        if $f \notin dom(\Gamma_c)$
+
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E\ :\ t\quad (\Gamma,\Gamma_c) \vdash_c f\ :\ \texttt{contract}\ t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E;;\ :\ \texttt{unit}}$
+        [GlobalLetFunc1T] if $f \in dom(\Gamma_c)$
+\end{center}
+
+\subsection{Semantic Rules}
+
+This section covers the denotational semantic rules that specifies the correctness of an OContract program.
+Note that this section will not cover rules regarding the contract semantics as that will be covered in the next section.
+
+For brevity, types are omitted from certain rules if they are not essential for understanding those rules.
+In addition, we only consider well-typed OContract programs as per the typing rules in the previous section.
+
+The semantic domains are as follows:
+
+\vspace{3mm}
+\begin{center}
+\begin{tabular}{|l|ll|} \hline
+Semantic domain & Definition & Explanation\\ \hline
+\textbf{Bool} & $\{\textit{true}, \textit{false}\}$ & ring of booleans  \\
+\textbf{Int}  & $\mathbb{Z}$     & set of all integers \\
+\textbf{Float}  & $\mathbb{R} \setminus \mathbb{Z}$     & set of all real numbers excluding integers \\
+\textbf{Num}  & $\mathbb{R}$     & set of all real numbers \\
+\textbf{Char}  & character     & character \\
+\textbf{String}  & string     & string \\
+\textbf{EV}   & $\textbf{Bool} \boldsymbol{+} \textbf{Num} \boldsymbol{+} \textbf{Char} \boldsymbol{+} \textbf{String} \boldsymbol{+} \textbf{Fun} $     & expressible values \\
+\textbf{DV}   & $\textbf{Bool} \boldsymbol{+} \textbf{Num} \boldsymbol{+} \textbf{Char} \boldsymbol{+} \textbf{String} \boldsymbol{+} \textbf{Fun} $     & denotable values \\
+\textbf{Id}   & alphanumeric string     & identifiers \\
+\textbf{Env}   & $\textbf{Id} \partfun \textbf{DV}$ & environments \\
+\textbf{Fun}   & $\textbf{DV} \boldsymbol{*} \cdots \boldsymbol{*} \textbf{DV} \partfun \textbf{EV}$ & function values \\ \hline
+\end{tabular}
+\end{center}
+
+The semantic rules are as follows:
+
+$\Rule{\Delta \under E \eval \TruE}{\Delta \under \texttt{not}\ E \eval \FalsE}$
+\hfill
+$\Rule{\Delta \under E \eval \FalsE}{\Delta \under \texttt{not}\ E \eval \TruE}$
+\hfill
+$\Rule{\Delta \under E \eval v\ :\ \Num}{\Delta \under -E \eval -v\ :\ \Num}$
+\hfill
+$\RuleWithName{\Delta \under E_1 \eval v_1 \qquad \Delta \under E_2 \eval v_2}{\Delta \under p_2[E_1, E_2]\ \eval v}{BinOp}$
+
+$\Rule{\Delta \under E \eval \TruE \qquad \Delta \under E_1 \eval v}{\Delta \under \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ \eval v}$
+\hfill
+$\Rule{\Delta \under E \eval \FalsE \qquad \Delta \under E_2 \eval v}{\Delta \under \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ \eval v}$
+
+$\Rule{\Delta \under E_1 \eval v_1 \qquad \Delta[x \leftarrow v_1] \under E_2 \eval v_2}{\Delta \under \texttt{let}\ x\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ \eval v_2}$
+
+$\RuleWithName{\Delta \under E \eval (f, \Delta') \quad \Delta \under E_1 \eval v_1}
+{\Delta \under E\ E_1\ \eval \Delta' \under f\ v_1}{FuncApp}$
+
+For the Function Application rule above, $(f, \Delta')$ is a closure representing the lambda function $f$ and environment $\Delta'$.
+
+$\Rule{}{\Delta \under \texttt{fun}\ x_1 \cdots x_n \rightarrow E \eval (f, \Delta)}$
+
+For the lambda function definition rule above, $f$ is defined to be such that $f\ v_1 \cdots v_n$ yields a result that is
+equivalent to evaluating $\Delta[x_1 \leftarrow v_1] \cdots [x_n \leftarrow v_n] \under E$.
+
+$\RuleWithName{\Delta \under E \eval v \qquad \Delta[x \leftarrow v] \under S \eval v'}
+{\Delta \under \texttt{let}\ x \texttt{ = } E\ ;;\ S \eval v'}{GlobalLet}$
+
+For the BinOp rule, the value $v$ is given by the following table.
+The symbol ``op'' in the table refers to any of the binary operation in the same row.
+
+Most of the operations should be self-explanatory, such as $v_1\ \texttt{op}_{\Int}\ v_2$, when $\texttt{op}_{\Int}$ is ``+'', then $v = v_1 + v_2$.
+
+\begin{tabular}{|l||l|l|l|} \hline
+$p$ & $v$ \\ \hline \hline
+\verb#+,-,*,/,mod# & $v_1\ \texttt{op}_{\Int}\ v_2$ \\ \hline
+\verb#+.,-.,*.,/.,**# & $v_1\ \texttt{op}_{\Float}\ v_2$ \\ \hline
+\verb#&&,||#  & $v_1\ \texttt{op}_{\Bool}\ v_2$ \\ \hline
+\verb#<=,<,>=,># & $v_1\ \texttt{op}_{\Int \_ \texttt{comparison}}\ v_2$ \\ \hline
+\verb#<=,<,>=,># & $v_1\ \texttt{op}_{\Float \_ \texttt{comparison}}\ v_2$  \\ \hline
+\verb#==,!=,=,<># & $v_1\ \texttt{op}_{\texttt{equality\_check}}\ v_2$ \\ \hline
+\verb#^# & $v_1\ \texttt{op}_{\texttt{string\_concatenation}}\ v_2$ \\ \hline
+\end{tabular}
+\vspace{3mm}
+
+\subsection{Contract Semantics}
+
+There are two types of contracts:
+\begin{enumerate}
+    \item Flat / Predicate contracts, which are predicates that can be applied to a primitive value and return boolean values.
+    \item Function contracts, which apply to functions and have contracts for each of their parameters and the return value.
+\end{enumerate}
+
+Each contract comes attached with a \textbf{positive} and \textbf{negative} party.
+When a contract is violated, we want to blame the \textbf{positive} party.
+
+We only need to set the positive and negative parties for identifiers in the code, since that is where contract checks and violations are needed.
+
+Intuitively, we can think of it as such:
+\begin{enumerate}
+    \item Positive party as the \textbf{Supplier}, which starts off as the identifier itself
+    \item Negative party as the \textbf{Consumer}, which starts off as the “scope” of the identifier, i.e. nearest global let, else “main”.
+\end{enumerate}
+
+The initial assignment of the positive and negative blame parties is done statically before the program is run by
+doing a Depth-First-Search of the AST and keeping track of the current scope at current node.
+
+To capture the additional information of the contract as well as the positive and negative blame parties,
+we update the environment in which an expression $E$ is evaluated as a tuple consisting of the contract,
+the positive blame party, the negative blame party, and the environment which stores a mapping of identifiers to values.
+
+The following are the semantic rules for flat contracts. If the predicate on the contract evaluates to \FalsE, then
+the postiive blame party is blamed. Otherwise, we simply return the valid $v$.
+
+$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon v \eval \FalsE}
+{(\flatCon, p, n, \Delta) \under E \eval \blame p}$
+
+$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \TruE}
+{(\flatCon, p, n, \Delta) \under E \eval v}$
+
+The following are the semantic rules for function contracts. The key thing to note is then during
+function application, the context that is propagated to the argument consists of the argument-portion of the contract,
+and the positive and negative blame parties are swapped. This is because the consumer of the result of evaluating the argument
+is now the supplier of the function application expression, and the supplier of the result of evaluating the argument
+is now the consumer of the function application expression.
+
+$\Rule{\Delta \under E_1 \eval (f, \Delta') \quad (\conA, n, p, \Delta) \under E_2 \eval e_2}
+{(\funCon, p, n, \Delta) \under E_1 E_2 \eval e_2}$ if $e_2$ \texttt{is a blame}
+
+$\Rule{\Delta \under E_1 \eval (f, \Delta') \quad (\conA, n, p, \Delta) \under E_2 \eval e_2 \quad (\conB, p, n, \Delta') \under f\ e_2 \eval v }
+{(\funCon, p, n, \Delta) \under E_1\ E_2 \eval v}$ if $e_2$ \texttt{is not a blame}
 
 \subsection{Future Work}
 
 \subsubsection{Type Inference}
+
+A good quality-of-life feature to have is to be able to do Type Inference to minimize the number of
+type annotations that a user needs to write.
+
+\subsubsection{Static Contract Checking}
+
+Certain classes of contracts may be checked during compile-time to capture contract violations
+even before the program is run. It could also be an optimization feature since there would be fewer
+contracts to check during runtime. This can be done via the use of a Theorem Solver such as the Z3 Theorem Prover.
+
+\subsubsection{Frontend - Visually highlighting blame location}
+
+It would be helpful for the online code editor to be able to visually highlight the exact location
+where a contract is violated.
+
+\subsubsection{Continue on Contract Violations}
+
+There may be certain use cases where it might not be ideal for a program to halt immediately
+when there is a contract violation. In this case, it might signal a warning on the console,
+or when the program runs to completion, OContract would gather all instances of contract violations
+and inform the user of them. This would be useful for mission-critical software.
 
 \bibliographystyle{unsrt}
 \bibliography{ref}
