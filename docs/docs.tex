@@ -907,6 +907,28 @@ Note that this section will not cover rules regarding the contract semantics as 
 For brevity, types are omitted from certain rules if they are not essential for understanding those rules.
 In addition, we only consider well-typed OContract programs as per the typing rules in the previous section.
 
+The semantic domains are as follows:
+
+\vspace{3mm}
+\begin{center}
+\begin{tabular}{|l|ll|} \hline
+Semantic domain & Definition & Explanation\\ \hline
+\textbf{Bool} & $\{\textit{true}, \textit{false}\}$ & ring of booleans  \\
+\textbf{Int}  & $\mathbb{Z}$     & set of all integers \\
+\textbf{Float}  & $\mathbb{R} \setminus \mathbb{Z}$     & set of all real numbers excluding integers \\
+\textbf{Num}  & $\mathbb{R}$     & set of all real numbers \\
+\textbf{Char}  & character     & character \\
+\textbf{String}  & string     & string \\
+\textbf{EV}   & $\textbf{Bool} \boldsymbol{+} \textbf{Num} \boldsymbol{+} \textbf{Char} \boldsymbol{+} \textbf{String} \boldsymbol{+} \textbf{Fun} $     & expressible values \\
+\textbf{DV}   & $\textbf{Bool} \boldsymbol{+} \textbf{Num} \boldsymbol{+} \textbf{Char} \boldsymbol{+} \textbf{String} \boldsymbol{+} \textbf{Fun} $     & denotable values \\
+\textbf{Id}   & alphanumeric string     & identifiers \\
+\textbf{Env}   & $\textbf{Id} \partfun \textbf{DV}$ & environments \\
+\textbf{Fun}   & $\textbf{DV} \boldsymbol{*} \cdots \boldsymbol{*} \textbf{DV} \partfun \textbf{EV}$ & function values \\ \hline
+\end{tabular}
+\end{center}
+
+The semantic rules are as follows:
+
 $\Rule{\Delta \under E \eval \TruE}{\Delta \under \texttt{not}\ E \eval \FalsE}$
 \hfill
 $\Rule{\Delta \under E \eval \FalsE}{\Delta \under \texttt{not}\ E \eval \TruE}$
