@@ -742,17 +742,50 @@ $p$ & $v$ \\ \hline \hline
 
 \subsection{Contract Semantics}
 
-$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \FalsE}
+There are two types of contracts:
+\begin{enumerate}
+    \item Flat / Predicate contracts, which are predicates that can be applied to a primitive value and return boolean values.
+    \item Function contracts, which apply to functions and have contracts for each of their parameters and the return value.
+\end{enumerate}
+
+Each contract comes attached with a \textbf{positive} and \textbf{negative} party.
+When a contract is violated, we want to blame the \textbf{positive} party.
+
+We only need to set the positive and negative parties for identifiers in the code, since that is where contract checks and violations are needed.
+
+Intuitively, we can think of it as such:
+\begin{enumerate}
+    \item Positive party as the \textbf{Supplier}, which starts off as the identifier itself
+    \item Negative party as the \textbf{Consumer}, which starts off as the “scope” of the identifier, i.e. nearest global let, else “main”.
+\end{enumerate}
+
+The initial assignment of the positive and negative blame parties is done statically before the program is run by
+doing a Depth-First-Search of the AST and keeping track of the current scope at current node.
+
+To capture the additional information of the contract as well as the positive and negative blame parties,
+we update the environment in which an expression $E$ is evaluated as a tuple consisting of the contract,
+the positive blame party, the negative blame party, and the environment which stores a mapping of identifiers to values.
+
+The following are the semantic rules for flat contracts. If the predicate on the contract evaluates to \FalsE, then
+the postiive blame party is blamed. Otherwise, we simply return the valid $v$.
+
+$\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon v \eval \FalsE}
 {(\flatCon, p, n, \Delta) \under E \eval \blame p}$
 
 $\Rule{\Delta \under E \eval v \quad \Delta \under \flatCon(v) \eval \TruE}
 {(\flatCon, p, n, \Delta) \under E \eval v}$
 
-$\Rule{\Delta \under E_1 \eval f \quad (\conA, n, p, \Delta) \under E_2 \eval e_2}
-{(\funCon, p, n, \Delta) \under E_1 \texttt{ } E_2 \eval e_2}$ if $e_2$ \texttt{is a blame}
+The following are the semantic rules for function contracts. The key thing to note is then during
+function application, the context that is propagated to the argument consists of the argument-portion of the contract,
+and the positive and negative blame parties are swapped. This is because the consumer of the result of evaluating the argument
+is now the supplier of the function application expression, and the supplier of the result of evaluating the argument
+is now the consumer of the function application expression.
 
-$\Rule{\Delta \under E_1 \eval f \quad (\conA, n, p, \Delta) \under E_2 \eval e_2 \quad (\conB, p, n, \Delta) \under f \texttt{ } e_2 \eval v }
-{(\funCon, p, n, \Delta) \under E_1 \texttt{ } E_2 \eval v}$ if $e_2$ \texttt{is not a blame}
+$\Rule{\Delta \under E_1 \eval (f, \Delta') \quad (\conA, n, p, \Delta) \under E_2 \eval e_2}
+{(\funCon, p, n, \Delta) \under E_1 E_2 \eval e_2}$ if $e_2$ \texttt{is a blame}
+
+$\Rule{\Delta \under E_1 \eval (f, \Delta') \quad (\conA, n, p, \Delta) \under E_2 \eval e_2 \quad (\conB, p, n, \Delta') \under f\ e_2 \eval v }
+{(\funCon, p, n, \Delta) \under E_1\ E_2 \eval v}$ if $e_2$ \texttt{is not a blame}
 
 \subsection{Implementation Details}
 
