@@ -609,7 +609,8 @@ We also define $p_1$ ranging over the set of unary primitive operations $P_1=\{\
 and $p_2$ ranging over the set of binary primitive operations $P_2=\{\verb@||@,\verb#&&#, \verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
 \verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,\verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#\}$.
 
-Lastly, we define $t$ to range over the set of types $T=\{\verb|int|, \verb|float|, \verb|char|, \verb|string|, \verb|bool|\}$.
+Lastly, we define $t$ to represent an arbitrary type.
+We will further formalise the set of types later.
 
 $\Rule{}{x}$
 \hfill
@@ -655,7 +656,7 @@ $\RuleWithName{E}{\{x\ :\ t\ |\ E\}}{SetNotation}$
 \hfill
 $\RuleWithName{C_1\quad\cdots\quad C_n}{(C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n)}{FuncContract}$
 
-Finally, yhe set of statements $S$ is the least set that satisfies the following rules:
+Finally, the set of statements $S$ is the least set that satisfies the following rules:
 
 $\Rule{E}{E\texttt{;;}}$
 \hfill
@@ -665,6 +666,52 @@ $\RuleWithName{E}{\texttt{let}\ x\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLet}$
 \hfill
 $\RuleWithName{E}{\texttt{let}\ x\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLetFunc}$
 
+For completeness, let us formally define the set of types $t$ as well.
+
+$\Rule{}{\texttt{int}}$
+\hfill
+$\Rule{}{\texttt{float}}$
+\hfill
+$\Rule{}{\texttt{char}}$
+\hfill
+$\Rule{}{\texttt{string}}$
+\hfill
+$\Rule{}{\texttt{bool}}$
+\hfill
+$\RuleWithName{t_1\quad t_2}{t_1\ \texttt{->}\ t_2}{FuncType}$
+
+\subsection{Syntactic Conventions}
+
+We introduce the syntactic conventions to follow:
+
+\begin{itemize}
+    \item We can use parentheses in order to group expressions and types together.
+    \item We use the usual infix and prefix notation for operators.
+    \item The type constructor \verb|->| is right-associative, so that the type
+\begin{verbatim}
+    int -> int -> int
+\end{verbatim}
+    is equivalent to:
+\begin{verbatim}
+    int -> (int -> int)
+\end{verbatim}
+\end{itemize}
+
+Thus, the function
+
+\begin{verbatim}
+    > let f : int -> int -> int = fun (x : int) (y : int) : int -> x + y;;
+    val f : int -> int -> int = <fun>
+\end{verbatim}
+
+takes in an integer \verb|x| and returns a function (due to currying), whereas the function
+
+\begin{verbatim}
+    > let h : (int -> int) -> int = fun (f : int -> int) : int -> f 10;;
+    val h : (int -> int) -> int = <fun>
+\end{verbatim}
+
+takes a function \verb|f| as an argument and returns an integer.
 
 \subsection{Syntax and Typing Rules}
 Since the treatment of syntax rules are not so different from the treatment of the typing rules, the syntax and typing rules will be described in this section.
