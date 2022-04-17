@@ -1027,6 +1027,27 @@ $\Rule{\Delta \under E_1 \eval (f, \Delta') \quad (\conA, n, p, \Delta) \under E
 
 \subsubsection{Type Inference}
 
+A good quality-of-life feature to have is to be able to do Type Inference to minimize the number of
+type annotations that a user needs to write.
+
+\subsubsection{Static Contract Checking}
+
+Certain classes of contracts may be checked during compile-time to capture contract violations
+even before the program is run. It could also be an optimization feature since there would be fewer
+contracts to check during runtime. This can be done via the use of a Theorem Solver such as the Z3 Theorem Prover.
+
+\subsubsection{Frontend - Visually highlighting blame location}
+
+It would be helpful for the online code editor to be able to visually highlight the exact location
+where a contract is violated.
+
+\subsubsection{Continue on Contract Violations}
+
+There may be certain use cases where it might not be ideal for a program to halt immediately
+when there is a contract violation. In this case, it might signal a warning on the console,
+or when the program runs to completion, OContract would gather all instances of contract violations
+and inform the user of them. This would be useful for mission-critical software.
+
 \bibliographystyle{unsrt}
 \bibliography{ref}
 
