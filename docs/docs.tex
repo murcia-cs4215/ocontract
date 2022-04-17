@@ -592,6 +592,7 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
 For steps on running an OContract program, please refer to Section \ref{user}.
+Once again, you can find the latest tagged release of OContract at \url{https://github.com/murcia-cs4215/ocontract/releases}, and follow the instructions in the README to setup OContract to run locally.
 
 We first begin by defining the syntax of OContract.
 We then bring in the type system and define it using static semantics.
@@ -935,7 +936,7 @@ $\Rule{\Delta \under E \eval \FalsE}{\Delta \under \texttt{not}\ E \eval \TruE}$
 \hfill
 $\Rule{\Delta \under E \eval v\ :\ \Num}{\Delta \under -E \eval -v\ :\ \Num}$
 \hfill
-$\Rule{\Delta \under E_1 \eval v_1 \qquad \Delta \under E_2 \eval v_2}{\Delta \under p_2[E_1, E_2]\ \eval v}$ [BinOp]
+$\RuleWithName{\Delta \under E_1 \eval v_1 \qquad \Delta \under E_2 \eval v_2}{\Delta \under p_2[E_1, E_2]\ \eval v}{BinOp}$
 
 $\Rule{\Delta \under E \eval \TruE \qquad \Delta \under E_1 \eval v}{\Delta \under \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ \eval v}$
 \hfill
@@ -943,8 +944,8 @@ $\Rule{\Delta \under E \eval \FalsE \qquad \Delta \under E_2 \eval v}{\Delta \un
 
 $\Rule{\Delta \under E_1 \eval v_1 \qquad \Delta[x \leftarrow v_1] \under E_2 \eval v_2}{\Delta \under \texttt{let}\ x\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ \eval v_2}$
 
-$\Rule{\Delta \under E \eval (f, \Delta') \quad \Delta \under E_1 \eval v_1}
-{\Delta \under E\ E_1\ \eval \Delta' \under f\ v_1}$ [Function Application]
+$\RuleWithName{\Delta \under E \eval (f, \Delta') \quad \Delta \under E_1 \eval v_1}
+{\Delta \under E\ E_1\ \eval \Delta' \under f\ v_1}{FuncApp}$
 
 For the Function Application rule above, $(f, \Delta')$ is a closure representing the lambda function $f$ and environment $\Delta'$.
 
@@ -953,8 +954,8 @@ $\Rule{}{\Delta \under \texttt{fun}\ x_1 \cdots x_n \rightarrow E \eval (f, \Del
 For the lambda function definition rule above, $f$ is defined to be such that $f\ v_1 \cdots v_n$ yields a result that is
 equivalent to evaluating $\Delta[x_1 \leftarrow v_1] \cdots [x_n \leftarrow v_n] \under E$.
 
-$\Rule{\Delta \under E \eval v \qquad \Delta[x \leftarrow v] \under S \eval v'}
-{\Delta \under \texttt{let}\ x \texttt{ = } E\ ;;\ S \eval v'}$ [Let Global Binding]
+$\RuleWithName{\Delta \under E \eval v \qquad \Delta[x \leftarrow v] \under S \eval v'}
+{\Delta \under \texttt{let}\ x \texttt{ = } E\ ;;\ S \eval v'}{GlobalLet}$
 
 For the BinOp rule, the value $v$ is given by the following table.
 The symbol ``op'' in the table refers to any of the binary operation in the same row.
