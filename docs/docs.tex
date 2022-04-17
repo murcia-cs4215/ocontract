@@ -601,6 +601,8 @@ This is then synergised with how our interpreter behaves, described using the fr
 
 We divide the syntax of OContract into three categories, \textit{expressions}, \textit{contracts} and \textit{statements}.
 
+\subsubsection*{Expressions}
+
 The set of expressions $E$ is the least set that satisfies the following rules, where $x$ ranges over a set of names $V$,
 $n$ ranges over the set of expressible integers, $f$ ranges over the set of expressible floats, $c$ ranges over the
 set of all characters and $s$ ranges over the set of expressible strings.
@@ -648,6 +650,8 @@ We can see why this is the case using the following example:
     - : bool = true
 \end{verbatim}
 
+\subsubsection*{Contracts}
+
 The set of contracts $C$ is the least set that satisfies the following rules:
 
 $\Rule{E}{E}$
@@ -656,9 +660,13 @@ $\RuleWithName{E}{\{x\ :\ t\ |\ E\}}{SetNotation}$
 \hfill
 $\RuleWithName{C_1\quad\cdots\quad C_n}{(C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n)}{FuncContract}$
 
+\subsubsection*{Statements}
+
 Finally, the set of statements $S$ is the least set that satisfies the following rules:
 
 $\Rule{E}{E\texttt{;;}}$
+\hfill
+$\RuleWithName{S_1\quad S_2}{S_1\ S_2}{Sequence}$
 \hfill
 $\RuleWithName{C}{\texttt{contract}\ x\ \texttt{=}\ C\texttt{;;}}{ContractDecl}$
 \hfill
@@ -713,74 +721,105 @@ takes in an integer \verb|x| and returns a function (due to currying), whereas t
 
 takes a function \verb|f| as an argument and returns an integer.
 
-\subsection{Syntax and Typing Rules}
-Since the treatment of syntax rules are not so different from the treatment of the typing rules, the syntax and typing rules will be described in this section.
+\subsection{Static Semantics of OContract's Type System}
 
-An OContract program is essentially a sequence of OContract statements. In order to rigorously define OContract statements,
-this section will start off by first defining some basic sets such as Primitive Values and Symbols, and incrementally build upon
-previous definitions to ultimately provide the rules that make up an OContract statement.
+Not all statements in OContract make sense. For example,
 
-For all of the rules in this section, let $t$ be an arbitrary type.
+\begin{verbatim}
+    contract x = 5;;
+\end{verbatim}
+
+does not make sense, because we expect some form of callable function for contract checking, while \verb|5| is just an integer.
+We thus say that this statement is \textit{ill-typed}, because a typing condition is not met.
+Statements that meet these conditions are what we call \textit{well-typed} in OContract.
+
+An expression \verb|x + 5| within a statement may or may not be well-typed, depending on the type of \verb|x|.
+For the following parts, we define $\Gamma$ to denote the type environment.
+$\Gamma$ effectively serves as a partial function from names to types, with which a name $x$ is associated with type $\Gamma(x)$.
+
+We further define a relation $\Gamma[x\leftarrow t]\Gamma'$, which constructs a new type environment where $\Gamma'(y)$ is $t$ if $y=x$ and $\Gamma(y)$ otherwise.
+The set of names, on which a type environment $\Gamma$ is defined is called the domain of $\Gamma$, denoted by $dom(\Gamma)$.
+We define the empty type environment $\Gamma=\emptyset$.
 
 \subsubsection{Primitive Values and Symbols}
 
-The following describes the rules for primitive values and symbols in OContract.
-Note that $x$ refers to all symbol names, $n$ refers to all integers, $f$ refers to all floats,
-$c$ refers to all characters and $s$ refers to all strings.
+We define the typing relation inductively with the following rules.
 
-$\Rule{}{\Gamma \vdash x : \Gamma \Lp x \Rp}$
+$\RuleWithName{}{\Gamma \vdash x : \Gamma \Lp x \Rp}{VarT}$
 \hfill
-$\Rule{}{\Gamma \vdash n : \Int}$
+$\RuleWithName{}{\Gamma \vdash n : \Int}{IntT}$
 \hfill
-$\Rule{}{\Gamma \vdash f : \Float}$
+$\RuleWithName{}{\Gamma \vdash f : \Float}{FloatT}$
 \hfill
-$\Rule{}{\Gamma \vdash c : \Char}$
+$\RuleWithName{}{\Gamma \vdash c : \Char}{CharT}$
 \hfill
-$\Rule{}{\Gamma \vdash s : \String}$
+$\RuleWithName{}{\Gamma \vdash s : \String}{StringT}$
 \hfill
-$\Rule{}{\Gamma \vdash \TruE : \Bool}$
+$\RuleWithName{}{\Gamma \vdash \TruE : \Bool}{TrueT}$
 \hfill
-$\Rule{}{\Gamma \vdash \FalsE : \Bool}$
+$\RuleWithName{}{\Gamma \vdash \FalsE : \Bool}{FalseT}$
+
+If $\Gamma(x)$ is not defined, then the first rule is not applicable.
+In this case, we say that there is no type for $x$ derivable from the assumptions $\Gamma$.
 
 \subsubsection{Expressions}
 
 The following rules describes the set of expressions in OContract,
-where we define the type of \Num\ to denote \Int\ or \Float\ and
+where we define the type of \Num\ to denote \Int\ or \Float\ for convenience.
 
-$p_2$ denotes the set of binary operators: $\{$
-\verb@||@,\verb#&&#,
-\verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
-\verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,
-\verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#$\}$.
-
-$\Rule{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \texttt{not}\ E\ :\ \Bool}$
+$\RuleWithName{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \texttt{not}\ E\ :\ \Bool}{NotT}$
 \hfill
-$\Rule{\Gamma \vdash E\ :\ \Num}{\Gamma \vdash - E\ :\ \Num}$
-\hfill
-$\Rule{\Gamma \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{\Gamma \vdash p_2[E_1, E_2]\ :\ t}$ [BinOp]
+$\RuleWithName{\Gamma \vdash E\ :\ \Num}{\Gamma \vdash - E\ :\ \Num}{NegativeT}$
 
-$\Rule{\Gamma \vdash E\ :\ \Bool \qquad \Gamma \vdash E_1\ :\ t\ \qquad \Gamma \vdash E_2\ :\ t}{\Gamma \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}$
-\hfill
-$\Rule{\Gamma \vdash E_1\ :\ t_1\ \qquad \Gamma [x \leftarrow t_1] \vdash E_2\ :\ t_2}{\Gamma \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}$
+For each binary primitive operation $p_2$, we have a rule of the following form:
 
-$\Rule{\Gamma \vdash E\ :\ t_1\ \rightarrow t_2\ \quad \Gamma \vdash E_1\ :\ t_1}{\Gamma \vdash E\ E_1\ :\ t_2}$ [Function Application]
+\begin{center}
+    $\RuleWithName{\Gamma \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{\Gamma \vdash p_2[E_1, E_2]\ :\ t}{BinOpT}$
+\end{center}
 
-$\Rule{\Gamma [x_1 \leftarrow t_1] \cdots [x_n \leftarrow t_n] \vdash E\ :\ t}
-{\Gamma \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
-
-For the BinOp rule, the types $t_1, t_2, t$ are given by the following table.
+where the types $t_1, t_2, t$ are given by the following table.
 
 \begin{tabular}{|l||l|l|l|} \hline
-$p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
-\verb#+,-,*,/,mod# & \Int & \Int & \Int \\ \hline
-\verb#+.,-.,*.,/.,**# & \Float & \Float & \Float \\ \hline
-\verb#&&,||#  & \Bool & \Bool & \Bool \\ \hline
-\verb#<=,<,>=,># & \Int & \Int & \Bool \\ \hline
-\verb#<=,<,>=,># & \Float & \Float & \Bool \\ \hline
-\verb#==,!=,=,<># & t' & t' & t' \\ \hline
-\verb#^# & \String & \String & \String \\ \hline
+    $p$ & $t_1$ & $t_2$ & $t$ \\ \hline \hline
+    \verb#+,-,*,/,mod# & \Int & \Int & \Int \\ \hline
+    \verb#+.,-.,*.,/.,**# & \Float & \Float & \Float \\ \hline
+    \verb#&&,||#  & \Bool & \Bool & \Bool \\ \hline
+    \verb#<=,<,>=,># & \Int & \Int & \Bool \\ \hline
+    \verb#<=,<,>=,># & \Float & \Float & \Bool \\ \hline
+    \verb#==,!=,=,<># & t' & t' & t' \\ \hline
+    \verb#^# & \String & \String & \String \\ \hline
 \end{tabular}
 \vspace{3mm}
+
+For conditional expressions, we also enforce that the consequent and alternative expressions have the same type:
+
+\begin{center}
+    $\RuleWithName{\Gamma \vdash E\ :\ \Bool \qquad \Gamma \vdash E_1\ :\ t\ \qquad \Gamma \vdash E_2\ :\ t}{\Gamma \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}{IfT}$
+\end{center}
+
+For local let bindings, the type of the expression is the type of the right hand side, after the type of the left hand side has been bound..
+
+\begin{center}
+    $\RuleWithName{\Gamma \vdash E_1\ :\ t_1\ \qquad \Gamma [x \leftarrow t_1]\Gamma' \vdash E_2\ :\ t_2}{\Gamma \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}{LocalLetT}$
+
+    $\RuleWithName{\Gamma [x_1 \leftarrow t_1] \Gamma_1 \cdots \Gamma_{n-1} [x_n \leftarrow t_n] \Gamma_n \vdash E_1\ :\ t\ \qquad \Gamma [f \leftarrow t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t] \vdash E_2\ :\ t_r}
+    {\Gamma \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_r}{LocalLetFuncT}$
+\end{center}
+
+We have a similar rule for lambda expressions:
+
+\begin{center}
+    $\Rule{\Gamma [x_1 \leftarrow t_1]\Gamma_1 \cdots \Gamma_{n-1}[x_n \leftarrow t_n]\Gamma_n \vdash E\ :\ t}
+        {\Gamma \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
+\end{center}
+
+Lastly, for function application:
+
+\begin{center}
+    $\RuleWithName{\Gamma \vdash E\ :\ t_1\ \rightarrow t_2\ \quad \Gamma \vdash E_1\ :\ t_1}{\Gamma \vdash E\ E_1\ :\ t_2}{FuncAppT}$
+\end{center}
+
+Note that as OContract supports function currying out-of-the-box, the above rule can be extended to work for expressions such as \verb|f 1 2 3|.
 
 \subsubsection{Contract Declaration}
 
