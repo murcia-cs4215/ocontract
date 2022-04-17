@@ -741,25 +741,33 @@ We further define a relation $\Gamma[x\leftarrow t]\Gamma'$, which constructs a 
 The set of names, on which a type environment $\Gamma$ is defined is called the domain of $\Gamma$, denoted by $dom(\Gamma)$.
 We define the empty type environment $\Gamma=\emptyset$.
 
+Lastly, to contract declaration, we will need to define a separate contract type environment $\Gamma_c$, which specifically stores contract types and otherwise works much like the normal environment.
+This is due to the name conflict when a name has both a contract type and its actual type.
+
+The full environment is thus a pair $(\Gamma, \Gamma_c)$.
+
 \subsubsection{Primitive Values and Symbols}
 
 We define the typing relation inductively with the following rules.
 
-$\RuleWithName{}{\Gamma \vdash x : \Gamma \Lp x \Rp}{VarT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash x : \Gamma \Lp x \Rp}{Var1T}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash n : \Int}{IntT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash_c x : \Gamma_c \Lp x \Rp}{Var2T}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash f : \Float}{FloatT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash n : \Int}{IntT}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash c : \Char}{CharT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash f : \Float}{FloatT}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash s : \String}{StringT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash c : \Char}{CharT}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash \TruE : \Bool}{TrueT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash s : \String}{StringT}$
 \hfill
-$\RuleWithName{}{\Gamma \vdash \FalsE : \Bool}{FalseT}$
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash \TruE : \Bool}{TrueT}$
+\hfill
+$\RuleWithName{}{(\Gamma, \Gamma_c) \vdash \FalsE : \Bool}{FalseT}$
 
 If $\Gamma(x)$ is not defined, then the first rule is not applicable.
+If $\Gamma_c(x)$ is not defined, then the second rule is not applicable.
 In this case, we say that there is no type for $x$ derivable from the assumptions $\Gamma$.
 
 \subsubsection{Expressions}
@@ -767,14 +775,14 @@ In this case, we say that there is no type for $x$ derivable from the assumption
 The following rules describes the set of expressions in OContract,
 where we define the type of \Num\ to denote \Int\ or \Float\ for convenience.
 
-$\RuleWithName{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \texttt{not}\ E\ :\ \Bool}{NotT}$
+$\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Bool}{(\Gamma, \Gamma_c) \vdash \texttt{not}\ E\ :\ \Bool}{NotT}$
 \hfill
-$\RuleWithName{\Gamma \vdash E\ :\ \Num}{\Gamma \vdash - E\ :\ \Num}{NegativeT}$
+$\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Num}{(\Gamma, \Gamma_c) \vdash - E\ :\ \Num}{NegativeT}$
 
 For each binary primitive operation $p_2$, we have a rule of the following form:
 
 \begin{center}
-    $\RuleWithName{\Gamma \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{\Gamma \vdash p_2[E_1, E_2]\ :\ t}{BinOpT}$
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E_1\ :\ t_1\ \quad E_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash p_2[E_1, E_2]\ :\ t}{BinOpT}$
 \end{center}
 
 where the types $t_1, t_2, t$ are given by the following table.
@@ -794,61 +802,102 @@ where the types $t_1, t_2, t$ are given by the following table.
 For conditional expressions, we also enforce that the consequent and alternative expressions have the same type:
 
 \begin{center}
-    $\RuleWithName{\Gamma \vdash E\ :\ \Bool \qquad \Gamma \vdash E_1\ :\ t\ \qquad \Gamma \vdash E_2\ :\ t}{\Gamma \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}{IfT}$
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ \Bool \qquad (\Gamma, \Gamma_c) \vdash E_1\ :\ t\ \qquad (\Gamma, \Gamma_c) \vdash E_2\ :\ t}{(\Gamma, \Gamma_c) \vdash \texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2\ : t}{IfT}$
 \end{center}
 
 For local let bindings, the type of the expression is the type of the right hand side, after the type of the left hand side has been bound..
 
 \begin{center}
-    $\RuleWithName{\Gamma \vdash E_1\ :\ t_1\ \qquad \Gamma [x \leftarrow t_1]\Gamma' \vdash E_2\ :\ t_2}{\Gamma \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}{LocalLetT}$
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E_1\ :\ t_1\ \qquad (\Gamma, \Gamma_c) [x \leftarrow t_1](\Gamma', \Gamma_c) \vdash E_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash \texttt{let}\ x\ :\ t_1\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_2}{LocalLetT}$
 
-    $\RuleWithName{\Gamma [x_1 \leftarrow t_1] \Gamma_1 \cdots \Gamma_{n-1} [x_n \leftarrow t_n] \Gamma_n \vdash E_1\ :\ t\ \qquad \Gamma [f \leftarrow t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t] \vdash E_2\ :\ t_r}
-    {\Gamma \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_r}{LocalLetFuncT}$
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E_1\ :\ t\ \quad (\Gamma, \Gamma_c) [f \leftarrow t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t] \vdash E_2\ :\ t_r}
+    {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2\ :\ t_r}$
+    [LocalLetFuncT]
 \end{center}
+
 
 We have a similar rule for lambda expressions:
 
 \begin{center}
-    $\Rule{\Gamma [x_1 \leftarrow t_1]\Gamma_1 \cdots \Gamma_{n-1}[x_n \leftarrow t_n]\Gamma_n \vdash E\ :\ t}
-        {\Gamma \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1](\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c)[x_n \leftarrow t_n](\Gamma_n, \Gamma_c) \vdash E\ :\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \rightarrow E\ :\ t_1 \rightarrow \cdots \rightarrow t_n \rightarrow t}$
 \end{center}
 
 Lastly, for function application:
 
 \begin{center}
-    $\RuleWithName{\Gamma \vdash E\ :\ t_1\ \rightarrow t_2\ \quad \Gamma \vdash E_1\ :\ t_1}{\Gamma \vdash E\ E_1\ :\ t_2}{FuncAppT}$
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t_1\ \rightarrow\  t_2\ \quad (\Gamma, \Gamma_c) \vdash E_1\ :\ t_1}{(\Gamma, \Gamma_c) \vdash E\ E_1\ :\ t_2}{FuncAppT}$
 \end{center}
 
 Note that as OContract supports function currying out-of-the-box, the above rule can be extended to work for expressions such as \verb|f 1 2 3|.
 
-\subsubsection{Contract Declaration}
+\subsubsection{Contracts}
 
-First we define a term $T$ in a contract declaration statement via the following rules, where $E$ refers to the set of expressions.
+There are two main types of contracts --- predicate contracts (or flat contracts), which work on primitives, and function contracts, which work on functions.
 
-$\Rule{}{\Gamma \vdash E\ :\ \Contract\ t}$ [where $\Gamma \vdash E\ :\ t \rightarrow \Bool$]
+There are two possible syntaxes for predicate contracts:
 
-This rule means that a single predicate expression, used in the context of contract declaration statements, has the contract type of the type of its argument.
-
-$\Rule{\Gamma \vdash E\ :\ \Bool}{\Gamma \vdash \Lb x\ :\ t\ |\ E\ \Rb\ :\ \Contract\ t}$ [Set Notation Syntax]
-
-The following rules describes the set of contract declaration statements, where $T$ refers to a term as defined above.
-
-$\Rule{T}{\Contract\ x\ \texttt{=}\ T\ ;;}$ [Predicate Contracts]
+$\Rule{(\Gamma, \Gamma_c) \vdash E\ :\ t\ \rightarrow\ \texttt{bool}}{(\Gamma, \Gamma_c) \vdash E\ :\ \texttt{contract}\ t}$
 \hfill
-$\Rule{T_1 \qquad \cdots \qquad T_n}{\texttt{contract } f\ \texttt{=}\ T_1\ \rightarrow \cdots \rightarrow T_n\ ;;}$ [Function Contracts]
+$\RuleWithName{(\Gamma, \Gamma_c) [x \leftarrow t] (\Gamma', \Gamma_c) \vdash E\ :\ t\ \rightarrow\ \texttt{bool}}{(\Gamma, \Gamma_c) \vdash \{x\ :\ t\ |\ E\}\ :\ \texttt{contract}\ t}{SetNotationT}$
 
-$\Rule{T_{1,1} \qquad \cdots \qquad T_{1,k_1} \qquad \cdots \qquad T_{n,1} \qquad \cdots \qquad T_{n,k_n}}
-{\texttt{contract } f\ \texttt{ = }\ (T_{1,1}\ \rightarrow \cdots \rightarrow T_{1,k_1}) \rightarrow \cdots \rightarrow (T_{n,1}\ \rightarrow \cdots \rightarrow T_{n,k_n})\ ;;}$ [Higher-Order Function Contracts]
+where \verb|contract| $t$ is defined as the type of a contract that takes in type $t$.
+
+For function contracts, we thus have:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash C_1\ :\ \texttt{contract}\ t_1\ \cdots\ (\Gamma, \Gamma_c) \vdash C_n\ :\ \texttt{contract}\ t_n}{(\Gamma, \Gamma_c) \vdash C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n\ :\ \texttt{contract}\ t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n}{FuncContractT}$
+\end{center}
 
 \subsubsection{Statements}
 
-The following rules describes the set of statements in OContract, where $C$ ranges over the set of contract declaration statements.
+The following rules applies for statements in OContract:
 
-$\Rule{E}{E\ ;;}$
+$\Rule{(\Gamma, \Gamma_c) \vdash E\ :\ t}{\Gamma \vdash E;;\ :\ t}$
 \hfill
-$\Rule{}{C}$
-\hfill
-$\Rule{E}{\texttt{let } x \texttt{ = } E\ ;;}$ [Let Global Binding]
+$\RuleWithName{(\Gamma, \Gamma_c)[x\leftarrow t](\Gamma', \Gamma_c)\quad(\Gamma', \Gamma_c) \vdash S\ :\ t'}{(\Gamma, \Gamma_c) \vdash \texttt{let}\ (x\ :\ t)\ =\ E;;\ S\ :\ t'}{Sequence1T}$
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash S_1\ :\ t_1\quad (\Gamma, \Gamma_c)\vdash S_2\ :\ t_2}{(\Gamma, \Gamma_c) \vdash S_1\ S_2\ :\ t_2}{Sequence2T}$
+    where $S_1$ is not a global let nor contract declaration statement.
+\end{center}
+
+Contract declarations, by themselves, more or less work like other statements:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash C\ :\ \texttt{contract}\ t}{(\Gamma, \Gamma_c) \vdash \texttt{contract}\ (x\ :\ t)\ =\ C;;\ :\ \texttt{unit}}{ContractDeclT}$
+\end{center}
+
+where \verb|unit| is a special type, which is used when the statement does not possess any type.
+Do note that the type here is not the same as the output you see when you do a contract declaration on the REPL, which is printed out more for usability purposes.
+
+Contract declarations do have the following effect on sequences, however:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c)\vdash C\ :\ \texttt{contract}\ t\quad (\Gamma, \Gamma_c)[x\leftarrow \texttt{contract}\ t](\Gamma, \Gamma_c')\quad(\Gamma, \Gamma_c') \vdash S\ :\ t'}{(\Gamma, \Gamma_c)\vdash \texttt{contract}\ x\ =\ C;;\ S\ :\ t'}{Sequence3T}$
+\end{center}
+
+This mainly affects bindings, since type checking is performed when a binding is done to a name that already has a contract.
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t}{(\Gamma, \Gamma_c) \vdash \texttt{let } (x\ :\ t)\ \texttt{ = } E;;\ :\ \texttt{unit}}{GlobalLet1T}$
+    if $x \notin dom(\Gamma_c)$
+
+    $\RuleWithName{(\Gamma, \Gamma_c) \vdash E\ :\ t\quad (\Gamma, \Gamma_c)\vdash_c x\ :\ \texttt{contract}\ t}{(\Gamma, \Gamma_c) \vdash \texttt{let } (x\ :\ t)\ \texttt{ = } E;;\ :\ \texttt{unit}}{GlobalLet2T}$
+    if $x \in dom(\Gamma_c)$
+\end{center}
+
+
+Similarly for functions:
+
+\begin{center}
+    $\RuleWithName{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E\ :\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E;;\ :\ \texttt{unit}}{GlobalLetFunc1T}$
+        if $f \notin dom(\Gamma_c)$
+
+    $\Rule{(\Gamma, \Gamma_c) [x_1 \leftarrow t_1] (\Gamma_1, \Gamma_c) \cdots (\Gamma_{n-1}, \Gamma_c) [x_n \leftarrow t_n] (\Gamma_n, \Gamma_c) \vdash E\ :\ t\quad (\Gamma,\Gamma_c) \vdash_c f\ :\ \texttt{contract}\ t_1\ \texttt{->}\ \cdots\ \texttt{->}\ t_n \texttt{->}\ t}
+        {(\Gamma, \Gamma_c) \vdash \texttt{let}\ f\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E;;\ :\ \texttt{unit}}$
+        [GlobalLetFunc1T] if $f \in dom(\Gamma_c)$
+\end{center}
 
 \subsection{Semantic Rules}
 
