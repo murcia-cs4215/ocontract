@@ -21,7 +21,7 @@
 % Rule Commands
 \newcommand{\Rule}[2]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}}
 \newcommand{\Rulee}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
-\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[#3]}
+\newcommand{\RuleWithName}[3]{\genfrac{}{}{0.7pt}{}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#1$}}}{{\setlength{\fboxrule}{0pt}\setlength{\fboxsep}{3mm}\fbox{$#2$}}}[\text{#3}]}
 \newcommand{\transition}{\rightrightarrows_s}
 \newcommand{\translate}{\twoheadrightarrow}
 \newcommand{\translateaux}{\hookrightarrow}
@@ -488,7 +488,7 @@ Note that this contract violation error cannot be caught if one simply uses \tex
 
 Hence, in a sense, dependent contracts allow users to define ``stricter" contracts that provide stronger assertion guarantees.
 
-\subsection{Static and Runtime Type Checker}
+\subsection{Static Type Checker}
 
 OContract enforces types to be declared for all identifiers, arguments and return values.
 
@@ -524,6 +524,9 @@ For example, the following program shows how OContract is able to detect type mi
     Error: Line 1, Column 13: This expression has type string but an expression
     was expected of type bool
 \end{verbatim}
+
+Although there is also runtime type checking occurring in OContract, it serves more as a safety net from a programming point of view.
+The runtime type checking would never find errors should the program pass the static type checker.
 
 \subsection{In-Built Functions and Predicates}
 
@@ -588,7 +591,80 @@ Do note that, though convenient, excessive usage of \texttt{any} defeats the pur
 
 In this section, we define the formal semantics of OContract and describe the implementation of our interpreter of OContract in detail.
 
-For steps on running an OContract program, please refer to \ref{user}.
+For steps on running an OContract program, please refer to Section \ref{user}.
+
+We first begin by defining the syntax of OContract.
+We then bring in the type system and define it using static semantics.
+This is then synergised with how our interpreter behaves, described using the framework of denotational semantics.
+
+\subsection{Syntax of OContract}
+
+We divide the syntax of OContract into three categories, \textit{expressions}, \textit{contracts} and \textit{statements}.
+
+The set of expressions $E$ is the least set that satisfies the following rules, where $x$ ranges over a set of names $V$,
+$n$ ranges over the set of expressible integers, $f$ ranges over the set of expressible floats, $c$ ranges over the
+set of all characters and $s$ ranges over the set of expressible strings.
+
+We also define $p_1$ ranging over the set of unary primitive operations $P_1=\{\verb|not|\}$
+and $p_2$ ranging over the set of binary primitive operations $P_2=\{\verb@||@,\verb#&&#, \verb#+#, \verb#-#,\verb#*#,\verb#/#, \verb#mod#,
+\verb#+.#, \verb#-.#,\verb#*.#,\verb#/.#, \verb#**#,\verb#<#, \verb#>#, \verb#<=#, \verb#>=#, \verb#==#, \verb#!=#, \verb#=#, \verb#<>#, \verb#^#\}$.
+
+Lastly, we define $t$ to range over the set of types $T=\{\verb|int|, \verb|float|, \verb|char|, \verb|string|, \verb|bool|\}$.
+
+$\Rule{}{x}$
+\hfill
+$\Rule{}{n}$
+\hfill
+$\Rule{}{f}$
+\hfill
+$\Rule{}{c}$
+\hfill
+$\Rule{}{s}$
+\hfill
+$\Rule{}{\TruE}$
+\hfill
+$\Rule{}{\FalsE}$
+
+$\RuleWithName{E}{p_1[E]}{UnaryOp}$
+\hfill
+$\RuleWithName{E_1\quad E_2}{p_2[E_1, E_2]}{BinaryOp}$
+\hfill
+$\RuleWithName{E\qquad E_1\qquad E_2}{\texttt{if}\ E\ \texttt{then}\ E_1\ \texttt{else}\ E_2}{CondExp}$
+\hfill
+$\RuleWithName{E\quad E_1}{E\ E_1}{FuncApp}$
+
+$\RuleWithName{E_1\quad E_2}{\texttt{let}\ x\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2}{LocalLet}$
+\hfill
+$\RuleWithName{E_1\quad E_2}{\texttt{let}\ x\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E_1\ \texttt{in}\ E_2}{LocalLetFunc}$
+
+$\RuleWithName{E}{\texttt{fun}\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E}{LambdaExp}$
+
+It may seem counter-intuitive that a local let ``statement'' is actually an expression.
+We can see why this is the case using the following example:
+
+\begin{verbatim}
+    > 40 = (let n : int = 2 in n + n) * 10;;
+    - : bool = true
+\end{verbatim}
+
+The set of contracts $C$ is the least set that satisfies the following rules:
+
+$\Rule{E}{E}$
+\hfill
+$\RuleWithName{E}{\{x\ :\ t\ |\ E\}}{SetNotation}$
+\hfill
+$\RuleWithName{C_1\quad\cdots\quad C_n}{(C_1\ \texttt{->}\ \cdots\ \texttt{->}\ C_n)}{FuncContract}$
+
+Finally, yhe set of statements $S$ is the least set that satisfies the following rules:
+
+$\Rule{E}{E\texttt{;;}}$
+\hfill
+$\RuleWithName{C}{\texttt{contract}\ x\ \texttt{=}\ C\texttt{;;}}{ContractDecl}$
+\hfill
+$\RuleWithName{E}{\texttt{let}\ x\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLet}$
+\hfill
+$\RuleWithName{E}{\texttt{let}\ x\ (x_1\ :\ t_1)\ \cdots\ (x_n\ :\ t_n)\ :\ t\ \texttt{=}\ E\texttt{;;}}{GlobalLetFunc}$
+
 
 \subsection{Syntax and Typing Rules}
 Since the treatment of syntax rules are not so different from the treatment of the typing rules, the syntax and typing rules will be described in this section.
